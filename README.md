@@ -14,8 +14,18 @@
   - 1 x [Texas-EK-TM4C123GXL for running the main software](http://www.ti.com/tool/EK-TM4C123GXL)
   
  ### Quadcopter housing hardware:
-  - 1 x 450 size frame with integrated power distribution board
-  - 4 x 1000kV motor / 10x4.5 props / ESC combo
-  - 1 x 3S / 2200mAh / 30C lipo
-  - 1 x Battery XT60 connector
-  - 1 x 2S/3S lipo battery charger
+  - 1 x [450 size frame with integrated power distribution board](https://www.aliexpress.com/item/4000129400366.html)
+  - 4 x [1000kV motor / 10x4.5 props / ESC combo](https://www.aliexpress.com/item/2035093137.html)
+  - 1 x [3S / 2200mAh / 30C lipo](https://www.dx.com/p/11-1v-2200mah-30c-li-polymer-battery-pack-for-450-helicopter-dji-phantom-1-450-quadcopter-2048977.html#.Xlpl7C2tEWo)
+  - 1 x [Battery XT60 connector](https://www.aliexpress.com/item/33061763696.html)
+  - 1 x [2S/3S lipo battery charger](https://www.aliexpress.com/item/4000106254839.html)
+  
+  #### [Version 1.0](https://github.com/fjuliofontes/Quadcopter)
+  
+  ##### TODO:
+  - [x] Order the hardware required
+  - [ ] Test and develop device drivers for hardware
+  - [ ] Complete the final schematic and board
+  - [ ] Develop controller algorithm 
+  - [ ] Update remote controller app
+  - [ ] Test the quadcopter
