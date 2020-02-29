@@ -4,7 +4,7 @@
 
 ### Main controller board hardware:
   - 1 x [ESP-01 for Wifi support](https://www.aliexpress.com/item/33018645469.html)
-  - 1 x [HC-04 for landing support](https://www.aliexpress.com/item/32981718332.html)
+  - 1 x [HC-SR04 for landing support](https://www.aliexpress.com/item/32981718332.html)
   - 1 x [HC-05 for Bluetooth support](https://www.aliexpress.com/item/32953559442.html)
   - 2 x [HC-12 for RF communication](https://www.aliexpress.com/item/32971735328.html)
   - 1 x [MPU-6050 gyro/accelerometer for auto-level feature](https://www.aliexpress.com/item/32346328217.html)
