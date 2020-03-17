@@ -1,124 +1,206 @@
-
 #include <Arduino.h>
 #include "I2Cdev.h"
 #include "MPU6050.h"
 #include "Wire.h"
 
 #define MPU6050_CAL_SAMPLES 2000
+#define MPU6050_GYRO_SCALE_FACTOR 65.5
+#define MPU6050_ACCEL_SCALE_FACTOR 4096.F
+#define MPU6050_READ_FREQ 250 // 250hz
+#define MPU6050_GYRO_ANGLE_FACTOR 16375.F // MPU6050_READ_FREQ*MPU6050_GYRO_SCALE_FACTOR
+#define MPU6050_READ_PERI 4000 // 1 / MPU6050_READ_FREQ
+#define MPU6050_RAD_TO_DEG 57.296
 
 MPU6050 accelgyro;
 
+// for mpu6050 readings
 int16_t ax, ay, az;
 int16_t gx, gy, gz;
 
-int32_t gyro_x_cal = 0,gyro_y_cal = 0, gyro_z_cal = 0;
+// for mpu6050 calibration
+float gyro_x_cal = 0, gyro_y_cal = 0, gyro_z_cal = 0;
+float accel_x_cal = 0, accel_y_cal = 0, accel_z_cal = 0;
 
-float angle_pitch, angle_roll;
-int angle_pitch_buffer, angle_roll_buffer;
-boolean set_gyro_angles = false;
-float angle_roll_acc, angle_pitch_acc;
-float angle_pitch_output, angle_roll_output;
+// for angle measurement based on gyro
+float angle_x = 0, angle_y = 0, angle_z = 0;
+float gyro_x = 0, gyro_y = 0, gyro_z = 0;
 
-long acc_total_vector;
+// for angle measurement based on accel
+float accel_x = 0, accel_y = 0, accel_z = 0;
+float XY_distance, YZ_distance, ZX_distance;
+float phi, theta, psi;
 
+// for status 
 unsigned long last_loop = 0;
-
-#define LED_PIN BLUE_LED
 bool blinkState = false;
-
-unsigned long startTime = 0 , endTime;
+uint32_t count = 0;
+uint8_t state = 0;
 
 void setup() {
+    // Init i2c pins
     Wire = TwoWire(1);
     Wire.begin();
 
+    // Config baudrate
     Serial.begin(115200);
+
+    // configure Arduino LED pin for output
+    pinMode(RED_LED, OUTPUT);
+    pinMode(BLUE_LED, OUTPUT);
+    pinMode(GREEN_LED, OUTPUT);
 
     // initialize device
     Serial.println("Initializing I2C devices...");
     accelgyro.initialize();
+    delay(500); // wait 500 ms
 
     // verify connection
     Serial.println("Testing device connections...");
     Serial.println(accelgyro.testConnection() ? "MPU6050 connection successful" : "MPU6050 connection failed");
 
+    // config MPU6050 resolution
     accelgyro.setFullScaleGyroRange(MPU6050_GYRO_FS_500);
+    accelgyro.setFullScaleAccelRange(MPU6050_ACCEL_FS_8);
+    delay(500); // wait 500 ms
 
-    Serial.print("Starting mpu6050 calibration ");
-    for(int i = 0; i < MPU6050_CAL_SAMPLES; i ++){
+    Serial.print("Starting mpu6050 gyro calibration ");
+    for(uint16_t i = 0; i < MPU6050_CAL_SAMPLES; i ++){
         accelgyro.getMotion6(&ax, &ay, &az, &gx, &gy, &gz);
         gyro_x_cal += gx;
         gyro_y_cal += gy;
         gyro_z_cal += gz;
         delay(5);
         if((i%40) == 0) Serial.print('.'); // print '.' at every +/- 200ms
+        if((i%100) == 0) { blinkState = !blinkState; digitalWrite(BLUE_LED,blinkState);} // blink every 500 ms
     }
     Serial.println(" done!");
 
+    // Get gyro offsets
     gyro_x_cal = (gyro_x_cal / MPU6050_CAL_SAMPLES) * -1;
     gyro_y_cal = (gyro_y_cal / MPU6050_CAL_SAMPLES) * -1;
     gyro_z_cal = (gyro_z_cal / MPU6050_CAL_SAMPLES) * -1;
+    Serial.println("Gyro X offset: "  + String(gyro_x_cal) );
+    Serial.println("Gyro Y offset: "  + String(gyro_y_cal) );
+    Serial.println("Gyro Z offset: "  + String(gyro_z_cal) );
 
-    accelgyro.setXGyroOffset((int16_t)gyro_x_cal);
-    accelgyro.setYGyroOffset((int16_t)gyro_y_cal);
-    accelgyro.setZGyroOffset((int16_t)gyro_z_cal);
+    Serial.print("Starting mpu6050 accel calibration ");
+    for(uint16_t i = 0; i < MPU6050_CAL_SAMPLES; i ++){
+        accelgyro.getMotion6(&ax, &ay, &az, &gx, &gy, &gz);
+        accel_x_cal += ax;
+        accel_y_cal += ay;
+        accel_z_cal += az;
+        delay(5);
+        if((i%40) == 0) Serial.print('.'); // print '.' at every +/- 200ms
+        if((i%100) == 0) { blinkState = !blinkState; digitalWrite(RED_LED,blinkState);} // blink every 500 ms
+    }
+    Serial.println(" done!");
 
-    // Get offsets
-    Serial.println("Gyro X offset: "  + String(accelgyro.getXGyroOffset()) );
-    Serial.println("Gyro Y offset: "  + String(accelgyro.getYGyroOffset()) );
-    Serial.println("Gyro Z offset: "  + String(accelgyro.getZGyroOffset()) );
-
-    // configure Arduino LED pin for output
-    pinMode(LED_PIN, OUTPUT);
+    // Get accel offsets
+    accel_x_cal = (accel_x_cal / MPU6050_CAL_SAMPLES) * -1;
+    accel_y_cal = (accel_y_cal / MPU6050_CAL_SAMPLES) * -1;
+    accel_z_cal = MPU6050_ACCEL_SCALE_FACTOR - (accel_z_cal / MPU6050_CAL_SAMPLES); // for 1 g cal
+    Serial.println("Accel X offset: "  + String(accel_x_cal) );
+    Serial.println("Accel Y offset: "  + String(accel_y_cal) );
+    Serial.println("Accel Z offset: "  + String(accel_z_cal) );
 
     last_loop = micros();
 }
 
 void loop() {
-    if((micros() - last_loop) > 4000){
+    
+    // takes aprox 2 ms
+    if((micros() - last_loop) >= MPU6050_READ_PERI){
+        // update last_loop time value
         last_loop = micros();
+
+        ///////////MPU6050-READING//////////////////////
         accelgyro.getMotion6(&ax, &ay, &az, &gx, &gy, &gz);
+        ////////////////////////////////////////////////
 
-        gx += gyro_x_cal;
-        gy += gyro_y_cal;
-        gz += gyro_z_cal;
+        ///////////OFFSETS//////////////
+        // Add accel calibration offset
+        accel_x = ax + accel_x_cal;
+        accel_y = ay + accel_y_cal;
+        accel_z = az + accel_z_cal;
+        // Add gyro calibration offset
+        gyro_x = gx + gyro_x_cal;
+        gyro_y = gy + gyro_y_cal;
+        gyro_z = gz + gyro_z_cal;
+        ////////////////////////////////
 
-  //Gyro angle calculations
-  //0.0000611 = 1 / (250Hz / 65.5)
-  angle_pitch += gx * 0.0000611;                                   //Calculate the traveled pitch angle and add this to the angle_pitch variable
-  angle_roll += gy * 0.0000611;                                    //Calculate the traveled roll angle and add this to the angle_roll variable
-  
-  //0.000001066 = 0.0000611 * (3.142(PI) / 180degr) The Arduino sin function is in radians
-  angle_pitch += angle_roll * sin(gz * 0.000001066);               //If the IMU has yawed transfer the roll angle to the pitch angel
-  angle_roll -= angle_pitch * sin(gz * 0.000001066);               //If the IMU has yawed transfer the pitch angle to the roll angel
-  
-  //Accelerometer angle calculations
-  acc_total_vector = sqrt((ax*ax)+(ay*ay)+(az*az));  //Calculate the total accelerometer vector
-  //57.296 = 1 / (3.142 / 180) The Arduino asin function is in radians
-  angle_pitch_acc = asin((float)ay/acc_total_vector)* 57.296;       //Calculate the pitch angle
-  angle_roll_acc = asin((float)ax/acc_total_vector)* -57.296;       //Calculate the roll angle
-  
-  //Place the MPU-6050 spirit level and note the values in the following two lines for calibration
-  angle_pitch_acc -= 0.0;                                              //Accelerometer calibration value for pitch
-  angle_roll_acc -= 0.0;                                               //Accelerometer calibration value for roll
+        ///////////CONVERSIONS//////////////
+        // convert accelaration to g-force
+        accel_x = accel_x / MPU6050_ACCEL_SCALE_FACTOR;
+        accel_y = accel_y / MPU6050_ACCEL_SCALE_FACTOR;
+        accel_z = accel_z / MPU6050_ACCEL_SCALE_FACTOR;
+        // Convert gyro output to deg
+        gyro_x /= MPU6050_GYRO_ANGLE_FACTOR;
+        gyro_y /= MPU6050_GYRO_ANGLE_FACTOR;
+        gyro_z /= MPU6050_GYRO_ANGLE_FACTOR;
+        ////////////////////////////////
 
-  if(set_gyro_angles){                                                 //If the IMU is already started
-    angle_pitch = angle_pitch * 0.9996 + angle_pitch_acc * 0.0004;     //Correct the drift of the gyro pitch angle with the accelerometer pitch angle
-    angle_roll = angle_roll * 0.9996 + angle_roll_acc * 0.0004;        //Correct the drift of the gyro roll angle with the accelerometer roll angle
-  }
-  else{                                                                //At first start
-    angle_pitch = angle_pitch_acc;                                     //Set the gyro pitch angle equal to the accelerometer pitch angle 
-    angle_roll = angle_roll_acc;                                       //Set the gyro roll angle equal to the accelerometer roll angle 
-    set_gyro_angles = true;                                            //Set the IMU started flag
-  }
-  
-  //To dampen the pitch and roll angles a complementary filter is used
-  angle_pitch_output = angle_pitch_output * 0.9 + angle_pitch * 0.1;   //Take 90% of the output pitch value and add 10% of the raw pitch value
-  angle_roll_output = angle_roll_output * 0.9 + angle_roll * 0.1;      //Take 90% of the output roll value and add 10% of the raw roll value
+        ///////////ANGLES//////////////////////////////////////////////
+        // Integrate the angle
+        angle_x += gyro_x;
+        angle_y += gyro_y;
+        angle_z += gyro_z;
+        // calculates sqrt values
+        XY_distance = sqrtf(accel_x*accel_x + accel_y*accel_y);
+        YZ_distance = sqrtf(accel_y*accel_y + accel_z*accel_z);
+        ZX_distance = sqrtf(accel_z*accel_z + accel_x*accel_x);
+        // calculates angles
+        theta = atanf(accel_x/YZ_distance) * MPU6050_RAD_TO_DEG;
+        psi   = atanf(accel_y/ZX_distance) * MPU6050_RAD_TO_DEG;
+        phi   = atanf(XY_distance/accel_z) * MPU6050_RAD_TO_DEG;
+        ////////////////////////////////////////////////////////////////
 
-        blinkState = !blinkState;
-        digitalWrite(LED_PIN, blinkState);
+        /////////////////////////REMOVE GYRO DRIFT//////////////////////
+        //angle_x = angle_x * 0.8 + psi*0.2;
+        //angle_y = angle_y * 0.8 + theta*-0.2;
+        ////////////////////////////////////////////////////////////////
 
-        Serial.println(String(angle_pitch_output));
+        // increment counter
+        count ++;
+    }
+
+    // print every 900ms 
+    // we need to print the remaning parts in 2 ms
+    // takes aprox 1.5ms
+    if (count >= 75){
+        count = 0;
+        switch (state){
+        case 0:
+            Serial.print(String(theta,2) + ' ');
+            Serial.print(String(psi,2) + ' ');
+            state ++;
+            break;
+        case 1:
+            Serial.print(String(phi,2)+ ' ');
+            Serial.print(String(angle_x,2)+ ' ');
+            state ++;
+            break;
+        case 2:
+            Serial.print(String(angle_y,2)+ ' ');
+            Serial.print(String(angle_z,2)+ ' ');
+            Serial.println();
+            blinkState = !blinkState; 
+            digitalWrite(GREEN_LED,blinkState);
+            state = 0;
+            break;
+        
+        default:
+            break;
+        }
+    }
+
+    // end program whenever user types 'e' key
+    if(Serial.available()){
+        if(Serial.read() == 'e'){
+            // turn led off
+            blinkState = false; 
+            digitalWrite(GREEN_LED,blinkState);
+            // stop program
+            while (1);
+        }
     }
 }

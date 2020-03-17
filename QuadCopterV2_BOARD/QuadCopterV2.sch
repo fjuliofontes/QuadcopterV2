@@ -139,6 +139,12 @@ or FCI 67997-210HLF, Digikey 609-3236-ND</description>
 <pad name="38" x="20.32" y="7.62" drill="0.8"/>
 <pad name="39" x="20.32" y="10.16" drill="0.8"/>
 <pad name="40" x="20.32" y="12.7" drill="0.8"/>
+<wire x1="23" y1="-22" x2="24" y2="-22" width="0.127" layer="21"/>
+<wire x1="24" y1="-22" x2="26" y2="-22" width="0.127" layer="21"/>
+<wire x1="26" y1="-22" x2="26" y2="43" width="0.1524" layer="21"/>
+<wire x1="26" y1="43" x2="-26" y2="43" width="0.1524" layer="21"/>
+<wire x1="-26" y1="43" x2="-26" y2="-22" width="0.1524" layer="21"/>
+<wire x1="-26" y1="-22" x2="23" y2="-22" width="0.1524" layer="21"/>
 </package>
 </packages>
 <symbols>
@@ -310,10 +316,11 @@ or FCI 67997-210HLF, Digikey 609-3236-ND</description>
 <library name="SIM800L">
 <packages>
 <package name="SIP">
-<wire x1="0" y1="0" x2="0" y2="27" width="0.127" layer="39"/>
-<wire x1="0" y1="0" x2="40" y2="0" width="0.127" layer="39"/>
-<wire x1="0" y1="27" x2="40" y2="27" width="0.127" layer="39"/>
-<wire x1="40" y1="0" x2="40" y2="27" width="0.127" layer="39"/>
+<description>SIM800L v2</description>
+<wire x1="0" y1="0" x2="0" y2="27" width="0.127" layer="21"/>
+<wire x1="0" y1="0" x2="40" y2="0" width="0.127" layer="21"/>
+<wire x1="0" y1="27" x2="40" y2="27" width="0.127" layer="22"/>
+<wire x1="40" y1="0" x2="40" y2="27" width="0.127" layer="21"/>
 <hole x="2.87" y="24.13" drill="3.2"/>
 <hole x="2.87" y="2.87" drill="3.2"/>
 <pad name="1" x="38.1" y="19.24" drill="1.2" shape="octagon"/>
@@ -324,6 +331,7 @@ or FCI 67997-210HLF, Digikey 609-3236-ND</description>
 <pad name="6" x="38.1" y="6.54" drill="1.2" shape="octagon"/>
 <pad name="7" x="38.1" y="4" drill="1.2" shape="octagon"/>
 <hole x="37.16" y="24.13" drill="3.2"/>
+<text x="15.24" y="1.27" size="1.27" layer="21">SIM800L v2</text>
 </package>
 </packages>
 <symbols>
@@ -804,6 +812,7 @@ http://randomnerdtutorials.com/complete-guide-for-ultrasonic-sensor-hc-sr04/&lt;
 <library name="hc12_433mhz">
 <packages>
 <package name="HC-12_FOOTPRINT">
+<description>HC-12 RF</description>
 <smd name="VCC" x="-1.27" y="10.16" dx="1.4224" dy="0.7112" layer="1"/>
 <smd name="GND" x="-1.27" y="7.62" dx="1.4224" dy="0.7112" layer="1"/>
 <smd name="RXD" x="-1.27" y="5.08" dx="1.4224" dy="0.7112" layer="1"/>
@@ -813,6 +822,11 @@ http://randomnerdtutorials.com/complete-guide-for-ultrasonic-sensor-hc-sr04/&lt;
 <smd name="GND1" x="26.13" y="9.57" dx="1.4224" dy="0.7112" layer="1" roundness="100"/>
 <smd name="GND2" x="26.13" y="4.49" dx="1.4224" dy="0.7112" layer="1" roundness="100"/>
 <smd name="ANT" x="25.49" y="7.03" dx="2.54" dy="1.27" layer="1"/>
+<wire x1="-2.54" y1="11.43" x2="27.94" y2="11.43" width="0.127" layer="21"/>
+<wire x1="27.94" y1="11.43" x2="27.94" y2="-1.27" width="0.127" layer="21"/>
+<wire x1="27.94" y1="-1.27" x2="-2.54" y2="-1.27" width="0.127" layer="21"/>
+<wire x1="-2.54" y1="-1.27" x2="-2.54" y2="11.43" width="0.127" layer="21"/>
+<text x="8.89" y="0" size="1.27" layer="21">HC-12 RF</text>
 </package>
 </packages>
 <symbols>
@@ -1532,7 +1546,8 @@ destination coordinates.</text>
 <sheet>
 <description>ESP-01 WIFI BOARD</description>
 <plain>
-<text x="66.04" y="38.1" size="1.778" layer="91">Connects to 3V3</text>
+<text x="-5.08" y="96.52" size="1.778" layer="91">No need for shift logic levels. 
+RX and TX lines are 3V3 logic.</text>
 <text x="127" y="7.62" size="1.778" layer="91">Author: Fernando Fontes</text>
 <text x="66.04" y="-7.62" size="1.778" layer="91">ESP-01 Wifi module. The purpose of this
 module is not known for shure yet. Maybe it
@@ -1610,7 +1625,8 @@ and act accordently.</text>
 <sheet>
 <description>HC-05 BLUETOOTH MODULE</description>
 <plain>
-<text x="81.28" y="50.8" size="1.778" layer="91">Needs shift logic from 5 to 3v3</text>
+<text x="20.32" y="76.2" size="1.778" layer="91">Powered at 5V, but RX and TX lines are 3v3 logic.
+No need for shift logic then.</text>
 <text x="147.32" y="-15.24" size="1.778" layer="91">Author: Fernando Fontes</text>
 <text x="91.44" y="-30.48" size="1.778" layer="91">Bluethooth module. This module
 will be used for remote controling
@@ -1674,7 +1690,10 @@ be the same of the version 1.</text>
 <sheet>
 <description>HC-SR04 ULTRA-SOUND MODULE</description>
 <plain>
-<text x="63.5" y="73.66" size="1.778" layer="91">Needs shift logic from 5 to 3v3</text>
+<text x="15.24" y="91.44" size="1.778" layer="91">Powered at 5V.
+TRIG pin can be 3v3 logic, but ECHO pin 
+needs a shift logic from 5 to 3v3 volt.
+A simple resistor divider can be used.</text>
 <text x="142.24" y="2.54" size="1.778" layer="91">Author: Fernando Fontes</text>
 <text x="83.82" y="-12.7" size="1.778" layer="91">HC-SR04. Ultra-Sonic sensor. Common
 used in distance measuring procedures.
@@ -1919,6 +1938,8 @@ and to other things.</text>
 <text x="134.62" y="10.16" size="1.778" layer="91">Author: Fernando Fontes</text>
 <text x="73.66" y="-2.54" size="1.778" layer="91">Gyroscope module. Used for the stabilization
 procedure. Has an internal accelerometer too.</text>
+<text x="2.54" y="104.14" size="1.778" layer="91">Powered at 5v. However, SCL and SDA lines are 3v3 pulled up. 
+So no need for shift logic converter.</text>
 </plain>
 <instances>
 <instance part="U2" gate="G$1" x="81.28" y="63.5" smashed="yes"/>

@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE eagle SYSTEM "eagle.dtd">
-<eagle version="7.7.0">
+<eagle version="9.5.2">
 <drawing>
 <settings>
 <setting alwaysvectorfont="no"/>
+<setting keepoldvectorfont="yes"/>
 <setting verticaltext="up"/>
 </settings>
-<grid distance="0.05" unitdist="inch" unit="inch" style="lines" multiple="1" display="yes" altdistance="0.025" altunitdist="inch" altunit="inch"/>
+<grid distance="50" unitdist="mil" unit="mil" style="lines" multiple="1" display="yes" altdistance="5" altunitdist="mil" altunit="mil"/>
 <layers>
 <layer number="1" name="Top" color="4" fill="1" visible="yes" active="yes"/>
 <layer number="16" name="Bottom" color="1" fill="1" visible="yes" active="yes"/>
@@ -58,10 +59,11 @@
 <library>
 <packages>
 <package name="SIP">
-<wire x1="0" y1="0" x2="0" y2="27" width="0.127" layer="39"/>
-<wire x1="0" y1="0" x2="40" y2="0" width="0.127" layer="39"/>
-<wire x1="0" y1="27" x2="40" y2="27" width="0.127" layer="39"/>
-<wire x1="40" y1="0" x2="40" y2="27" width="0.127" layer="39"/>
+<description>SIM800L v2</description>
+<wire x1="0" y1="0" x2="0" y2="27" width="0.127" layer="21"/>
+<wire x1="0" y1="0" x2="40" y2="0" width="0.127" layer="21"/>
+<wire x1="0" y1="27" x2="40" y2="27" width="0.127" layer="22"/>
+<wire x1="40" y1="0" x2="40" y2="27" width="0.127" layer="21"/>
 <hole x="2.87" y="24.13" drill="3.2"/>
 <hole x="2.87" y="2.87" drill="3.2"/>
 <pad name="1" x="38.1" y="19.24" drill="1.2" shape="octagon"/>
@@ -72,6 +74,7 @@
 <pad name="6" x="38.1" y="6.54" drill="1.2" shape="octagon"/>
 <pad name="7" x="38.1" y="4" drill="1.2" shape="octagon"/>
 <hole x="37.16" y="24.13" drill="3.2"/>
+<text x="15.24" y="1.27" size="1.27" layer="21">SIM800L v2</text>
 </package>
 </packages>
 <symbols>
