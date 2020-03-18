@@ -139,12 +139,10 @@ or FCI 67997-210HLF, Digikey 609-3236-ND</description>
 <pad name="38" x="20.32" y="7.62" drill="0.8"/>
 <pad name="39" x="20.32" y="10.16" drill="0.8"/>
 <pad name="40" x="20.32" y="12.7" drill="0.8"/>
-<wire x1="23" y1="-22" x2="24" y2="-22" width="0.127" layer="21"/>
-<wire x1="24" y1="-22" x2="26" y2="-22" width="0.127" layer="21"/>
-<wire x1="26" y1="-22" x2="26" y2="43" width="0.1524" layer="21"/>
-<wire x1="26" y1="43" x2="-26" y2="43" width="0.1524" layer="21"/>
-<wire x1="-26" y1="43" x2="-26" y2="-22" width="0.1524" layer="21"/>
-<wire x1="-26" y1="-22" x2="23" y2="-22" width="0.1524" layer="21"/>
+<wire x1="-25.5" y1="-22.9" x2="25.7" y2="-22.9" width="0.14" layer="21"/>
+<wire x1="-25.5" y1="43.2" x2="25.7" y2="43.2" width="0.14" layer="21"/>
+<wire x1="-25.5" y1="43.2" x2="-25.5" y2="-22.9" width="0.14" layer="21"/>
+<wire x1="25.7" y1="-22.9" x2="25.7" y2="43.2" width="0.14" layer="21"/>
 </package>
 </packages>
 <symbols>
@@ -607,25 +605,28 @@ Comments, suggestions and bug reports please send to: &lt;b&gt;&lt;a href="mailt
 <package name="DC-DC-STEP-DOWN-LM2596">
 <description>&lt;b&gt;DC/DC Step-Down Regulator&lt;/b&gt; based on &lt;b&gt;LM2596-ADJ&lt;/b&gt; chip</description>
 <wire x1="-21.59" y1="10.414" x2="21.59" y2="10.414" width="0.127" layer="21"/>
-<wire x1="21.59" y1="10.414" x2="21.59" y2="-10.414" width="0.127" layer="21"/>
-<wire x1="21.59" y1="-10.414" x2="-21.59" y2="-10.414" width="0.127" layer="21"/>
 <wire x1="-21.59" y1="-10.414" x2="-21.59" y2="10.414" width="0.127" layer="21"/>
 <pad name="IN+" x="-19.812" y="8.636" drill="1.5" diameter="2.5" shape="square"/>
-<pad name="IN-" x="-19.812" y="-8.636" drill="1.5" diameter="2.5" shape="square"/>
-<pad name="OUT-" x="19.812" y="-8.636" drill="1.5" diameter="2.5" shape="square"/>
-<pad name="OUT+" x="19.812" y="8.636" drill="1.5" diameter="2.5" shape="square"/>
-<hole x="-14.478" y="7.62" drill="3"/>
-<hole x="15.24" y="-7.62" drill="3"/>
+<pad name="IN-" x="-19.812" y="-11.636" drill="1.5" diameter="2.5" shape="square"/>
+<pad name="OUT-" x="23.5" y="-11.636" drill="1.5" diameter="2.5" shape="square"/>
+<pad name="OUT+" x="23.5" y="8.636" drill="1.5" diameter="2.5" shape="square"/>
+<hole x="-14.998" y="6.98" drill="3"/>
+<hole x="19.71" y="-10.24" drill="3"/>
 <text x="0" y="11.43" size="1.27" layer="25" align="bottom-center">&gt;NAME</text>
 <text x="0" y="-11.43" size="1.27" layer="27" align="top-center">&gt;VALUE</text>
 <text x="-19.685" y="0" size="1.778" layer="21" rot="R90" align="center">IN</text>
-<text x="19.685" y="0" size="1.778" layer="21" rot="R90" align="center">OUT</text>
-<wire x1="19.685" y1="6.985" x2="19.685" y2="5.715" width="0.254" layer="21"/>
-<wire x1="19.05" y1="6.35" x2="20.32" y2="6.35" width="0.254" layer="21"/>
+<text x="23.5" y="0" size="1.778" layer="21" rot="R90" align="center">OUT</text>
+<wire x1="23.545" y1="6.555" x2="23.545" y2="5.285" width="0.254" layer="21"/>
+<wire x1="22.91" y1="5.92" x2="24.18" y2="5.92" width="0.254" layer="21"/>
 <wire x1="-19.685" y1="-6.985" x2="-19.685" y2="-5.715" width="0.254" layer="21"/>
-<wire x1="19.685" y1="-6.985" x2="19.685" y2="-5.715" width="0.254" layer="21"/>
+<wire x1="23.5" y1="-6.985" x2="23.5" y2="-5.715" width="0.254" layer="21"/>
 <wire x1="-19.685" y1="6.985" x2="-19.685" y2="5.715" width="0.254" layer="21"/>
 <wire x1="-20.32" y1="6.35" x2="-19.05" y2="6.35" width="0.254" layer="21"/>
+<wire x1="21.48" y1="10.43" x2="26.43" y2="10.43" width="0.127" layer="21"/>
+<wire x1="26.43" y1="10.43" x2="26.43" y2="-13.44" width="0.127" layer="21"/>
+<wire x1="-21.58" y1="-10.34" x2="-21.58" y2="-13.44" width="0.127" layer="21"/>
+<wire x1="-21.58" y1="-13.44" x2="26.43" y2="-13.44" width="0.127" layer="21"/>
+<wire x1="26.42" y1="-13.43" x2="26.43" y2="-13.44" width="0.127" layer="21"/>
 </package>
 </packages>
 <symbols>
@@ -813,20 +814,26 @@ http://randomnerdtutorials.com/complete-guide-for-ultrasonic-sensor-hc-sr04/&lt;
 <packages>
 <package name="HC-12_FOOTPRINT">
 <description>HC-12 RF</description>
-<smd name="VCC" x="-1.27" y="10.16" dx="1.4224" dy="0.7112" layer="1"/>
-<smd name="GND" x="-1.27" y="7.62" dx="1.4224" dy="0.7112" layer="1"/>
-<smd name="RXD" x="-1.27" y="5.08" dx="1.4224" dy="0.7112" layer="1"/>
-<smd name="TXD" x="-1.27" y="2.54" dx="1.4224" dy="0.7112" layer="1"/>
-<smd name="SET" x="-1.27" y="0" dx="1.4224" dy="0.7112" layer="1"/>
-<smd name="MCHFIX" x="24.78" y="0.25" dx="1.778" dy="0.9144" layer="1" roundness="100"/>
-<smd name="GND1" x="26.13" y="9.57" dx="1.4224" dy="0.7112" layer="1" roundness="100"/>
-<smd name="GND2" x="26.13" y="4.49" dx="1.4224" dy="0.7112" layer="1" roundness="100"/>
-<smd name="ANT" x="25.49" y="7.03" dx="2.54" dy="1.27" layer="1"/>
-<wire x1="-2.54" y1="11.43" x2="27.94" y2="11.43" width="0.127" layer="21"/>
-<wire x1="27.94" y1="11.43" x2="27.94" y2="-1.27" width="0.127" layer="21"/>
-<wire x1="27.94" y1="-1.27" x2="-2.54" y2="-1.27" width="0.127" layer="21"/>
-<wire x1="-2.54" y1="-1.27" x2="-2.54" y2="11.43" width="0.127" layer="21"/>
+<smd name="VCC" x="-1.27" y="10.16" dx="1.4224" dy="0.7112" layer="16"/>
+<smd name="GND" x="-1.27" y="7.62" dx="1.4224" dy="0.7112" layer="16"/>
+<smd name="RXD" x="-1.27" y="5.08" dx="1.4224" dy="0.7112" layer="16"/>
+<smd name="TXD" x="-1.27" y="2.54" dx="1.4224" dy="0.7112" layer="16"/>
+<smd name="SET" x="-1.27" y="0" dx="1.4224" dy="0.7112" layer="16"/>
+<smd name="MCHFIX" x="24.78" y="0.25" dx="1.778" dy="0.9144" layer="16" roundness="100"/>
+<smd name="GND1" x="26.13" y="9.57" dx="1.4224" dy="0.7112" layer="16" roundness="100"/>
+<smd name="GND2" x="26.13" y="4.49" dx="1.4224" dy="0.7112" layer="16" roundness="100"/>
+<smd name="ANT" x="25.49" y="7.03" dx="2.54" dy="1.27" layer="16"/>
+<wire x1="26.9" y1="11.43" x2="26.9" y2="-1.27" width="0.127" layer="21"/>
+<wire x1="-2.05" y1="-1.27" x2="-2.05" y2="11.42" width="0.127" layer="21"/>
 <text x="8.89" y="0" size="1.27" layer="21">HC-12 RF</text>
+<wire x1="-2.05" y1="-1.27" x2="26.9" y2="-1.27" width="0.127" layer="21"/>
+<wire x1="26.9" y1="11.43" x2="-2.05" y2="11.43" width="0.127" layer="21"/>
+<wire x1="-2.05" y1="11.43" x2="-2.05" y2="11.42" width="0.127" layer="21"/>
+<hole x="-1.27" y="10.16" drill="0.381"/>
+<hole x="-1.27" y="7.62" drill="0.381"/>
+<hole x="-1.27" y="5.08" drill="0.381"/>
+<hole x="-1.27" y="2.54" drill="0.381"/>
+<hole x="-1.27" y="0" drill="0.381"/>
 </package>
 </packages>
 <symbols>
@@ -873,10 +880,10 @@ http://randomnerdtutorials.com/complete-guide-for-ultrasonic-sensor-hc-sr04/&lt;
 <library name="u_block_M8">
 <packages>
 <package name="U-BLOX">
-<wire x1="-15.24" y1="12.065" x2="5.715" y2="12.065" width="0.127" layer="21"/>
-<wire x1="5.715" y1="12.065" x2="5.715" y2="-11.43" width="0.127" layer="21"/>
-<wire x1="5.715" y1="-11.43" x2="-15.24" y2="-11.43" width="0.127" layer="21"/>
-<wire x1="-15.24" y1="-11.43" x2="-15.24" y2="12.065" width="0.127" layer="21"/>
+<wire x1="-15.24" y1="4.7584375" x2="2.943353125" y2="4.703825" width="0.127" layer="21"/>
+<wire x1="2.943353125" y1="4.703825" x2="2.943353125" y2="-10.5575125" width="0.127" layer="21"/>
+<wire x1="2.943353125" y1="-10.5575125" x2="-15.24" y2="-10.5029" width="0.127" layer="21"/>
+<wire x1="-15.24" y1="-10.5029" x2="-15.24" y2="4.7584375" width="0.127" layer="21"/>
 <wire x1="-6.76" y1="-10.07" x2="-6.76" y2="2.33" width="0.127" layer="21"/>
 <wire x1="-6.76" y1="2.33" x2="-12.51" y2="2.33" width="0.127" layer="21"/>
 <wire x1="-12.51" y1="2.33" x2="-12.51" y2="-10.07" width="0.127" layer="21"/>
@@ -885,34 +892,31 @@ http://randomnerdtutorials.com/complete-guide-for-ultrasonic-sensor-hc-sr04/&lt;
 <wire x1="-12.76" y1="2.58" x2="-6.51" y2="2.58" width="0.05" layer="39"/>
 <wire x1="-6.51" y1="2.58" x2="-6.51" y2="-10.32" width="0.05" layer="39"/>
 <wire x1="-6.51" y1="-10.32" x2="-12.76" y2="-10.32" width="0.05" layer="39"/>
-<text x="-13.44396875" y="-10.16306875" size="1.272290625" layer="25" rot="R90">&gt;M8_GPS</text>
+<text x="-13.335259375" y="-7.54763125" size="1.272290625" layer="25" rot="R90">&gt;M8_GPS</text>
 <wire x1="-6.76" y1="-10.07" x2="-6.76" y2="2.33" width="0.127" layer="51"/>
 <wire x1="-6.76" y1="2.33" x2="-12.51" y2="2.33" width="0.127" layer="51"/>
 <wire x1="-12.51" y1="2.33" x2="-12.51" y2="-10.07" width="0.127" layer="51"/>
 <wire x1="-12.51" y1="-10.07" x2="-6.76" y2="-10.07" width="0.127" layer="51"/>
-<circle x="-10.16" y="-10.68" radius="0.1" width="0.2" layer="21"/>
 <pad name="GND" x="-10.16" y="-7.62" drill="1.06" shape="square" rot="R90"/>
 <pad name="U_TX" x="-10.16" y="-5.12" drill="1.06" rot="R90"/>
 <pad name="U_RX" x="-10.16" y="-2.62" drill="1.06" rot="R90"/>
 <pad name="VCC" x="-10.16" y="-0.12" drill="1.06" rot="R90"/>
-<wire x1="-3.7" y1="3.475" x2="-3.7" y2="9.225" width="0.127" layer="51"/>
-<wire x1="-3.7" y1="9.225" x2="3.7" y2="9.225" width="0.127" layer="51"/>
-<wire x1="3.7" y1="9.225" x2="3.7" y2="3.475" width="0.127" layer="51"/>
-<wire x1="3.7" y1="3.475" x2="-3.7" y2="3.475" width="0.127" layer="51"/>
-<wire x1="-3.7" y1="3.475" x2="-3.7" y2="9.225" width="0.127" layer="21"/>
-<wire x1="-3.7" y1="9.225" x2="3.7" y2="9.225" width="0.127" layer="21"/>
-<wire x1="3.7" y1="9.225" x2="3.7" y2="3.475" width="0.127" layer="21"/>
-<wire x1="3.7" y1="3.475" x2="-3.7" y2="3.475" width="0.127" layer="21"/>
-<wire x1="-3.95" y1="3.225" x2="-3.95" y2="9.475" width="0.05" layer="39"/>
-<wire x1="-3.95" y1="9.475" x2="3.95" y2="9.475" width="0.05" layer="39"/>
-<wire x1="3.95" y1="9.475" x2="3.95" y2="3.225" width="0.05" layer="39"/>
-<wire x1="3.95" y1="3.225" x2="-3.95" y2="3.225" width="0.05" layer="39"/>
-<text x="-5.22" y="9.55" size="1.27" layer="25">&gt;HMC5883L</text>
-<circle x="-1.25" y="2.85" radius="0.1" width="0.2" layer="21"/>
-<circle x="-1.25" y="2.85" radius="0.1" width="0.2" layer="51"/>
-<pad name="SCL" x="-1.25" y="5.825" drill="1" shape="square"/>
-<pad name="SDA" x="1.25" y="5.825" drill="1"/>
-<text x="0" y="-8.89" size="1.27" layer="21" rot="R90">U-blox-M8</text>
+<wire x1="-5.548359375" y1="-3.419575" x2="-5.548359375" y2="2.330425" width="0.127" layer="51"/>
+<wire x1="-5.548359375" y1="2.330425" x2="1.851640625" y2="2.330425" width="0.127" layer="51"/>
+<wire x1="1.851640625" y1="2.330425" x2="1.851640625" y2="-3.419575" width="0.127" layer="51"/>
+<wire x1="1.851640625" y1="-3.419575" x2="-5.548359375" y2="-3.419575" width="0.127" layer="51"/>
+<wire x1="-5.548359375" y1="-3.419575" x2="-5.548359375" y2="2.330425" width="0.127" layer="21"/>
+<wire x1="-5.548359375" y1="2.330425" x2="1.851640625" y2="2.330425" width="0.127" layer="21"/>
+<wire x1="1.851640625" y1="2.330425" x2="1.851640625" y2="-3.419575" width="0.127" layer="21"/>
+<wire x1="1.851640625" y1="-3.419575" x2="-5.548359375" y2="-3.419575" width="0.127" layer="21"/>
+<wire x1="-5.798359375" y1="-3.669575" x2="-5.798359375" y2="2.580425" width="0.05" layer="39"/>
+<wire x1="-5.798359375" y1="2.580425" x2="2.101640625" y2="2.580425" width="0.05" layer="39"/>
+<wire x1="2.101640625" y1="2.580425" x2="2.101640625" y2="-3.669575" width="0.05" layer="39"/>
+<wire x1="2.101640625" y1="-3.669575" x2="-5.798359375" y2="-3.669575" width="0.05" layer="39"/>
+<text x="-7.88344375" y="2.982325" size="1.27" layer="25">&gt;HMC5883L</text>
+<pad name="SCL" x="-3.098359375" y="-1.069575" drill="1" shape="square"/>
+<pad name="SDA" x="-0.598359375" y="-1.069575" drill="1"/>
+<text x="2.1757625" y="-8.832590625" size="1.27" layer="21" rot="R180">U-blox-M8</text>
 </package>
 </packages>
 <symbols>
@@ -965,11 +969,13 @@ http://randomnerdtutorials.com/complete-guide-for-ultrasonic-sensor-hc-sr04/&lt;
 <pad name="VCC" x="-8.89" y="8.89" drill="0.8" diameter="1.778" shape="long"/>
 <pad name="SDO" x="-8.89" y="-3.81" drill="0.8" diameter="1.778" shape="long"/>
 <pad name="PS" x="-8.89" y="-6.35" drill="0.8" diameter="1.778" shape="long"/>
-<wire x1="-11.43" y1="10.795" x2="4.445" y2="10.795" width="0.127" layer="21"/>
-<wire x1="4.445" y1="10.795" x2="4.445" y2="-8.89" width="0.127" layer="21"/>
-<wire x1="4.445" y1="-8.89" x2="-11.43" y2="-8.89" width="0.127" layer="21"/>
-<wire x1="-11.43" y1="-8.89" x2="-11.43" y2="10.795" width="0.127" layer="21"/>
-<text x="2.54" y="0" size="1.27" layer="21" rot="R90">MS5611</text>
+<text x="-2.56" y="-1.54" size="1.27" layer="21" rot="R90">MS5611</text>
+<wire x1="-10.66" y1="10.82" x2="-10.66" y2="-8.17" width="0.127" layer="21"/>
+<wire x1="-10.66" y1="-8.17" x2="2.32" y2="-8.17" width="0.127" layer="21"/>
+<wire x1="2.32" y1="-8.17" x2="2.32" y2="9.59" width="0.127" layer="21"/>
+<wire x1="2.32" y1="9.6" x2="2.32" y2="10.82" width="0.127" layer="21"/>
+<wire x1="2.32" y1="10.82" x2="-10.66" y2="10.82" width="0.127" layer="21"/>
+<hole x="0.5644375" y="9.043703125" drill="3.048"/>
 </package>
 </packages>
 <symbols>
@@ -1025,19 +1031,21 @@ http://randomnerdtutorials.com/complete-guide-for-ultrasonic-sensor-hc-sr04/&lt;
 <pad name="XCL" x="-8.89" y="-3.81" drill="0.8" diameter="1.778" shape="long"/>
 <pad name="ADO" x="-8.89" y="-6.35" drill="0.8" diameter="1.778" shape="long"/>
 <pad name="INT" x="-8.89" y="-8.89" drill="0.8" diameter="1.778" shape="long"/>
-<wire x1="-11.43" y1="10.795" x2="4.445" y2="10.795" width="0.127" layer="21"/>
-<wire x1="4.445" y1="10.795" x2="4.445" y2="-10.16" width="0.127" layer="21"/>
-<wire x1="4.445" y1="-10.16" x2="-11.43" y2="-10.16" width="0.127" layer="21"/>
-<wire x1="-11.43" y1="-10.16" x2="-11.43" y2="10.795" width="0.127" layer="21"/>
 <wire x1="-2.54" y1="-8.89" x2="1.27" y2="-8.89" width="0.127" layer="21"/>
 <wire x1="1.27" y1="-8.89" x2="0.635" y2="-8.255" width="0.127" layer="21"/>
 <wire x1="1.27" y1="-8.89" x2="0.635" y2="-9.525" width="0.127" layer="21"/>
 <wire x1="-2.54" y1="-8.89" x2="-2.54" y2="-5.08" width="0.127" layer="21"/>
 <wire x1="-2.54" y1="-5.08" x2="-1.905" y2="-5.715" width="0.127" layer="21"/>
 <wire x1="-2.54" y1="-5.08" x2="-3.175" y2="-5.715" width="0.127" layer="21"/>
-<text x="1.905" y="-8.89" size="1.27" layer="21">x</text>
+<text x="0.565" y="-7.942" size="1.27" layer="21">x</text>
 <text x="-1.27" y="-5.08" size="1.27" layer="21">y</text>
 <text x="3.81" y="-1.27" size="1.27" layer="21" rot="R90">ITG/MPU</text>
+<wire x1="5.2" y1="10.22" x2="5.22" y2="-10.22" width="0.127" layer="21"/>
+<wire x1="-10.64" y1="10.22" x2="5.18" y2="10.22" width="0.127" layer="21"/>
+<wire x1="-10.64" y1="10.2" x2="-10.64" y2="-10.22" width="0.127" layer="21"/>
+<wire x1="-10.64" y1="-10.22" x2="5.22" y2="-10.22" width="0.127" layer="21"/>
+<hole x="3.444" y="8.444" drill="3.048"/>
+<hole x="3.482" y="-8.475" drill="3.048"/>
 </package>
 </packages>
 <symbols>

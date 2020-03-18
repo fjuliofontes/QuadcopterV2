@@ -30,6 +30,9 @@ float accel_x = 0, accel_y = 0, accel_z = 0;
 float XY_distance, YZ_distance, ZX_distance;
 float phi, theta, psi;
 
+// flight variables
+float pitch = 0, roll = 0, yaw = 0;
+
 // for status 
 unsigned long last_loop = 0;
 bool blinkState = false;
@@ -155,8 +158,17 @@ void loop() {
         ////////////////////////////////////////////////////////////////
 
         /////////////////////////REMOVE GYRO DRIFT//////////////////////
-        //angle_x = angle_x * 0.8 + psi*0.2;
-        //angle_y = angle_y * 0.8 + theta*-0.2;
+        pitch += gyro_x;
+        roll += gyro_y;
+        yaw += gyro_z;
+        // for tranfering pitch to roll
+        pitch += roll * sin(gyro_z * 0.01745); 
+        roll -= pitch * sin(gyro_z * 0.01745);     
+        // removing drift
+        pitch = pitch * 0.9996 + psi * 0.0004;     
+        roll = roll * 0.9996 + theta * -0.0004;        
+        //angle_x = angle_x * 0.95 + psi*0.05;
+        //angle_y = angle_y * 0.95 + theta*-0.05;
         ////////////////////////////////////////////////////////////////
 
         // increment counter
@@ -176,12 +188,12 @@ void loop() {
             break;
         case 1:
             Serial.print(String(phi,2)+ ' ');
-            Serial.print(String(angle_x,2)+ ' ');
+            Serial.print(String(pitch,2)+ ' ');
             state ++;
             break;
         case 2:
-            Serial.print(String(angle_y,2)+ ' ');
-            Serial.print(String(angle_z,2)+ ' ');
+            Serial.print(String(roll,2)+ ' ');
+            Serial.print(String(yaw,2)+ ' ');
             Serial.println();
             blinkState = !blinkState; 
             digitalWrite(GREEN_LED,blinkState);
