@@ -272,6 +272,10 @@ UsedLibrary="Librarys/gy-63.lbr"
 UsedLibrary="Librarys/gy-521.lbr"
 UsedLibrary="Librarys/hc12_433mhz.lbr"
 UsedLibrary="Librarys/u_block_M8.lbr"
+UsedLibrary="Librarys/MCP1825S-3302E_DB.lbr"
+UsedLibrary="Librarys/ESC-HW30A.lbr"
+UsedLibrary="Librarys/smd-rlc.lbr"
+UsedLibrary="Librarys/XT60.lbr"
 
 [Win_1]
 Type="Control Panel"

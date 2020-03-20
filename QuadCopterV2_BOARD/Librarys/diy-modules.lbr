@@ -9885,6 +9885,44 @@ Footprint with input connector</description>
 <wire x1="7.62" y1="5.334" x2="6.35" y2="5.334" width="0.254" layer="21"/>
 <wire x1="6.35" y1="-5.334" x2="7.62" y2="-5.334" width="0.254" layer="21"/>
 </package>
+<package name="ULTRASONIC-HC-SR04#P">
+<description>&lt;b&gt;Ultrasonic Ranging Module HC-SR04&lt;/b&gt;</description>
+<pad name="VCC" x="2.34" y="-1.8" drill="1" shape="square"/>
+<pad name="TRIG" x="4.88" y="-1.8" drill="1"/>
+<pad name="ECHO" x="7.42" y="-1.8" drill="1"/>
+<pad name="GND" x="9.96" y="-1.8" drill="1"/>
+<wire x1="1.07" y1="-1.165" x2="1.705" y2="-0.53" width="0.127" layer="21"/>
+<wire x1="1.705" y1="-0.53" x2="2.975" y2="-0.53" width="0.127" layer="21"/>
+<wire x1="2.975" y1="-0.53" x2="3.61" y2="-1.165" width="0.127" layer="21"/>
+<wire x1="3.61" y1="-1.165" x2="4.245" y2="-0.53" width="0.127" layer="21"/>
+<wire x1="4.245" y1="-0.53" x2="5.515" y2="-0.53" width="0.127" layer="21"/>
+<wire x1="5.515" y1="-0.53" x2="6.15" y2="-1.165" width="0.127" layer="21"/>
+<wire x1="6.15" y1="-1.165" x2="6.785" y2="-0.53" width="0.127" layer="21"/>
+<wire x1="6.785" y1="-0.53" x2="8.055" y2="-0.53" width="0.127" layer="21"/>
+<wire x1="8.055" y1="-0.53" x2="8.69" y2="-1.165" width="0.127" layer="21"/>
+<wire x1="8.69" y1="-1.165" x2="9.325" y2="-0.53" width="0.127" layer="21"/>
+<wire x1="9.325" y1="-0.53" x2="10.595" y2="-0.53" width="0.127" layer="21"/>
+<wire x1="10.595" y1="-0.53" x2="11.23" y2="-1.165" width="0.127" layer="21"/>
+<wire x1="11.23" y1="-1.165" x2="11.23" y2="-2.435" width="0.127" layer="21"/>
+<wire x1="11.23" y1="-2.435" x2="10.595" y2="-3.07" width="0.127" layer="21"/>
+<wire x1="10.595" y1="-3.07" x2="9.325" y2="-3.07" width="0.127" layer="21"/>
+<wire x1="9.325" y1="-3.07" x2="8.69" y2="-2.435" width="0.127" layer="21"/>
+<wire x1="8.69" y1="-2.435" x2="8.055" y2="-3.07" width="0.127" layer="21"/>
+<wire x1="8.055" y1="-3.07" x2="6.785" y2="-3.07" width="0.127" layer="21"/>
+<wire x1="6.785" y1="-3.07" x2="6.15" y2="-2.435" width="0.127" layer="21"/>
+<wire x1="6.15" y1="-2.435" x2="5.515" y2="-3.07" width="0.127" layer="21"/>
+<wire x1="5.515" y1="-3.07" x2="4.245" y2="-3.07" width="0.127" layer="21"/>
+<wire x1="4.245" y1="-3.07" x2="3.61" y2="-2.435" width="0.127" layer="21"/>
+<wire x1="3.61" y1="-2.435" x2="2.975" y2="-3.07" width="0.127" layer="21"/>
+<wire x1="2.975" y1="-3.07" x2="1.705" y2="-3.07" width="0.127" layer="21"/>
+<wire x1="1.705" y1="-3.07" x2="1.07" y2="-2.435" width="0.127" layer="21"/>
+<wire x1="1.07" y1="-2.435" x2="1.07" y2="-1.165" width="0.127" layer="21"/>
+<text x="0.81" y="-3.19" size="0.5" layer="21" rot="R90">HC-SR04</text>
+<wire x1="0.08" y1="-0.05" x2="11.62" y2="-0.05" width="0.127" layer="21"/>
+<wire x1="11.62" y1="-0.05" x2="11.62" y2="-3.43" width="0.127" layer="21"/>
+<wire x1="11.62" y1="-3.43" x2="0.06" y2="-3.43" width="0.127" layer="21"/>
+<wire x1="0.06" y1="-3.43" x2="0.06" y2="-0.05" width="0.127" layer="21"/>
+</package>
 </packages>
 <symbols>
 <symbol name="ARDUINO-NANO-3.0#ISP">
@@ -14275,6 +14313,17 @@ http://randomnerdtutorials.com/complete-guide-for-ultrasonic-sensor-hc-sr04/&lt;
 <connect gate="G$1" pin="GND" pad="4"/>
 <connect gate="G$1" pin="TRIG" pad="2"/>
 <connect gate="G$1" pin="VCC" pad="1"/>
+</connects>
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+<device name="#P" package="ULTRASONIC-HC-SR04#P">
+<connects>
+<connect gate="G$1" pin="ECHO" pad="ECHO"/>
+<connect gate="G$1" pin="GND" pad="GND"/>
+<connect gate="G$1" pin="TRIG" pad="TRIG"/>
+<connect gate="G$1" pin="VCC" pad="VCC"/>
 </connects>
 <technologies>
 <technology name=""/>
