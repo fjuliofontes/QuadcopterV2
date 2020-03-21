@@ -25,7 +25,7 @@
   ##### TODO:
   - [x] Order the hardware required
   - [ ] Test and develop device drivers for hardware
-  - [ ] Complete the final schematic and board
+  - [x] Complete the final schematic and board
   - [ ] Develop controller algorithm 
   - [ ] Update remote controller app
   - [ ] Test the quadcopter
