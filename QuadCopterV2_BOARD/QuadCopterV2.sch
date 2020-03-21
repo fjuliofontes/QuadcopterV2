@@ -6,7 +6,7 @@
 <setting alwaysvectorfont="no"/>
 <setting verticaltext="up"/>
 </settings>
-<grid distance="0.1" unitdist="inch" unit="inch" style="lines" multiple="1" display="no" altdistance="0.01" altunitdist="inch" altunit="inch"/>
+<grid distance="1" unitdist="mm" unit="mm" style="lines" multiple="1" display="no" altdistance="0.01" altunitdist="inch" altunit="inch"/>
 <layers>
 <layer number="1" name="Top" color="4" fill="1" visible="no" active="no"/>
 <layer number="2" name="Route2" color="1" fill="3" visible="no" active="no"/>
@@ -809,10 +809,6 @@ http://randomnerdtutorials.com/complete-guide-for-ultrasonic-sensor-hc-sr04/&lt;
 <pad name="RXD" x="-1.27" y="5.08" drill="0.4" diameter="1.1"/>
 <pad name="TXD" x="-1.27" y="2.54" drill="0.4" diameter="1.1"/>
 <pad name="SET" x="-1.27" y="0" drill="0.4" diameter="1.1"/>
-<pad name="NC" x="22.91" y="0.74" drill="0.4" diameter="0.9128" shape="long"/>
-<pad name="GND_ANT1" x="23.15" y="4.49" drill="0.4" diameter="0.7128" shape="long"/>
-<pad name="GND_ANT" x="23.15" y="9.57" drill="0.4" diameter="0.7128" shape="long"/>
-<pad name="ANT" x="23.15" y="7.028" drill="0.4" diameter="1.27" shape="offset" rot="R180"/>
 <wire x1="-1.523" y1="11.616" x2="-2.104" y2="11.616" width="0.127" layer="21"/>
 <wire x1="-2.104" y1="11.616" x2="-2.555" y2="11.616" width="0.127" layer="21"/>
 <wire x1="-2.555" y1="11.616" x2="-2.555" y2="-1.366" width="0.127" layer="21"/>
@@ -833,7 +829,7 @@ http://randomnerdtutorials.com/complete-guide-for-ultrasonic-sensor-hc-sr04/&lt;
 <wire x1="-17.78" y1="-7.62" x2="17.78" y2="-7.62" width="0.254" layer="94"/>
 <wire x1="17.78" y1="-7.62" x2="17.78" y2="12.7" width="0.254" layer="94"/>
 <wire x1="17.78" y1="12.7" x2="-17.78" y2="12.7" width="0.254" layer="94"/>
-<pin name="ANT" x="22.86" y="2.54" length="middle" rot="R180"/>
+<text x="-2.54" y="-5.08" size="1.778" layer="94">HC-12</text>
 </symbol>
 </symbols>
 <devicesets>
@@ -848,7 +844,6 @@ http://randomnerdtutorials.com/complete-guide-for-ultrasonic-sensor-hc-sr04/&lt;
 <devices>
 <device name="" package="HC-12_FOOTPRINT">
 <connects>
-<connect gate="G$1" pin="ANT" pad="ANT"/>
 <connect gate="G$1" pin="GND" pad="GND"/>
 <connect gate="G$1" pin="RX" pad="RXD"/>
 <connect gate="G$1" pin="SET" pad="SET"/>
@@ -1131,18 +1126,18 @@ http://randomnerdtutorials.com/complete-guide-for-ultrasonic-sensor-hc-sr04/&lt;
 <wire x1="1.85" y1="-1.95" x2="1.85" y2="-3.35" width="0.127" layer="21"/>
 <wire x1="1.85" y1="-3.35" x2="-1.85" y2="-3.35" width="0.127" layer="21"/>
 <wire x1="-1.85" y1="-3.35" x2="-1.85" y2="-3.1" width="0.127" layer="21"/>
-<wire x1="2.1" y1="3.6" x2="2.1" y2="1.88" width="0.05" layer="39"/>
-<wire x1="2.1" y1="1.88" x2="4.26" y2="1.88" width="0.05" layer="39"/>
-<wire x1="4.26" y1="1.88" x2="4.26" y2="-1.88" width="0.05" layer="39"/>
-<wire x1="4.26" y1="-1.88" x2="2.1" y2="-1.88" width="0.05" layer="39"/>
-<wire x1="2.1" y1="-1.88" x2="2.1" y2="-3.6" width="0.05" layer="39"/>
-<wire x1="-2.1" y1="3.6" x2="-2.1" y2="3.03" width="0.05" layer="39"/>
-<wire x1="-2.1" y1="3.03" x2="-4.26" y2="3.03" width="0.05" layer="39"/>
-<wire x1="-4.26" y1="3.03" x2="-4.26" y2="-3.03" width="0.05" layer="39"/>
-<wire x1="-4.26" y1="-3.03" x2="-2.1" y2="-3.03" width="0.05" layer="39"/>
-<wire x1="-2.1" y1="-3.03" x2="-2.1" y2="-3.6" width="0.05" layer="39"/>
-<wire x1="-2.1" y1="3.6" x2="2.1" y2="3.6" width="0.05" layer="39"/>
-<wire x1="2.1" y1="-3.6" x2="-2.1" y2="-3.6" width="0.05" layer="39"/>
+<wire x1="2.1" y1="3.6" x2="2.1" y2="1.88" width="0.05" layer="40"/>
+<wire x1="2.1" y1="1.88" x2="4.26" y2="1.88" width="0.05" layer="40"/>
+<wire x1="4.26" y1="1.88" x2="4.26" y2="-1.88" width="0.05" layer="40"/>
+<wire x1="4.26" y1="-1.88" x2="2.1" y2="-1.88" width="0.05" layer="40"/>
+<wire x1="2.1" y1="-1.88" x2="2.1" y2="-3.6" width="0.05" layer="40"/>
+<wire x1="-2.1" y1="3.6" x2="-2.1" y2="3.03" width="0.05" layer="40"/>
+<wire x1="-2.1" y1="3.03" x2="-4.26" y2="3.03" width="0.05" layer="40"/>
+<wire x1="-4.26" y1="3.03" x2="-4.26" y2="-3.03" width="0.05" layer="40"/>
+<wire x1="-4.26" y1="-3.03" x2="-2.1" y2="-3.03" width="0.05" layer="40"/>
+<wire x1="-2.1" y1="-3.03" x2="-2.1" y2="-3.6" width="0.05" layer="40"/>
+<wire x1="-2.1" y1="3.6" x2="2.1" y2="3.6" width="0.05" layer="40"/>
+<wire x1="2.1" y1="-3.6" x2="-2.1" y2="-3.6" width="0.05" layer="40"/>
 <circle x="-4.6" y="2.3" radius="0.1" width="0.2" layer="21"/>
 <circle x="-4.6" y="2.3" radius="0.1" width="0.2" layer="51"/>
 <text x="-3.8" y="4" size="1.27" layer="25">&gt;NAME</text>
@@ -1174,7 +1169,7 @@ http://randomnerdtutorials.com/complete-guide-for-ultrasonic-sensor-hc-sr04/&lt;
 <devices>
 <device name="" package="SOT230P700X180-4N">
 <connects>
-<connect gate="A" pin="GND_(TAB)" pad="2 4"/>
+<connect gate="A" pin="GND_(TAB)" pad="2 4" route="any"/>
 <connect gate="A" pin="VIN" pad="1"/>
 <connect gate="A" pin="VOUT" pad="3"/>
 </connects>
@@ -1191,7 +1186,7 @@ http://randomnerdtutorials.com/complete-guide-for-ultrasonic-sensor-hc-sr04/&lt;
 </device>
 <device name="P1" package="SOT230P700X180-4N#P1">
 <connects>
-<connect gate="A" pin="GND_(TAB)" pad="2 4"/>
+<connect gate="A" pin="GND_(TAB)" pad="2 4" route="any"/>
 <connect gate="A" pin="VIN" pad="3"/>
 <connect gate="A" pin="VOUT" pad="1"/>
 </connects>
@@ -1242,10 +1237,8 @@ http://randomnerdtutorials.com/complete-guide-for-ultrasonic-sensor-hc-sr04/&lt;
 <description>SIM800L v2</description>
 <wire x1="0" y1="0" x2="0" y2="27" width="0.127" layer="21"/>
 <wire x1="0" y1="0" x2="40" y2="0" width="0.127" layer="21"/>
-<wire x1="0" y1="27" x2="40" y2="27" width="0.127" layer="22"/>
+<wire x1="0" y1="27" x2="40" y2="27" width="0.127" layer="21"/>
 <wire x1="40" y1="0" x2="40" y2="27" width="0.127" layer="21"/>
-<hole x="2.87" y="24.13" drill="3.2"/>
-<hole x="2.87" y="2.87" drill="3.2"/>
 <pad name="5V" x="38.1" y="19.24" drill="1.2" shape="octagon"/>
 <pad name="PGND" x="38.1" y="16.7" drill="1.2" shape="octagon"/>
 <pad name="VDD" x="38.1" y="14.16" drill="1.2" shape="octagon"/>
@@ -1342,83 +1335,19 @@ http://randomnerdtutorials.com/complete-guide-for-ultrasonic-sensor-hc-sr04/&lt;
 </deviceset>
 </devicesets>
 </library>
-<library name="smd-resistor">
-<packages>
-<package name="RSMD">
-<text x="-1.69" y="-1.05" size="0.5" layer="27" align="top-left">&gt;VALUE</text>
-<text x="-1.69" y="1.05" size="0.5" layer="25">&gt;NAME</text>
-<wire x1="1.07" y1="-0.7" x2="-1.07" y2="-0.7" width="0.127" layer="51"/>
-<wire x1="1.07" y1="0.7" x2="-1.07" y2="0.7" width="0.127" layer="51"/>
-<wire x1="1.07" y1="-0.7" x2="1.07" y2="0.7" width="0.127" layer="51"/>
-<wire x1="-1.07" y1="-0.7" x2="-1.07" y2="0.7" width="0.127" layer="51"/>
-<wire x1="-0.12" y1="0.7" x2="0.12" y2="0.7" width="0.127" layer="21"/>
-<wire x1="-0.12" y1="-0.7" x2="0.12" y2="-0.7" width="0.127" layer="21"/>
-<wire x1="-1.685" y1="-0.96" x2="1.685" y2="-0.96" width="0.05" layer="39"/>
-<wire x1="-1.685" y1="0.96" x2="1.685" y2="0.96" width="0.05" layer="39"/>
-<wire x1="-1.685" y1="-0.96" x2="-1.685" y2="0.96" width="0.05" layer="39"/>
-<wire x1="1.685" y1="-0.96" x2="1.685" y2="0.96" width="0.05" layer="39"/>
-<smd name="1" x="-0.935" y="0" dx="1" dy="1.42" layer="16"/>
-<smd name="2" x="0.935" y="0" dx="1" dy="1.42" layer="16"/>
-</package>
-</packages>
-<symbols>
-<symbol name="RSMD">
-<wire x1="-5.08" y1="0" x2="-4.445" y2="1.905" width="0.254" layer="94"/>
-<wire x1="-4.445" y1="1.905" x2="-3.175" y2="-1.905" width="0.254" layer="94"/>
-<wire x1="-3.175" y1="-1.905" x2="-1.905" y2="1.905" width="0.254" layer="94"/>
-<wire x1="-1.905" y1="1.905" x2="-0.635" y2="-1.905" width="0.254" layer="94"/>
-<wire x1="-0.635" y1="-1.905" x2="0.635" y2="1.905" width="0.254" layer="94"/>
-<wire x1="0.635" y1="1.905" x2="1.905" y2="-1.905" width="0.254" layer="94"/>
-<wire x1="1.905" y1="-1.905" x2="3.175" y2="1.905" width="0.254" layer="94"/>
-<wire x1="3.175" y1="1.905" x2="4.445" y2="-1.905" width="0.254" layer="94"/>
-<wire x1="4.445" y1="-1.905" x2="5.08" y2="0" width="0.254" layer="94"/>
-<text x="-7.624440625" y="2.54148125" size="2.54148125" layer="95">&gt;NAME</text>
-<text x="-7.62996875" y="-5.086640625" size="2.54331875" layer="96">&gt;VALUE</text>
-<pin name="1" x="-10.16" y="0" visible="off" length="middle" direction="pas"/>
-<pin name="2" x="10.16" y="0" visible="off" length="middle" direction="pas" rot="R180"/>
-</symbol>
-</symbols>
-<devicesets>
-<deviceset name="RSMD" prefix="R">
-<gates>
-<gate name="G$1" symbol="RSMD" x="0" y="0"/>
-</gates>
-<devices>
-<device name="" package="RSMD">
-<connects>
-<connect gate="G$1" pin="1" pad="1"/>
-<connect gate="G$1" pin="2" pad="2"/>
-</connects>
-<technologies>
-<technology name="">
-<attribute name="AVAILABILITY" value="Unavailable"/>
-<attribute name="COMMENT" value="4-1614884-8"/>
-<attribute name="DESCRIPTION" value=" Surface Mount Thin Film Resistor, Cpf Series, 220 Ohm, 100 Mw, - 0.1%, 200 V "/>
-<attribute name="MF" value="TE Connectivity Passive Product"/>
-<attribute name="MP" value="CPF0805B220RE1"/>
-<attribute name="PACKAGE" value="2012 Stackpole"/>
-<attribute name="PRICE" value="None"/>
-<attribute name="TE_PURCHASE_URL" value="https://www.te.com/usa-en/product-4-1614884-8.html?te_bu=Cor&amp;te_type=disp&amp;te_campaign=seda_glo_cor-seda-global-disp-prtnr-fy19-seda-model-bom-cta_sma-317_1&amp;elqCampaignId=32493"/>
-</technology>
-</technologies>
-</device>
-</devices>
-</deviceset>
-</devicesets>
-</library>
 <library name="smd-rlc">
 <packages>
 <package name="C4.7U-SMD">
 <text x="-1.53" y="-1.13" size="0.5" layer="27" align="top-left">&gt;VALUE</text>
 <text x="-1.37" y="1.09" size="0.5" layer="25">&gt;NAME</text>
 <wire x1="1.01" y1="-0.76" x2="-1.35" y2="-0.76" width="0.127" layer="51"/>
-<wire x1="1" y1="0.78" x2="-1.36" y2="0.78" width="0.127" layer="51"/>
-<wire x1="1.01" y1="-0.76" x2="1" y2="0.78" width="0.127" layer="51"/>
-<wire x1="-1.35" y1="-0.76" x2="-1.36" y2="0.78" width="0.127" layer="51"/>
-<wire x1="-1.535" y1="-0.93" x2="1.185" y2="-0.93" width="0.05" layer="39"/>
-<wire x1="-1.535" y1="0.94" x2="1.185" y2="0.94" width="0.05" layer="39"/>
-<wire x1="-1.535" y1="-0.93" x2="-1.535" y2="0.94" width="0.05" layer="39"/>
-<wire x1="1.185" y1="-0.93" x2="1.185" y2="0.94" width="0.05" layer="39"/>
+<wire x1="1.01" y1="0.78" x2="-1.35" y2="0.78" width="0.127" layer="51"/>
+<wire x1="1.01" y1="-0.76" x2="1.01" y2="0.78" width="0.127" layer="51"/>
+<wire x1="-1.35" y1="-0.76" x2="-1.35" y2="0.78" width="0.127" layer="51"/>
+<wire x1="-1.535" y1="-0.93" x2="1.185" y2="-0.93" width="0.05" layer="40"/>
+<wire x1="-1.535" y1="0.94" x2="1.185" y2="0.94" width="0.05" layer="40"/>
+<wire x1="-1.535" y1="-0.93" x2="-1.535" y2="0.94" width="0.05" layer="40"/>
+<wire x1="1.185" y1="-0.93" x2="1.185" y2="0.94" width="0.05" layer="40"/>
 <smd name="1" x="-0.935" y="0" dx="0.5" dy="1.25" layer="16"/>
 <smd name="2" x="0.59" y="0" dx="0.5" dy="1.25" layer="16"/>
 </package>
@@ -1431,37 +1360,32 @@ http://randomnerdtutorials.com/complete-guide-for-ultrasonic-sensor-hc-sr04/&lt;
 <wire x1="-1.07" y1="-0.7" x2="-1.07" y2="0.7" width="0.127" layer="51"/>
 <wire x1="-0.12" y1="0.7" x2="0.12" y2="0.7" width="0.127" layer="21"/>
 <wire x1="-0.12" y1="-0.7" x2="0.12" y2="-0.7" width="0.127" layer="21"/>
-<wire x1="-1.685" y1="-0.96" x2="1.685" y2="-0.96" width="0.05" layer="39"/>
-<wire x1="-1.685" y1="0.96" x2="1.685" y2="0.96" width="0.05" layer="39"/>
-<wire x1="-1.685" y1="-0.96" x2="-1.685" y2="0.96" width="0.05" layer="39"/>
-<wire x1="1.685" y1="-0.96" x2="1.685" y2="0.96" width="0.05" layer="39"/>
+<wire x1="-1.685" y1="-0.96" x2="1.685" y2="-0.96" width="0.05" layer="40"/>
+<wire x1="-1.685" y1="0.96" x2="1.685" y2="0.96" width="0.05" layer="40"/>
+<wire x1="-1.685" y1="-0.96" x2="-1.685" y2="0.96" width="0.05" layer="40"/>
+<wire x1="1.685" y1="-0.96" x2="1.685" y2="0.96" width="0.05" layer="40"/>
 <smd name="1" x="-0.935" y="0" dx="1" dy="1.42" layer="16"/>
 <smd name="2" x="0.935" y="0" dx="1" dy="1.42" layer="16"/>
 </package>
 </packages>
 <symbols>
 <symbol name="CSMD">
-<text x="-5.344440625" y="1.74148125" size="2" layer="95">&gt;NAME</text>
-<text x="-5.86996875" y="-3.326640625" size="2" layer="96">&gt;VALUE</text>
+<text x="-1.344440625" y="1.24148125" size="0.5" layer="95">&gt;NAME</text>
+<text x="-1.36996875" y="-1.826640625" size="0.5" layer="96">&gt;VALUE</text>
 <pin name="1" x="-3.1" y="0" visible="off" length="short" direction="pas"/>
 <pin name="2" x="3" y="0" visible="off" length="short" direction="pas" rot="R180"/>
 <wire x1="-0.56" y1="1" x2="-0.56" y2="-1" width="0.254" layer="94"/>
 <wire x1="0.5" y1="1" x2="0.5" y2="-1" width="0.254" layer="94"/>
 </symbol>
 <symbol name="RSMD">
-<wire x1="-5.08" y1="0" x2="-4.445" y2="1.905" width="0.254" layer="94"/>
-<wire x1="-4.445" y1="1.905" x2="-3.175" y2="-1.905" width="0.254" layer="94"/>
-<wire x1="-3.175" y1="-1.905" x2="-1.905" y2="1.905" width="0.254" layer="94"/>
-<wire x1="-1.905" y1="1.905" x2="-0.635" y2="-1.905" width="0.254" layer="94"/>
-<wire x1="-0.635" y1="-1.905" x2="0.635" y2="1.905" width="0.254" layer="94"/>
-<wire x1="0.635" y1="1.905" x2="1.905" y2="-1.905" width="0.254" layer="94"/>
-<wire x1="1.905" y1="-1.905" x2="3.175" y2="1.905" width="0.254" layer="94"/>
-<wire x1="3.175" y1="1.905" x2="4.445" y2="-1.905" width="0.254" layer="94"/>
-<wire x1="4.445" y1="-1.905" x2="5.08" y2="0" width="0.254" layer="94"/>
-<text x="-7.624440625" y="2.54148125" size="2.54148125" layer="95">&gt;NAME</text>
-<text x="-7.62996875" y="-5.086640625" size="2.54331875" layer="96">&gt;VALUE</text>
-<pin name="1" x="-10.16" y="0" visible="off" length="middle" direction="pas"/>
-<pin name="2" x="10.16" y="0" visible="off" length="middle" direction="pas" rot="R180"/>
+<text x="-4.324440625" y="0.74148125" size="0.5" layer="95">&gt;NAME</text>
+<text x="-4.40996875" y="-1.246640625" size="0.5" layer="96">&gt;VALUE</text>
+<pin name="1" x="-6.62" y="0" visible="off" length="short" direction="pas"/>
+<pin name="2" x="0.62" y="0" visible="off" length="short" direction="pas" rot="R180"/>
+<wire x1="-4" y1="0.5" x2="-4" y2="-0.5" width="0.254" layer="94"/>
+<wire x1="-4" y1="-0.5" x2="-2" y2="-0.5" width="0.254" layer="94"/>
+<wire x1="-2" y1="-0.5" x2="-2" y2="0.5" width="0.254" layer="94"/>
+<wire x1="-2" y1="0.5" x2="-4" y2="0.5" width="0.254" layer="94"/>
 </symbol>
 </symbols>
 <devicesets>
@@ -1599,8 +1523,6 @@ http://randomnerdtutorials.com/complete-guide-for-ultrasonic-sensor-hc-sr04/&lt;
 <part name="GND8" library="supply1" library_urn="urn:adsk.eagle:library:371" deviceset="GND" device=""/>
 <part name="GND9" library="supply1" library_urn="urn:adsk.eagle:library:371" deviceset="GND" device=""/>
 <part name="GND10" library="supply1" library_urn="urn:adsk.eagle:library:371" deviceset="GND" device=""/>
-<part name="R1" library="smd-resistor" deviceset="RSMD" device=""/>
-<part name="R2" library="smd-resistor" deviceset="RSMD" device=""/>
 <part name="GND12" library="supply1" library_urn="urn:adsk.eagle:library:371" deviceset="GND" device=""/>
 <part name="C1" library="smd-rlc" deviceset="C4.7U-SMD" device=""/>
 <part name="C3" library="smd-rlc" deviceset="C4.7U-SMD" device=""/>
@@ -1608,13 +1530,17 @@ http://randomnerdtutorials.com/complete-guide-for-ultrasonic-sensor-hc-sr04/&lt;
 <part name="GND13" library="supply1" library_urn="urn:adsk.eagle:library:371" deviceset="GND" device=""/>
 <part name="GND14" library="supply1" library_urn="urn:adsk.eagle:library:371" deviceset="GND" device=""/>
 <part name="GND15" library="supply1" library_urn="urn:adsk.eagle:library:371" deviceset="GND" device=""/>
-<part name="R3" library="smd-rlc" deviceset="RSMD" device=""/>
-<part name="R4" library="smd-rlc" deviceset="RSMD" device=""/>
+<part name="R3" library="smd-rlc" deviceset="RSMD" device="" value="11k7"/>
+<part name="R4" library="smd-rlc" deviceset="RSMD" device="" value="3k3"/>
 <part name="C2" library="smd-rlc" deviceset="C4.7U-SMD" device=""/>
 <part name="C4" library="smd-rlc" deviceset="C4.7U-SMD" device=""/>
 <part name="C6" library="smd-rlc" deviceset="C4.7U-SMD" device=""/>
 <part name="U$7" library="XT60" deviceset="XT60" device=""/>
-<part name="R5" library="smd-rlc" deviceset="RSMD" device=""/>
+<part name="R6" library="smd-rlc" deviceset="RSMD" device=""/>
+<part name="GND11" library="supply1" library_urn="urn:adsk.eagle:library:371" deviceset="GND" device=""/>
+<part name="R1" library="smd-rlc" deviceset="RSMD" device="" value="1k7"/>
+<part name="R2" library="smd-rlc" deviceset="RSMD" device="" value="3K3"/>
+<part name="GND16" library="supply1" library_urn="urn:adsk.eagle:library:371" deviceset="GND" device=""/>
 </parts>
 <sheets>
 <sheet>
@@ -1634,9 +1560,9 @@ Composed by a Texas EK-TM4C.</text>
 <attribute name="LAST_DATE_TIME" x="133.35" y="0" size="2.286" layer="94"/>
 <attribute name="SHEET" x="146.685" y="-5.08" size="2.54" layer="94"/>
 </instance>
-<instance part="R5" gate="G$1" x="73.66" y="78.74" smashed="yes">
-<attribute name="NAME" x="66.035559375" y="81.28148125" size="2.54148125" layer="95"/>
-<attribute name="VALUE" x="66.03003125" y="73.653359375" size="2.54331875" layer="96"/>
+<instance part="R6" gate="G$1" x="68.12" y="73.66" smashed="yes">
+<attribute name="NAME" x="63.795559375" y="74.40148125" size="0.5" layer="95"/>
+<attribute name="VALUE" x="63.71003125" y="72.413359375" size="0.5" layer="96"/>
 </instance>
 </instances>
 <busses>
@@ -1654,6 +1580,11 @@ Composed by a Texas EK-TM4C.</text>
 <pinref part="IC1" gate="G$1" pin="GND"/>
 <wire x1="60.96" y1="71.12" x2="66.04" y2="71.12" width="0.1524" layer="91"/>
 <label x="66.04" y="71.12" size="1.016" layer="95" xref="yes"/>
+</segment>
+<segment>
+<pinref part="IC1" gate="G$1" pin="GND2"/>
+<wire x1="121.92" y1="73.66" x2="127" y2="73.66" width="0.1524" layer="91"/>
+<label x="127" y="73.66" size="1.016" layer="95" xref="yes"/>
 </segment>
 </net>
 <net name="PD0" class="0">
@@ -1908,26 +1839,18 @@ Composed by a Texas EK-TM4C.</text>
 <label x="93.98" y="50.8" size="1.016" layer="95" rot="R180" xref="yes"/>
 </segment>
 </net>
-<net name="GND2" class="0">
-<segment>
-<pinref part="IC1" gate="G$1" pin="GND2"/>
-<wire x1="121.92" y1="73.66" x2="127" y2="73.66" width="0.1524" layer="91"/>
-<label x="127" y="73.66" size="1.016" layer="95" xref="yes"/>
-</segment>
-</net>
 <net name="N$1" class="0">
 <segment>
 <pinref part="IC1" gate="G$1" pin="+5V"/>
-<wire x1="60.96" y1="73.66" x2="63.5" y2="73.66" width="0.1524" layer="91"/>
-<wire x1="63.5" y1="73.66" x2="63.5" y2="78.74" width="0.1524" layer="91"/>
-<pinref part="R5" gate="G$1" pin="1"/>
+<wire x1="60.96" y1="73.66" x2="61.5" y2="73.66" width="0.1524" layer="91"/>
+<pinref part="R6" gate="G$1" pin="1"/>
 </segment>
 </net>
 <net name="5V0" class="0">
 <segment>
-<pinref part="R5" gate="G$1" pin="2"/>
-<wire x1="83.82" y1="78.74" x2="83.82" y2="81.28" width="0.1524" layer="91"/>
-<label x="83.82" y="81.28" size="1.016" layer="95" rot="R90" xref="yes"/>
+<pinref part="R6" gate="G$1" pin="2"/>
+<wire x1="68.74" y1="73.66" x2="69.86" y2="73.66" width="0.1524" layer="91"/>
+<label x="69.8" y="73.7" size="1.27" layer="95" xref="yes"/>
 </segment>
 </net>
 </nets>
@@ -2012,13 +1935,13 @@ the restant parts of the controller board.</text>
 <instance part="GND15" gate="1" x="299.81" y="236.29" smashed="yes">
 <attribute name="VALUE" x="297.27" y="233.75" size="1.778" layer="96"/>
 </instance>
-<instance part="R3" gate="G$1" x="316.12" y="186.68" smashed="yes" rot="R180">
-<attribute name="NAME" x="323.744440625" y="184.13851875" size="2.54148125" layer="95" rot="R180"/>
-<attribute name="VALUE" x="323.74996875" y="191.766640625" size="2.54331875" layer="96" rot="R180"/>
+<instance part="R3" gate="G$1" x="315.82" y="186.68" smashed="yes" rot="R180">
+<attribute name="NAME" x="319.844440625" y="185.33851875" size="1" layer="95" rot="R180"/>
+<attribute name="VALUE" x="320.44996875" y="188.566640625" size="1" layer="96" rot="R180"/>
 </instance>
-<instance part="R4" gate="G$1" x="339.84" y="186.68" smashed="yes">
-<attribute name="NAME" x="332.215559375" y="189.22148125" size="2.54148125" layer="95"/>
-<attribute name="VALUE" x="332.21003125" y="181.593359375" size="2.54331875" layer="96"/>
+<instance part="R4" gate="G$1" x="332.64" y="186.68" smashed="yes">
+<attribute name="NAME" x="327.715559375" y="187.92148125" size="1" layer="95"/>
+<attribute name="VALUE" x="328.11003125" y="184.793359375" size="1" layer="96"/>
 </instance>
 <instance part="C2" gate="G$1" x="236.23" y="250.43" smashed="yes" rot="R90">
 <attribute name="NAME" x="234.48851875" y="245.085559375" size="2" layer="95" rot="R90"/>
@@ -2033,6 +1956,9 @@ the restant parts of the controller board.</text>
 <attribute name="VALUE" x="346.286640625" y="244.15003125" size="2" layer="96" rot="R90"/>
 </instance>
 <instance part="U$7" gate="G$1" x="305.96" y="174.77" smashed="yes" rot="R180"/>
+<instance part="GND11" gate="1" x="337.4" y="182.3" smashed="yes">
+<attribute name="VALUE" x="334.86" y="179.76" size="1.778" layer="96"/>
+</instance>
 </instances>
 <busses>
 </busses>
@@ -2082,16 +2008,15 @@ the restant parts of the controller board.</text>
 </segment>
 <segment>
 <pinref part="R3" gate="G$1" pin="2"/>
-<wire x1="305.96" y1="186.68" x2="302.05" y2="186.68" width="0.1524" layer="91"/>
-<wire x1="302.05" y1="186.68" x2="302.05" y2="186.76" width="0.1524" layer="91"/>
-<label x="301.99" y="186.76" size="1.016" layer="95" rot="R180" xref="yes"/>
+<wire x1="315.2" y1="186.68" x2="312.05" y2="186.68" width="0.1524" layer="91"/>
+<wire x1="312.05" y1="186.68" x2="311.85" y2="186.56" width="0.1524" layer="91"/>
+<label x="311.89" y="186.76" size="1.016" layer="95" rot="R180" xref="yes"/>
 <pinref part="U$7" gate="G$1" pin="VCC"/>
-<wire x1="311.04" y1="177.31" x2="311.04" y2="181.75" width="0.1524" layer="91"/>
-<wire x1="311.04" y1="181.75" x2="304.8" y2="181.75" width="0.1524" layer="91"/>
-<wire x1="304.8" y1="181.75" x2="304.8" y2="186.7" width="0.1524" layer="91"/>
-<wire x1="304.8" y1="186.7" x2="305.96" y2="186.7" width="0.1524" layer="91"/>
-<wire x1="305.96" y1="186.7" x2="305.96" y2="186.68" width="0.1524" layer="91"/>
-<junction x="305.96" y="186.68"/>
+<wire x1="311.04" y1="177.31" x2="311.34" y2="177.25" width="0.1524" layer="91"/>
+<wire x1="311.34" y1="177.25" x2="315.2" y2="177.25" width="0.1524" layer="91"/>
+<wire x1="315.2" y1="177.25" x2="315.2" y2="182.3" width="0.1524" layer="91"/>
+<wire x1="315.2" y1="182.3" x2="315.16" y2="183.4" width="0.1524" layer="91"/>
+<wire x1="315.16" y1="183.4" x2="315.2" y2="186.68" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="VBAT-" class="0">
@@ -2192,9 +2117,11 @@ the restant parts of the controller board.</text>
 </segment>
 <segment>
 <pinref part="R4" gate="G$1" pin="2"/>
-<wire x1="350" y1="186.68" x2="353.12" y2="186.68" width="0.1524" layer="91"/>
-<wire x1="353.12" y1="186.68" x2="353.12" y2="185.24" width="0.1524" layer="91"/>
-<label x="352" y="188" size="1.016" layer="95" rot="R90" xref="yes"/>
+<wire x1="333.26" y1="186.68" x2="337.42" y2="186.68" width="0.1524" layer="91"/>
+<wire x1="337.42" y1="186.68" x2="337.42" y2="185.34" width="0.1524" layer="91"/>
+<pinref part="GND11" gate="1" pin="GND"/>
+<wire x1="337.4" y1="184.84" x2="337.4" y2="186.68" width="0.1524" layer="91"/>
+<wire x1="337.4" y1="186.68" x2="333.26" y2="186.68" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="3V3_HC12" class="0">
@@ -2270,8 +2197,8 @@ the restant parts of the controller board.</text>
 <segment>
 <pinref part="R3" gate="G$1" pin="1"/>
 <pinref part="R4" gate="G$1" pin="1"/>
-<wire x1="326.28" y1="186.68" x2="329.68" y2="186.68" width="0.1524" layer="91"/>
-<label x="328.1" y="186.84" size="1.016" layer="95" rot="R90" xref="yes"/>
+<wire x1="322.44" y1="186.68" x2="326.02" y2="186.68" width="0.1524" layer="91"/>
+<label x="323.4" y="188.14" size="1.016" layer="95" rot="R90" xref="yes"/>
 </segment>
 </net>
 </nets>
@@ -2535,16 +2462,19 @@ of obstacles.</text>
 <attribute name="LAST_DATE_TIME" x="138.43" y="-7.62" size="2.286" layer="94"/>
 <attribute name="SHEET" x="151.765" y="-12.7" size="2.54" layer="94"/>
 </instance>
-<instance part="R1" gate="G$1" x="109" y="37" smashed="yes">
-<attribute name="NAME" x="101.375559375" y="39.54148125" size="2.54148125" layer="95"/>
-<attribute name="VALUE" x="101.37003125" y="31.913359375" size="2.54331875" layer="96"/>
-</instance>
-<instance part="R2" gate="G$1" x="120" y="26" smashed="yes" rot="R90">
-<attribute name="NAME" x="117.45851875" y="18.375559375" size="2.54148125" layer="95" rot="R90"/>
-<attribute name="VALUE" x="125.086640625" y="18.37003125" size="2.54331875" layer="96" rot="R90"/>
-</instance>
 <instance part="GND12" gate="1" x="91.44" y="29.21" smashed="yes">
 <attribute name="VALUE" x="88.9" y="26.67" size="1.778" layer="96"/>
+</instance>
+<instance part="R1" gate="G$1" x="102" y="36" smashed="yes">
+<attribute name="NAME" x="97.675559375" y="36.74148125" size="0.5" layer="95"/>
+<attribute name="VALUE" x="97.59003125" y="34.753359375" size="0.5" layer="96"/>
+</instance>
+<instance part="R2" gate="G$1" x="105" y="35" smashed="yes" rot="R90">
+<attribute name="NAME" x="104.25851875" y="30.675559375" size="0.5" layer="95" rot="R90"/>
+<attribute name="VALUE" x="106.246640625" y="30.59003125" size="0.5" layer="96" rot="R90"/>
+</instance>
+<instance part="GND16" gate="1" x="105" y="25" smashed="yes">
+<attribute name="VALUE" x="102.46" y="22.46" size="1.778" layer="96"/>
 </instance>
 </instances>
 <busses>
@@ -2567,9 +2497,10 @@ of obstacles.</text>
 <net name="N$34" class="0">
 <segment>
 <pinref part="U$3" gate="G$1" pin="ECHO"/>
-<pinref part="R1" gate="G$1" pin="1"/>
-<wire x1="98.84" y1="37" x2="88.9" y2="37" width="0.1524" layer="91"/>
 <wire x1="88.9" y1="37" x2="88.9" y2="38.1" width="0.1524" layer="91"/>
+<pinref part="R1" gate="G$1" pin="1"/>
+<wire x1="95.38" y1="36" x2="88.9" y2="36" width="0.1524" layer="91"/>
+<wire x1="88.9" y1="36" x2="88.9" y2="38.1" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="GND" class="0">
@@ -2583,19 +2514,18 @@ of obstacles.</text>
 </segment>
 <segment>
 <pinref part="R2" gate="G$1" pin="1"/>
-<wire x1="120" y1="15.84" x2="120" y2="14.54" width="0.1524" layer="91"/>
-<label x="120" y="14" size="1.016" layer="95" xref="yes"/>
+<pinref part="GND16" gate="1" pin="GND"/>
+<wire x1="105" y1="28.38" x2="105" y2="27.54" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="PE2" class="0">
 <segment>
 <pinref part="R1" gate="G$1" pin="2"/>
 <pinref part="R2" gate="G$1" pin="2"/>
-<wire x1="120" y1="37" x2="120" y2="36.16" width="0.1524" layer="91"/>
-<wire x1="120" y1="37" x2="119.16" y2="37" width="0.1524" layer="91"/>
-<wire x1="119.16" y1="37" x2="124" y2="37" width="0.1524" layer="91"/>
-<junction x="119.16" y="37"/>
-<label x="124" y="37" size="1.016" layer="95" xref="yes"/>
+<wire x1="102.62" y1="36" x2="105" y2="36" width="0.1524" layer="91"/>
+<wire x1="105" y1="36" x2="105" y2="35.62" width="0.1524" layer="91"/>
+<wire x1="102.62" y1="36" x2="109" y2="36" width="0.1524" layer="91"/>
+<label x="109" y="36" size="1.016" layer="95" xref="yes"/>
 </segment>
 </net>
 </nets>
@@ -2609,6 +2539,7 @@ as a long working range. Around 1 km.
 So, it can be used for extending the range
 of the controller. It's needed of course some
 sort of trasmitter that uses the same module.</text>
+<text x="98" y="52" size="2" layer="97">ANT</text>
 </plain>
 <instances>
 <instance part="U$5" gate="G$1" x="86.36" y="50.8" smashed="yes"/>
@@ -2640,12 +2571,6 @@ sort of trasmitter that uses the same module.</text>
 <pinref part="U$5" gate="G$1" pin="RX"/>
 <wire x1="63.5" y1="53.34" x2="53.34" y2="53.34" width="0.1524" layer="91"/>
 <label x="53.1" y="53.4" size="1.016" layer="95" rot="R180" xref="yes"/>
-</segment>
-</net>
-<net name="N$17" class="0">
-<segment>
-<pinref part="U$5" gate="G$1" pin="ANT"/>
-<wire x1="109.22" y1="53.34" x2="114.3" y2="53.34" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="GND" class="0">

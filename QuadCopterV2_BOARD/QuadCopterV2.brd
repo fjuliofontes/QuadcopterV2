@@ -6,7 +6,7 @@
 <setting alwaysvectorfont="no"/>
 <setting verticaltext="up"/>
 </settings>
-<grid distance="0.001" unitdist="mm" unit="mm" style="lines" multiple="1" display="no" altdistance="5" altunitdist="mil" altunit="mil"/>
+<grid distance="0.05" unitdist="mm" unit="mm" style="lines" multiple="1" display="no" altdistance="5" altunitdist="mil" altunit="mil"/>
 <layers>
 <layer number="1" name="Top" color="4" fill="1" visible="yes" active="yes"/>
 <layer number="2" name="Route2" color="1" fill="3" visible="no" active="no"/>
@@ -23,17 +23,17 @@
 <layer number="13" name="Route13" color="4" fill="5" visible="no" active="no"/>
 <layer number="14" name="Route14" color="1" fill="6" visible="no" active="no"/>
 <layer number="15" name="Route15" color="4" fill="6" visible="no" active="no"/>
-<layer number="16" name="Bottom" color="1" fill="1" visible="yes" active="yes"/>
+<layer number="16" name="Bottom" color="1" fill="1" visible="no" active="yes"/>
 <layer number="17" name="Pads" color="2" fill="1" visible="yes" active="yes"/>
 <layer number="18" name="Vias" color="2" fill="1" visible="yes" active="yes"/>
 <layer number="19" name="Unrouted" color="6" fill="1" visible="yes" active="yes"/>
 <layer number="20" name="Dimension" color="24" fill="1" visible="yes" active="yes"/>
 <layer number="21" name="tPlace" color="7" fill="1" visible="yes" active="yes"/>
-<layer number="22" name="bPlace" color="7" fill="1" visible="yes" active="yes"/>
+<layer number="22" name="bPlace" color="7" fill="1" visible="no" active="yes"/>
 <layer number="23" name="tOrigins" color="15" fill="1" visible="yes" active="yes"/>
-<layer number="24" name="bOrigins" color="15" fill="1" visible="yes" active="yes"/>
+<layer number="24" name="bOrigins" color="15" fill="1" visible="no" active="yes"/>
 <layer number="25" name="tNames" color="7" fill="1" visible="yes" active="yes"/>
-<layer number="26" name="bNames" color="7" fill="1" visible="yes" active="yes"/>
+<layer number="26" name="bNames" color="7" fill="1" visible="no" active="yes"/>
 <layer number="27" name="tValues" color="7" fill="1" visible="no" active="yes"/>
 <layer number="28" name="bValues" color="7" fill="1" visible="no" active="yes"/>
 <layer number="29" name="tStop" color="7" fill="3" visible="no" active="yes"/>
@@ -47,18 +47,18 @@
 <layer number="37" name="tTest" color="7" fill="1" visible="no" active="yes"/>
 <layer number="38" name="bTest" color="7" fill="1" visible="no" active="yes"/>
 <layer number="39" name="tKeepout" color="4" fill="11" visible="yes" active="yes"/>
-<layer number="40" name="bKeepout" color="1" fill="11" visible="yes" active="yes"/>
+<layer number="40" name="bKeepout" color="1" fill="11" visible="no" active="yes"/>
 <layer number="41" name="tRestrict" color="4" fill="10" visible="yes" active="yes"/>
-<layer number="42" name="bRestrict" color="1" fill="10" visible="yes" active="yes"/>
+<layer number="42" name="bRestrict" color="1" fill="10" visible="no" active="yes"/>
 <layer number="43" name="vRestrict" color="2" fill="10" visible="no" active="yes"/>
 <layer number="44" name="Drills" color="7" fill="1" visible="no" active="yes"/>
 <layer number="45" name="Holes" color="7" fill="1" visible="yes" active="yes"/>
-<layer number="46" name="Milling" color="3" fill="1" visible="yes" active="yes"/>
-<layer number="47" name="Measures" color="7" fill="1" visible="yes" active="yes"/>
+<layer number="46" name="Milling" color="3" fill="1" visible="no" active="yes"/>
+<layer number="47" name="Measures" color="7" fill="1" visible="no" active="yes"/>
 <layer number="48" name="Document" color="7" fill="1" visible="no" active="yes"/>
 <layer number="49" name="Reference" color="7" fill="1" visible="no" active="yes"/>
 <layer number="51" name="tDocu" color="7" fill="1" visible="yes" active="yes"/>
-<layer number="52" name="bDocu" color="7" fill="1" visible="yes" active="yes"/>
+<layer number="52" name="bDocu" color="7" fill="1" visible="no" active="yes"/>
 <layer number="88" name="SimResults" color="9" fill="1" visible="no" active="no"/>
 <layer number="89" name="SimProbes" color="9" fill="1" visible="no" active="no"/>
 <layer number="90" name="Modules" color="5" fill="1" visible="no" active="no"/>
@@ -87,11 +87,41 @@
 <hole x="54.1528" y="65.3" drill="3.72"/>
 <hole x="22.45" y="33.8074" drill="3.72"/>
 <hole x="85.65" y="33.8074" drill="3.72"/>
-<text x="55.7467875" y="36.729734375" size="4" layer="16" font="fixed" rot="R135" align="center">JF V1</text>
-<text x="50.6147875" y="30.960734375" size="4" layer="16" font="fixed" rot="R135" align="center">03/2020</text>
+<text x="55.7467875" y="36.729734375" size="4" layer="26" font="fixed" rot="R135" align="center">JF V1</text>
+<text x="50.6147875" y="30.960734375" size="4" layer="26" font="fixed" rot="R135" align="center">03/2020</text>
 <circle x="54.124" y="33.734" radius="0.65" width="0.4" layer="47"/>
 <rectangle x1="47.55" y1="-12.041" x2="53.732" y2="-6.118" layer="16"/>
 <rectangle x1="54.63" y1="-12.063" x2="60.812" y2="-6.14" layer="16"/>
+<rectangle x1="7.8" y1="65.3" x2="10.2" y2="67.6" layer="16" rot="R45"/>
+<rectangle x1="10.3" y1="62.9" x2="12.7" y2="65.2" layer="16" rot="R45"/>
+<rectangle x1="27.8" y1="62.3" x2="29.6" y2="67" layer="16"/>
+<rectangle x1="25.3" y1="63.4" x2="27" y2="66.6" layer="16"/>
+<rectangle x1="30.3" y1="63.5" x2="32.1" y2="66.7" layer="16"/>
+<rectangle x1="32.8" y1="63.5" x2="34.7" y2="66.7" layer="16"/>
+<rectangle x1="29.4" y1="55.3" x2="34.9" y2="58.7" layer="16"/>
+<rectangle x1="35.6" y1="54.3" x2="37.4" y2="56.6" layer="16"/>
+<rectangle x1="51.1" y1="55.9" x2="52.4" y2="58.6" layer="16"/>
+<rectangle x1="55.1" y1="50.2" x2="60.3" y2="52" layer="16"/>
+<rectangle x1="11.9" y1="28.8" x2="12.9" y2="29.8" layer="16"/>
+<rectangle x1="10.5" y1="28.5" x2="13.7" y2="30.8" layer="16" rot="R45"/>
+<rectangle x1="10.8" y1="36.9" x2="12.4" y2="38.4" layer="16"/>
+<rectangle x1="10.8" y1="34.3" x2="12.4" y2="35.8" layer="16"/>
+<rectangle x1="10.7" y1="31.8" x2="12.3" y2="33.3" layer="16"/>
+<rectangle x1="11.5" y1="6.1" x2="17.8" y2="8.9" layer="16" rot="R45"/>
+<rectangle x1="77" y1="4.5" x2="79.5" y2="7.1" layer="16"/>
+<rectangle x1="97.3" y1="4.4" x2="99.8" y2="7" layer="16"/>
+<rectangle x1="77" y1="47.8" x2="79.5" y2="50.4" layer="16"/>
+<rectangle x1="96.65" y1="47.9" x2="100.4" y2="50.85" layer="16"/>
+<rectangle x1="57.3" y1="63.4" x2="59.05" y2="66.7" layer="16"/>
+<rectangle x1="59.8" y1="62.85" x2="61.55" y2="67.15" layer="16"/>
+<rectangle x1="61.1" y1="66.2" x2="61.55" y2="67.7" layer="16"/>
+<rectangle x1="62.35" y1="63.45" x2="64.1" y2="66.8" layer="16"/>
+<rectangle x1="64.9" y1="63.4" x2="66.65" y2="66.75" layer="16"/>
+<rectangle x1="47.55" y1="-6.05" x2="53.75" y2="-4.85" layer="16"/>
+<rectangle x1="47.55" y1="-6.8" x2="53.75" y2="-5.45" layer="16"/>
+<rectangle x1="42.75" y1="18.2" x2="43.8" y2="19.7" layer="16"/>
+<rectangle x1="39.9" y1="16" x2="40.75" y2="19.65" layer="16"/>
+<rectangle x1="47.9" y1="23.5" x2="50.85" y2="24.6" layer="16"/>
 </plain>
 <libraries>
 <library name="EK-TM4C123GXL">
@@ -384,10 +414,6 @@ Comments, suggestions and bug reports please send to: &lt;b&gt;&lt;a href="mailt
 <pad name="RXD" x="-1.27" y="5.08" drill="0.4" diameter="1.1"/>
 <pad name="TXD" x="-1.27" y="2.54" drill="0.4" diameter="1.1"/>
 <pad name="SET" x="-1.27" y="0" drill="0.4" diameter="1.1"/>
-<pad name="NC" x="22.91" y="0.74" drill="0.4" diameter="0.9128" shape="long"/>
-<pad name="GND_ANT1" x="23.15" y="4.49" drill="0.4" diameter="0.7128" shape="long"/>
-<pad name="GND_ANT" x="23.15" y="9.57" drill="0.4" diameter="0.7128" shape="long"/>
-<pad name="ANT" x="23.15" y="7.028" drill="0.4" diameter="1.27" shape="offset" rot="R180"/>
 <wire x1="-1.523" y1="11.616" x2="-2.104" y2="11.616" width="0.127" layer="21"/>
 <wire x1="-2.104" y1="11.616" x2="-2.555" y2="11.616" width="0.127" layer="21"/>
 <wire x1="-2.555" y1="11.616" x2="-2.555" y2="-1.366" width="0.127" layer="21"/>
@@ -503,18 +529,18 @@ Comments, suggestions and bug reports please send to: &lt;b&gt;&lt;a href="mailt
 <wire x1="1.85" y1="-1.95" x2="1.85" y2="-3.35" width="0.127" layer="21"/>
 <wire x1="1.85" y1="-3.35" x2="-1.85" y2="-3.35" width="0.127" layer="21"/>
 <wire x1="-1.85" y1="-3.35" x2="-1.85" y2="-3.1" width="0.127" layer="21"/>
-<wire x1="2.1" y1="3.6" x2="2.1" y2="1.88" width="0.05" layer="39"/>
-<wire x1="2.1" y1="1.88" x2="4.26" y2="1.88" width="0.05" layer="39"/>
-<wire x1="4.26" y1="1.88" x2="4.26" y2="-1.88" width="0.05" layer="39"/>
-<wire x1="4.26" y1="-1.88" x2="2.1" y2="-1.88" width="0.05" layer="39"/>
-<wire x1="2.1" y1="-1.88" x2="2.1" y2="-3.6" width="0.05" layer="39"/>
-<wire x1="-2.1" y1="3.6" x2="-2.1" y2="3.03" width="0.05" layer="39"/>
-<wire x1="-2.1" y1="3.03" x2="-4.26" y2="3.03" width="0.05" layer="39"/>
-<wire x1="-4.26" y1="3.03" x2="-4.26" y2="-3.03" width="0.05" layer="39"/>
-<wire x1="-4.26" y1="-3.03" x2="-2.1" y2="-3.03" width="0.05" layer="39"/>
-<wire x1="-2.1" y1="-3.03" x2="-2.1" y2="-3.6" width="0.05" layer="39"/>
-<wire x1="-2.1" y1="3.6" x2="2.1" y2="3.6" width="0.05" layer="39"/>
-<wire x1="2.1" y1="-3.6" x2="-2.1" y2="-3.6" width="0.05" layer="39"/>
+<wire x1="2.1" y1="3.6" x2="2.1" y2="1.88" width="0.05" layer="40"/>
+<wire x1="2.1" y1="1.88" x2="4.26" y2="1.88" width="0.05" layer="40"/>
+<wire x1="4.26" y1="1.88" x2="4.26" y2="-1.88" width="0.05" layer="40"/>
+<wire x1="4.26" y1="-1.88" x2="2.1" y2="-1.88" width="0.05" layer="40"/>
+<wire x1="2.1" y1="-1.88" x2="2.1" y2="-3.6" width="0.05" layer="40"/>
+<wire x1="-2.1" y1="3.6" x2="-2.1" y2="3.03" width="0.05" layer="40"/>
+<wire x1="-2.1" y1="3.03" x2="-4.26" y2="3.03" width="0.05" layer="40"/>
+<wire x1="-4.26" y1="3.03" x2="-4.26" y2="-3.03" width="0.05" layer="40"/>
+<wire x1="-4.26" y1="-3.03" x2="-2.1" y2="-3.03" width="0.05" layer="40"/>
+<wire x1="-2.1" y1="-3.03" x2="-2.1" y2="-3.6" width="0.05" layer="40"/>
+<wire x1="-2.1" y1="3.6" x2="2.1" y2="3.6" width="0.05" layer="40"/>
+<wire x1="2.1" y1="-3.6" x2="-2.1" y2="-3.6" width="0.05" layer="40"/>
 <circle x="-4.6" y="2.3" radius="0.1" width="0.2" layer="21"/>
 <circle x="-4.6" y="2.3" radius="0.1" width="0.2" layer="51"/>
 <text x="-3.8" y="4" size="1.27" layer="25">&gt;NAME</text>
@@ -532,10 +558,8 @@ Comments, suggestions and bug reports please send to: &lt;b&gt;&lt;a href="mailt
 <description>SIM800L v2</description>
 <wire x1="0" y1="0" x2="0" y2="27" width="0.127" layer="21"/>
 <wire x1="0" y1="0" x2="40" y2="0" width="0.127" layer="21"/>
-<wire x1="0" y1="27" x2="40" y2="27" width="0.127" layer="22"/>
+<wire x1="0" y1="27" x2="40" y2="27" width="0.127" layer="21"/>
 <wire x1="40" y1="0" x2="40" y2="27" width="0.127" layer="21"/>
-<hole x="2.87" y="24.13" drill="3.2"/>
-<hole x="2.87" y="2.87" drill="3.2"/>
 <pad name="5V" x="38.1" y="19.24" drill="1.2" shape="octagon"/>
 <pad name="PGND" x="38.1" y="16.7" drill="1.2" shape="octagon"/>
 <pad name="VDD" x="38.1" y="14.16" drill="1.2" shape="octagon"/>
@@ -561,39 +585,19 @@ Comments, suggestions and bug reports please send to: &lt;b&gt;&lt;a href="mailt
 </package>
 </packages>
 </library>
-<library name="smd-resistor">
-<packages>
-<package name="RSMD">
-<text x="-1.69" y="-1.05" size="0.5" layer="27" align="top-left">&gt;VALUE</text>
-<text x="-1.69" y="1.05" size="0.5" layer="25">&gt;NAME</text>
-<wire x1="1.07" y1="-0.7" x2="-1.07" y2="-0.7" width="0.127" layer="51"/>
-<wire x1="1.07" y1="0.7" x2="-1.07" y2="0.7" width="0.127" layer="51"/>
-<wire x1="1.07" y1="-0.7" x2="1.07" y2="0.7" width="0.127" layer="51"/>
-<wire x1="-1.07" y1="-0.7" x2="-1.07" y2="0.7" width="0.127" layer="51"/>
-<wire x1="-0.12" y1="0.7" x2="0.12" y2="0.7" width="0.127" layer="21"/>
-<wire x1="-0.12" y1="-0.7" x2="0.12" y2="-0.7" width="0.127" layer="21"/>
-<wire x1="-1.685" y1="-0.96" x2="1.685" y2="-0.96" width="0.05" layer="39"/>
-<wire x1="-1.685" y1="0.96" x2="1.685" y2="0.96" width="0.05" layer="39"/>
-<wire x1="-1.685" y1="-0.96" x2="-1.685" y2="0.96" width="0.05" layer="39"/>
-<wire x1="1.685" y1="-0.96" x2="1.685" y2="0.96" width="0.05" layer="39"/>
-<smd name="1" x="-0.935" y="0" dx="1" dy="1.42" layer="16"/>
-<smd name="2" x="0.935" y="0" dx="1" dy="1.42" layer="16"/>
-</package>
-</packages>
-</library>
 <library name="smd-rlc">
 <packages>
 <package name="C4.7U-SMD">
 <text x="-1.53" y="-1.13" size="0.5" layer="27" align="top-left">&gt;VALUE</text>
 <text x="-1.37" y="1.09" size="0.5" layer="25">&gt;NAME</text>
 <wire x1="1.01" y1="-0.76" x2="-1.35" y2="-0.76" width="0.127" layer="51"/>
-<wire x1="1" y1="0.78" x2="-1.36" y2="0.78" width="0.127" layer="51"/>
-<wire x1="1.01" y1="-0.76" x2="1" y2="0.78" width="0.127" layer="51"/>
-<wire x1="-1.35" y1="-0.76" x2="-1.36" y2="0.78" width="0.127" layer="51"/>
-<wire x1="-1.535" y1="-0.93" x2="1.185" y2="-0.93" width="0.05" layer="39"/>
-<wire x1="-1.535" y1="0.94" x2="1.185" y2="0.94" width="0.05" layer="39"/>
-<wire x1="-1.535" y1="-0.93" x2="-1.535" y2="0.94" width="0.05" layer="39"/>
-<wire x1="1.185" y1="-0.93" x2="1.185" y2="0.94" width="0.05" layer="39"/>
+<wire x1="1.01" y1="0.78" x2="-1.35" y2="0.78" width="0.127" layer="51"/>
+<wire x1="1.01" y1="-0.76" x2="1.01" y2="0.78" width="0.127" layer="51"/>
+<wire x1="-1.35" y1="-0.76" x2="-1.35" y2="0.78" width="0.127" layer="51"/>
+<wire x1="-1.535" y1="-0.93" x2="1.185" y2="-0.93" width="0.05" layer="40"/>
+<wire x1="-1.535" y1="0.94" x2="1.185" y2="0.94" width="0.05" layer="40"/>
+<wire x1="-1.535" y1="-0.93" x2="-1.535" y2="0.94" width="0.05" layer="40"/>
+<wire x1="1.185" y1="-0.93" x2="1.185" y2="0.94" width="0.05" layer="40"/>
 <smd name="1" x="-0.935" y="0" dx="0.5" dy="1.25" layer="16"/>
 <smd name="2" x="0.59" y="0" dx="0.5" dy="1.25" layer="16"/>
 </package>
@@ -606,10 +610,10 @@ Comments, suggestions and bug reports please send to: &lt;b&gt;&lt;a href="mailt
 <wire x1="-1.07" y1="-0.7" x2="-1.07" y2="0.7" width="0.127" layer="51"/>
 <wire x1="-0.12" y1="0.7" x2="0.12" y2="0.7" width="0.127" layer="21"/>
 <wire x1="-0.12" y1="-0.7" x2="0.12" y2="-0.7" width="0.127" layer="21"/>
-<wire x1="-1.685" y1="-0.96" x2="1.685" y2="-0.96" width="0.05" layer="39"/>
-<wire x1="-1.685" y1="0.96" x2="1.685" y2="0.96" width="0.05" layer="39"/>
-<wire x1="-1.685" y1="-0.96" x2="-1.685" y2="0.96" width="0.05" layer="39"/>
-<wire x1="1.685" y1="-0.96" x2="1.685" y2="0.96" width="0.05" layer="39"/>
+<wire x1="-1.685" y1="-0.96" x2="1.685" y2="-0.96" width="0.05" layer="40"/>
+<wire x1="-1.685" y1="0.96" x2="1.685" y2="0.96" width="0.05" layer="40"/>
+<wire x1="-1.685" y1="-0.96" x2="-1.685" y2="0.96" width="0.05" layer="40"/>
+<wire x1="1.685" y1="-0.96" x2="1.685" y2="0.96" width="0.05" layer="40"/>
 <smd name="1" x="-0.935" y="0" dx="1" dy="1.42" layer="16"/>
 <smd name="2" x="0.935" y="0" dx="1" dy="1.42" layer="16"/>
 </package>
@@ -868,30 +872,6 @@ design rules under a new name.</description>
 <element name="U8" library="ESC-HW30A" package="ESC-30A" value="ESC-30AMS5611" x="8.645909375" y="11.24526875" smashed="yes" rot="R45"/>
 <element name="U9" library="ESC-HW30A" package="ESC-30A" value="ESC-30AMS5611" x="7.499434375" y="58.525540625" smashed="yes" rot="R135"/>
 <element name="U10" library="ESC-HW30A" package="ESC-30A" value="ESC-30AMS5611" x="4.362965625" y="61.828665625" smashed="yes" rot="R135"/>
-<element name="R1" library="smd-resistor" package="RSMD" value="RSMD" x="51.664" y="20.087" smashed="yes" rot="R90">
-<attribute name="AVAILABILITY" value="Unavailable" x="51.664" y="20.087" size="1.778" layer="27" rot="R90" display="off"/>
-<attribute name="COMMENT" value="4-1614884-8" x="51.664" y="20.087" size="1.778" layer="27" rot="R90" display="off"/>
-<attribute name="DESCRIPTION" value=" Surface Mount Thin Film Resistor, Cpf Series, 220 Ohm, 100 Mw, - 0.1%, 200 V " x="51.664" y="20.087" size="1.778" layer="27" rot="R90" display="off"/>
-<attribute name="MF" value="TE Connectivity Passive Product" x="51.664" y="20.087" size="1.778" layer="27" rot="R90" display="off"/>
-<attribute name="MP" value="CPF0805B220RE1" x="51.664" y="20.087" size="1.778" layer="27" rot="R90" display="off"/>
-<attribute name="NAME" x="50.614" y="18.397" size="0.5" layer="25" rot="R90"/>
-<attribute name="PACKAGE" value="2012 Stackpole" x="51.664" y="20.087" size="1.778" layer="27" rot="R90" display="off"/>
-<attribute name="PRICE" value="None" x="51.664" y="20.087" size="1.778" layer="27" rot="R90" display="off"/>
-<attribute name="TE_PURCHASE_URL" value="https://www.te.com/usa-en/product-4-1614884-8.html?te_bu=Cor&amp;te_type=disp&amp;te_campaign=seda_glo_cor-seda-global-disp-prtnr-fy19-seda-model-bom-cta_sma-317_1&amp;elqCampaignId=32493" x="51.664" y="20.087" size="1.778" layer="27" rot="R90" display="off"/>
-<attribute name="VALUE" x="52.714" y="18.397" size="0.5" layer="27" rot="R90" align="top-left"/>
-</element>
-<element name="R2" library="smd-resistor" package="RSMD" value="RSMD" x="49.136" y="22.257" smashed="yes" rot="R270">
-<attribute name="AVAILABILITY" value="Unavailable" x="49.136" y="22.257" size="1.778" layer="27" rot="R270" display="off"/>
-<attribute name="COMMENT" value="4-1614884-8" x="49.136" y="22.257" size="1.778" layer="27" rot="R270" display="off"/>
-<attribute name="DESCRIPTION" value=" Surface Mount Thin Film Resistor, Cpf Series, 220 Ohm, 100 Mw, - 0.1%, 200 V " x="49.136" y="22.257" size="1.778" layer="27" rot="R270" display="off"/>
-<attribute name="MF" value="TE Connectivity Passive Product" x="49.136" y="22.257" size="1.778" layer="27" rot="R270" display="off"/>
-<attribute name="MP" value="CPF0805B220RE1" x="49.136" y="22.257" size="1.778" layer="27" rot="R270" display="off"/>
-<attribute name="NAME" x="50.186" y="23.947" size="0.5" layer="25" rot="R270"/>
-<attribute name="PACKAGE" value="2012 Stackpole" x="49.136" y="22.257" size="1.778" layer="27" rot="R270" display="off"/>
-<attribute name="PRICE" value="None" x="49.136" y="22.257" size="1.778" layer="27" rot="R270" display="off"/>
-<attribute name="TE_PURCHASE_URL" value="https://www.te.com/usa-en/product-4-1614884-8.html?te_bu=Cor&amp;te_type=disp&amp;te_campaign=seda_glo_cor-seda-global-disp-prtnr-fy19-seda-model-bom-cta_sma-317_1&amp;elqCampaignId=32493" x="49.136" y="22.257" size="1.778" layer="27" rot="R270" display="off"/>
-<attribute name="VALUE" x="48.086" y="23.947" size="0.5" layer="27" rot="R270" align="top-left"/>
-</element>
 <element name="C1" library="smd-rlc" package="C4.7U-SMD" value="C4.7U-SMD" x="37.5" y="55.331" smashed="yes" rot="R180">
 <attribute name="NAME" x="38.87" y="54.241" size="0.5" layer="25" rot="R180"/>
 <attribute name="VALUE" x="39.03" y="56.461" size="0.5" layer="27" rot="R180" align="top-left"/>
@@ -904,7 +884,7 @@ design rules under a new name.</description>
 <attribute name="NAME" x="94.501" y="13.379" size="0.5" layer="25" rot="R270"/>
 <attribute name="VALUE" x="92.281" y="13.539" size="0.5" layer="27" rot="R270" align="top-left"/>
 </element>
-<element name="R3" library="smd-rlc" package="RSMD" value="RSMD" x="41.25" y="16.676" smashed="yes">
+<element name="R3" library="smd-rlc" package="RSMD" value="11k7" x="41.25" y="16.676" smashed="yes">
 <attribute name="AVAILABILITY" value="Unavailable" x="41.25" y="16.676" size="1.778" layer="27" display="off"/>
 <attribute name="COMMENT" value="4-1614884-8" x="41.25" y="16.676" size="1.778" layer="27" display="off"/>
 <attribute name="DESCRIPTION" value=" Surface Mount Thin Film Resistor, Cpf Series, 220 Ohm, 100 Mw, - 0.1%, 200 V " x="41.25" y="16.676" size="1.778" layer="27" display="off"/>
@@ -916,7 +896,7 @@ design rules under a new name.</description>
 <attribute name="TE_PURCHASE_URL" value="https://www.te.com/usa-en/product-4-1614884-8.html?te_bu=Cor&amp;te_type=disp&amp;te_campaign=seda_glo_cor-seda-global-disp-prtnr-fy19-seda-model-bom-cta_sma-317_1&amp;elqCampaignId=32493" x="41.25" y="16.676" size="1.778" layer="27" display="off"/>
 <attribute name="VALUE" x="39.56" y="15.626" size="0.5" layer="27" align="top-left"/>
 </element>
-<element name="R4" library="smd-rlc" package="RSMD" value="RSMD" x="41.34" y="18.971" smashed="yes">
+<element name="R4" library="smd-rlc" package="RSMD" value="3k3" x="41.34" y="18.971" smashed="yes">
 <attribute name="AVAILABILITY" value="Unavailable" x="41.34" y="18.971" size="1.778" layer="27" display="off"/>
 <attribute name="COMMENT" value="4-1614884-8" x="41.34" y="18.971" size="1.778" layer="27" display="off"/>
 <attribute name="DESCRIPTION" value=" Surface Mount Thin Film Resistor, Cpf Series, 220 Ohm, 100 Mw, - 0.1%, 200 V " x="41.34" y="18.971" size="1.778" layer="27" display="off"/>
@@ -941,17 +921,41 @@ design rules under a new name.</description>
 <attribute name="VALUE" x="64.53" y="58.461" size="0.5" layer="27" rot="R180" align="top-left"/>
 </element>
 <element name="U$7" library="XT60" package="XT60" value="XT60" x="46.129" y="-9.109" smashed="yes"/>
-<element name="R5" library="smd-rlc" package="RSMD" value="RSMD" x="33" y="34" smashed="yes">
-<attribute name="AVAILABILITY" value="Unavailable" x="33" y="34" size="1.778" layer="27" display="off"/>
-<attribute name="COMMENT" value="4-1614884-8" x="33" y="34" size="1.778" layer="27" display="off"/>
-<attribute name="DESCRIPTION" value=" Surface Mount Thin Film Resistor, Cpf Series, 220 Ohm, 100 Mw, - 0.1%, 200 V " x="33" y="34" size="1.778" layer="27" display="off"/>
-<attribute name="MF" value="TE Connectivity Passive Product" x="33" y="34" size="1.778" layer="27" display="off"/>
-<attribute name="MP" value="CPF0805B220RE1" x="33" y="34" size="1.778" layer="27" display="off"/>
-<attribute name="NAME" x="31.31" y="35.05" size="0.5" layer="25"/>
-<attribute name="PACKAGE" value="2012 Stackpole" x="33" y="34" size="1.778" layer="27" display="off"/>
-<attribute name="PRICE" value="None" x="33" y="34" size="1.778" layer="27" display="off"/>
-<attribute name="TE_PURCHASE_URL" value="https://www.te.com/usa-en/product-4-1614884-8.html?te_bu=Cor&amp;te_type=disp&amp;te_campaign=seda_glo_cor-seda-global-disp-prtnr-fy19-seda-model-bom-cta_sma-317_1&amp;elqCampaignId=32493" x="33" y="34" size="1.778" layer="27" display="off"/>
-<attribute name="VALUE" x="31.31" y="32.95" size="0.5" layer="27" align="top-left"/>
+<element name="R6" library="smd-rlc" package="RSMD" value="RSMD" x="34.759" y="32.817" smashed="yes">
+<attribute name="AVAILABILITY" value="Unavailable" x="34.759" y="32.817" size="1.778" layer="27" display="off"/>
+<attribute name="COMMENT" value="4-1614884-8" x="34.759" y="32.817" size="1.778" layer="27" display="off"/>
+<attribute name="DESCRIPTION" value=" Surface Mount Thin Film Resistor, Cpf Series, 220 Ohm, 100 Mw, - 0.1%, 200 V " x="34.759" y="32.817" size="1.778" layer="27" display="off"/>
+<attribute name="MF" value="TE Connectivity Passive Product" x="34.759" y="32.817" size="1.778" layer="27" display="off"/>
+<attribute name="MP" value="CPF0805B220RE1" x="34.759" y="32.817" size="1.778" layer="27" display="off"/>
+<attribute name="NAME" x="33.069" y="33.867" size="0.5" layer="25"/>
+<attribute name="PACKAGE" value="2012 Stackpole" x="34.759" y="32.817" size="1.778" layer="27" display="off"/>
+<attribute name="PRICE" value="None" x="34.759" y="32.817" size="1.778" layer="27" display="off"/>
+<attribute name="TE_PURCHASE_URL" value="https://www.te.com/usa-en/product-4-1614884-8.html?te_bu=Cor&amp;te_type=disp&amp;te_campaign=seda_glo_cor-seda-global-disp-prtnr-fy19-seda-model-bom-cta_sma-317_1&amp;elqCampaignId=32493" x="34.759" y="32.817" size="1.778" layer="27" display="off"/>
+<attribute name="VALUE" x="33.069" y="31.767" size="0.5" layer="27" align="top-left"/>
+</element>
+<element name="R1" library="smd-rlc" package="RSMD" value="1k7" x="51" y="20" smashed="yes" rot="R90">
+<attribute name="AVAILABILITY" value="Unavailable" x="51" y="20" size="1.778" layer="27" rot="R90" display="off"/>
+<attribute name="COMMENT" value="4-1614884-8" x="51" y="20" size="1.778" layer="27" rot="R90" display="off"/>
+<attribute name="DESCRIPTION" value=" Surface Mount Thin Film Resistor, Cpf Series, 220 Ohm, 100 Mw, - 0.1%, 200 V " x="51" y="20" size="1.778" layer="27" rot="R90" display="off"/>
+<attribute name="MF" value="TE Connectivity Passive Product" x="51" y="20" size="1.778" layer="27" rot="R90" display="off"/>
+<attribute name="MP" value="CPF0805B220RE1" x="51" y="20" size="1.778" layer="27" rot="R90" display="off"/>
+<attribute name="NAME" x="49.95" y="18.31" size="0.5" layer="25" rot="R90"/>
+<attribute name="PACKAGE" value="2012 Stackpole" x="51" y="20" size="1.778" layer="27" rot="R90" display="off"/>
+<attribute name="PRICE" value="None" x="51" y="20" size="1.778" layer="27" rot="R90" display="off"/>
+<attribute name="TE_PURCHASE_URL" value="https://www.te.com/usa-en/product-4-1614884-8.html?te_bu=Cor&amp;te_type=disp&amp;te_campaign=seda_glo_cor-seda-global-disp-prtnr-fy19-seda-model-bom-cta_sma-317_1&amp;elqCampaignId=32493" x="51" y="20" size="1.778" layer="27" rot="R90" display="off"/>
+<attribute name="VALUE" x="52.05" y="18.31" size="0.5" layer="27" rot="R90" align="top-left"/>
+</element>
+<element name="R2" library="smd-rlc" package="RSMD" value="3K3" x="49" y="23" smashed="yes" rot="R270">
+<attribute name="AVAILABILITY" value="Unavailable" x="49" y="23" size="1.778" layer="27" rot="R270" display="off"/>
+<attribute name="COMMENT" value="4-1614884-8" x="49" y="23" size="1.778" layer="27" rot="R270" display="off"/>
+<attribute name="DESCRIPTION" value=" Surface Mount Thin Film Resistor, Cpf Series, 220 Ohm, 100 Mw, - 0.1%, 200 V " x="49" y="23" size="1.778" layer="27" rot="R270" display="off"/>
+<attribute name="MF" value="TE Connectivity Passive Product" x="49" y="23" size="1.778" layer="27" rot="R270" display="off"/>
+<attribute name="MP" value="CPF0805B220RE1" x="49" y="23" size="1.778" layer="27" rot="R270" display="off"/>
+<attribute name="NAME" x="50.05" y="24.69" size="0.5" layer="25" rot="R270"/>
+<attribute name="PACKAGE" value="2012 Stackpole" x="49" y="23" size="1.778" layer="27" rot="R270" display="off"/>
+<attribute name="PRICE" value="None" x="49" y="23" size="1.778" layer="27" rot="R270" display="off"/>
+<attribute name="TE_PURCHASE_URL" value="https://www.te.com/usa-en/product-4-1614884-8.html?te_bu=Cor&amp;te_type=disp&amp;te_campaign=seda_glo_cor-seda-global-disp-prtnr-fy19-seda-model-bom-cta_sma-317_1&amp;elqCampaignId=32493" x="49" y="23" size="1.778" layer="27" rot="R270" display="off"/>
+<attribute name="VALUE" x="47.95" y="24.69" size="0.5" layer="27" rot="R270" align="top-left"/>
 </element>
 </elements>
 <signals>
@@ -1043,14 +1047,18 @@ design rules under a new name.</description>
 <via x="37" y="43" extent="1-16" drill="0.35"/>
 <wire x1="37" y1="43" x2="33" y2="39" width="1.2" layer="16"/>
 <wire x1="31" y1="39" x2="33" y2="39" width="1.2" layer="16"/>
-<contactref element="R5" pad="2"/>
-<wire x1="31" y1="39" x2="34" y2="36" width="1.2" layer="16"/>
 <wire x1="29.758" y1="39.495" x2="30.505" y2="39.495" width="1.2" layer="16"/>
 <wire x1="30.505" y1="39.495" x2="31" y2="39" width="1.2" layer="16"/>
-<wire x1="34" y1="36" x2="34" y2="34.065" width="1.2" layer="16"/>
-<wire x1="34" y1="34.065" x2="33.935" y2="34" width="1.2" layer="16"/>
-<wire x1="33.935" y1="34" x2="39" y2="28.935" width="1.2" layer="16"/>
-<wire x1="39" y1="28.935" x2="39" y2="28" width="1.2" layer="16"/>
+<contactref element="R6" pad="2"/>
+<wire x1="31" y1="39" x2="33" y2="37" width="1.2" layer="16"/>
+<wire x1="33" y1="37" x2="35" y2="37" width="1.2" layer="16"/>
+<wire x1="35" y1="37" x2="36" y2="36" width="1.2" layer="16"/>
+<wire x1="36" y1="32" x2="35.694" y2="32.306" width="1.2" layer="16"/>
+<wire x1="35.694" y1="32.306" x2="35.694" y2="32.817" width="1.2" layer="16"/>
+<wire x1="36" y1="36" x2="36" y2="32" width="1.2" layer="16"/>
+<wire x1="35.694" y1="32.817" x2="38.511" y2="30" width="1.2" layer="16"/>
+<wire x1="38.511" y1="30" x2="39" y2="30" width="1.2" layer="16"/>
+<wire x1="39" y1="30" x2="39" y2="28" width="1.2" layer="16"/>
 </signal>
 <signal name="3V3">
 <contactref element="IC1" pad="1"/>
@@ -1114,15 +1122,15 @@ design rules under a new name.</description>
 <wire x1="95.83801875" y1="48.3792" x2="97.78" y2="48.3792" width="1.1" layer="16"/>
 <wire x1="97.78" y1="48.3792" x2="98.504" y2="49.1032" width="1.1" layer="16"/>
 <contactref element="C6" pad="1"/>
-<contactref element="U5" pad="2"/>
+<contactref element="U5" pad="2" route="any" routetag="A.GND_(TAB)"/>
 <contactref element="C4" pad="1"/>
-<contactref element="U4" pad="2"/>
+<contactref element="U4" pad="2" route="any" routetag="A.GND_(TAB)"/>
 <contactref element="C2" pad="1"/>
-<contactref element="U6" pad="2"/>
+<contactref element="U6" pad="2" route="any" routetag="A.GND_(TAB)"/>
 <wire x1="98.773" y1="39.31221875" x2="98.773" y2="25" width="1.1" layer="16"/>
-<contactref element="U4" pad="4"/>
-<contactref element="U5" pad="4"/>
-<contactref element="U6" pad="4"/>
+<contactref element="U4" pad="4" route="any" routetag="A.GND_(TAB)"/>
+<contactref element="U5" pad="4" route="any" routetag="A.GND_(TAB)"/>
+<contactref element="U6" pad="4" route="any" routetag="A.GND_(TAB)"/>
 <wire x1="98.773" y1="25" x2="98.773" y2="23.773" width="1.1" layer="16"/>
 <wire x1="97.889925" y1="-4.320315625" x2="102" y2="-0.210240625" width="0.8" layer="16"/>
 <wire x1="102" y1="-0.210240625" x2="102" y2="2" width="0.8" layer="16"/>
@@ -1197,9 +1205,6 @@ design rules under a new name.</description>
 <via x="44" y="19" extent="1-16" drill="0.35"/>
 <wire x1="44" y1="19" x2="44" y2="26" width="0.8" layer="1"/>
 <via x="44" y="26" extent="1-16" drill="0.35"/>
-<contactref element="R2" pad="1"/>
-<wire x1="49.136" y1="23.192" x2="46.328" y2="26" width="0.8" layer="16"/>
-<wire x1="46.328" y1="26" x2="44" y2="26" width="0.8" layer="16"/>
 <wire x1="44" y1="26" x2="38" y2="26" width="0.8" layer="16"/>
 <wire x1="35.0948" y1="28.9052" x2="29.972" y2="28.9052" width="0.8" layer="16"/>
 <wire x1="38" y1="26" x2="35.0948" y2="28.9052" width="0.8" layer="16"/>
@@ -1224,8 +1229,47 @@ design rules under a new name.</description>
 <via x="29" y="37" extent="1-16" drill="0.35"/>
 <via x="29" y="47" extent="1-16" drill="0.35"/>
 <wire x1="29" y1="37" x2="29" y2="47" width="0.8" layer="1"/>
-<wire x1="58.029" y1="57.025" x2="58.029" y2="50.975" width="0" layer="19" extent="16-16"/>
-<wire x1="31.872" y1="50.975" x2="31.872" y2="57.025" width="0" layer="19" extent="16-16"/>
+<contactref element="R2" pad="1"/>
+<wire x1="46.935" y1="26" x2="49" y2="23.935" width="0.8" layer="16"/>
+<wire x1="44" y1="26" x2="46.935" y2="26" width="0.8" layer="16"/>
+<polygon width="0.8" layer="16" isolate="0.8">
+<vertex x="0" y="67"/>
+<vertex x="21" y="88"/>
+<vertex x="28" y="85"/>
+<vertex x="37" y="82"/>
+<vertex x="46" y="81"/>
+<vertex x="52.2" y="80.6"/>
+<vertex x="59.5" y="80.8"/>
+<vertex x="69.1" y="81.6"/>
+<vertex x="77.4" y="83.6"/>
+<vertex x="87.7" y="87.2"/>
+<vertex x="107.8" y="67.7"/>
+<vertex x="105.4" y="61.3"/>
+<vertex x="103.1" y="53.5"/>
+<vertex x="101.1" y="42.6"/>
+<vertex x="100.7" y="33.9"/>
+<vertex x="101" y="26.3"/>
+<vertex x="102" y="17.9"/>
+<vertex x="105.8" y="4.9"/>
+<vertex x="107.6" y="0.5"/>
+<vertex x="88" y="-20.4"/>
+<vertex x="81.8" y="-18.1"/>
+<vertex x="71.6" y="-15.4"/>
+<vertex x="62.6" y="-13.9"/>
+<vertex x="51.3" y="-13.6"/>
+<vertex x="42.6" y="-13.9"/>
+<vertex x="32" y="-16.2"/>
+<vertex x="20.5" y="-20"/>
+<vertex x="-0.4" y="-0.1"/>
+<vertex x="2.3" y="7.2"/>
+<vertex x="4.8" y="15.9"/>
+<vertex x="6.5" y="24.9"/>
+<vertex x="7.1" y="34.5"/>
+<vertex x="6.3" y="46.9"/>
+<vertex x="4" y="57.7"/>
+</polygon>
+<contactref element="IC1" pad="20"/>
+<wire x1="49" y1="23.935" x2="49.8" y2="24.7" width="0.8" layer="16"/>
 </signal>
 <signal name="PD0">
 <contactref element="IC1" pad="23"/>
@@ -1322,8 +1366,6 @@ design rules under a new name.</description>
 </signal>
 <signal name="PE2">
 <contactref element="IC1" pad="28"/>
-<contactref element="R1" pad="2"/>
-<contactref element="R2" pad="2"/>
 <wire x1="29.972" y1="13.6652" x2="32.3348" y2="13.6652" width="0.8" layer="16"/>
 <wire x1="32.3348" y1="13.6652" x2="33" y2="13" width="0.8" layer="16"/>
 <via x="33" y="13" extent="1-16" drill="0.35"/>
@@ -1332,11 +1374,13 @@ design rules under a new name.</description>
 <wire x1="33.68393125" y1="25" x2="33" y2="25" width="0.8" layer="16"/>
 <wire x1="34.61453125" y1="24.0694" x2="33.68393125" y2="25" width="0.8" layer="16"/>
 <wire x1="45.4726" y1="24.0694" x2="34.61453125" y2="24.0694" width="0.8" layer="16"/>
-<wire x1="49.136" y1="21.322" x2="49" y2="21.322" width="0.8" layer="16"/>
 <wire x1="49" y1="21.322" x2="48.22" y2="21.322" width="0.8" layer="16"/>
 <wire x1="48.22" y1="21.322" x2="45.4726" y2="24.0694" width="0.8" layer="16"/>
-<wire x1="51.664" y1="21.022" x2="49.3" y2="21.022" width="0.8" layer="16"/>
-<wire x1="49.3" y1="21.022" x2="49" y2="21.322" width="0.8" layer="16"/>
+<contactref element="R1" pad="2"/>
+<contactref element="R2" pad="2"/>
+<wire x1="51" y1="20.935" x2="49.387" y2="20.935" width="0.8" layer="16"/>
+<wire x1="49.387" y1="20.935" x2="49" y2="21.322" width="0.8" layer="16"/>
+<wire x1="49" y1="22.065" x2="49" y2="21.322" width="0.8" layer="16"/>
 </signal>
 <signal name="PE3">
 <contactref element="IC1" pad="29"/>
@@ -1373,8 +1417,9 @@ design rules under a new name.</description>
 <wire x1="16" y1="51" x2="16" y2="44.019" width="0.8" layer="16"/>
 <wire x1="21" y1="39.019" x2="21" y2="36.99036875" width="0.8" layer="16"/>
 <wire x1="21" y1="36.99036875" x2="19.174" y2="35.16436875" width="0.8" layer="16"/>
-<wire x1="19.174" y1="35.16436875" x2="19.174" y2="33" width="0.8" layer="16"/>
-<wire x1="19.174" y1="33" x2="19.174" y2="32.45043125" width="0" layer="19" extent="16-16"/>
+<wire x1="19.174" y1="35.16436875" x2="19.174" y2="33.7" width="0.8" layer="16"/>
+<wire x1="19.174" y1="33.7" x2="19.174" y2="33" width="0.8" layer="16"/>
+<wire x1="19.174" y1="33" x2="19.174" y2="32.45043125" width="0.8" layer="16"/>
 </signal>
 <signal name="U1_TX">
 <contactref element="IC1" pad="4"/>
@@ -1814,9 +1859,6 @@ design rules under a new name.</description>
 <signal name="PUSH1">
 <contactref element="IC1" pad="31"/>
 </signal>
-<signal name="GND2">
-<contactref element="IC1" pad="20"/>
-</signal>
 <signal name="N$20">
 <contactref element="U$2" pad="B1"/>
 </signal>
@@ -1825,7 +1867,6 @@ design rules under a new name.</description>
 </signal>
 <signal name="N$34">
 <contactref element="U$3" pad="ECHO"/>
-<contactref element="R1" pad="1"/>
 <wire x1="11.5852" y1="32.5192" x2="9" y2="29.934" width="0.8" layer="16"/>
 <wire x1="9" y1="29.934" x2="9" y2="13.915" width="0.8" layer="16"/>
 <wire x1="42" y1="-4" x2="42" y2="-2" width="1.2" layer="16"/>
@@ -1835,19 +1876,18 @@ design rules under a new name.</description>
 <via x="47" y="8" extent="1-16" drill="0.35"/>
 <wire x1="47" y1="8" x2="47" y2="14" width="1.2" layer="1"/>
 <via x="47" y="14" extent="1-16" drill="0.35"/>
-<wire x1="51.664" y1="19.152" x2="49.152" y2="19.152" width="0.8" layer="16"/>
 <wire x1="47.9524" y1="17.9524" x2="47.9524" y2="15.6055" width="0.8" layer="16"/>
 <wire x1="47" y1="14.6531" x2="47" y2="14" width="0.8" layer="16"/>
 <wire x1="47.9524" y1="15.6055" x2="47" y2="14.6531" width="0.8" layer="16"/>
-<wire x1="49.152" y1="19.152" x2="47.9524" y2="17.9524" width="0.8" layer="16"/>
+<wire x1="47.9524" y1="17.9524" x2="49.152" y2="19.152" width="0.8" layer="16"/>
 <wire x1="4.528" y1="5.176" x2="7.532" y2="2.172" width="0.8" layer="16"/>
 <wire x1="9" y1="13.915" x2="4.528" y2="9.443" width="0.8" layer="16"/>
 <wire x1="4.528" y1="9.443" x2="4.528" y2="5.176" width="0.8" layer="16"/>
 <wire x1="7.532" y1="2.172" x2="21.704" y2="-12" width="1.2" layer="16"/>
 <wire x1="21.704" y1="-12" x2="34" y2="-12" width="1.2" layer="16"/>
-</signal>
-<signal name="N$17">
-<contactref element="U$5" pad="ANT"/>
+<contactref element="R1" pad="1"/>
+<wire x1="49.152" y1="19.152" x2="50.913" y2="19.152" width="0.8" layer="16"/>
+<wire x1="50.913" y1="19.152" x2="51" y2="19.065" width="0.8" layer="16"/>
 </signal>
 <signal name="N$40">
 <contactref element="U1" pad="CSB"/>
@@ -1997,10 +2037,10 @@ design rules under a new name.</description>
 </signal>
 <signal name="N$1">
 <contactref element="IC1" pad="21"/>
-<contactref element="R5" pad="1"/>
-<wire x1="32.065" y1="34" x2="32.065" y2="33.065" width="1.2" layer="16"/>
 <wire x1="30.4452" y1="31.4452" x2="29.972" y2="31.4452" width="1.2" layer="16"/>
-<wire x1="32.065" y1="33.065" x2="30.4452" y2="31.4452" width="1.2" layer="16"/>
+<contactref element="R6" pad="1"/>
+<wire x1="29.972" y1="31.4452" x2="32.4522" y2="31.4452" width="1.2" layer="16"/>
+<wire x1="32.4522" y1="31.4452" x2="33.824" y2="32.817" width="1.2" layer="16"/>
 </signal>
 </signals>
 <mfgpreviewcolors>
