@@ -31,5 +31,4 @@
   - [ ] Test the quadcopter
   
   ##### Media:
-  <img src="/media/top.png" width="200" height="200">
-  <img src="/media/bot.png" width="200" height="200">
+  <img src="/media/top.png" width="200" height="200"> <img src="/media/bot.png" width="200" height="200">
