@@ -29,3 +29,7 @@
   - [ ] Develop controller algorithm 
   - [ ] Update remote controller app
   - [ ] Test the quadcopter
+  
+  ##### Media:
+  ![Designed Board - Top](/media/top.png)
+  ![Designed Board - Bottom](/media/bot.png)
