@@ -23,12 +23,12 @@
   #### [Version 1.0](https://github.com/fjuliofontes/Quadcopter)
   
   ##### TODO:
-  - [x] Order the hardware required
-  - [ ] Test and develop device drivers for hardware
-  - [x] Complete the final schematic and board
-  - [ ] Develop controller algorithm 
-  - [ ] Update remote controller app
-  - [ ] Test the quadcopter
+  - [x] Order the necessary hardware.
+  - [ ] Test and develop code for ordered hardware.
+  - [x] Design a schematic and a board for the hardware.
+  - [ ] Develop a controller algorithm for the quadcopter.
+  - [ ] Update the android remote controller application.
+  - [ ] Testing all together. 
   
   ##### Media:
   <img src="/media/top.png" width="200" height="200"> <img src="/media/bot.png" width="200" height="200">
