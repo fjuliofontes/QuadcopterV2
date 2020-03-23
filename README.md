@@ -31,5 +31,5 @@
   - [ ] Test the quadcopter
   
   ##### Media:
-  ![Designed Board - Top](/media/top.png){:height="50%" width="50%"}
-  ![Designed Board - Bottom](/media/bot.png){:height="50%" width="50%"}
+  ![Designed Board - Top](/media/top.png){:height="700px" width="400px"}
+  ![Designed Board - Bottom](/media/bot.png){:height="700px" width="400px"}
