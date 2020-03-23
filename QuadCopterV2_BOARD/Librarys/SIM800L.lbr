@@ -72,7 +72,7 @@
 <pad name="GND" x="38.1" y="6.54" drill="1.2" shape="octagon"/>
 <pad name="RST" x="38.1" y="4" drill="1.2" shape="octagon"/>
 <hole x="37.16" y="24.13" drill="3.2"/>
-<text x="15.24" y="1.27" size="1.27" layer="21">SIM800L v2</text>
+<text x="2.54" y="8.89" size="1.27" layer="21" rot="R90">SIM800L v2</text>
 </package>
 </packages>
 <symbols>

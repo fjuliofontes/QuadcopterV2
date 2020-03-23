@@ -6,7 +6,7 @@
 <setting alwaysvectorfont="no"/>
 <setting verticaltext="up"/>
 </settings>
-<grid distance="1" unitdist="mm" unit="mm" style="lines" multiple="1" display="no" altdistance="0.01" altunitdist="inch" altunit="inch"/>
+<grid distance="0.1" unitdist="inch" unit="inch" style="lines" multiple="1" display="no" altdistance="0.01" altunitdist="inch" altunit="inch"/>
 <layers>
 <layer number="1" name="Top" color="4" fill="1" visible="no" active="no"/>
 <layer number="2" name="Route2" color="1" fill="3" visible="no" active="no"/>
@@ -803,19 +803,17 @@ http://randomnerdtutorials.com/complete-guide-for-ultrasonic-sensor-hc-sr04/&lt;
 <packages>
 <package name="HC-12_FOOTPRINT">
 <description>HC-12 RF</description>
-<text x="8.89" y="0" size="1.27" layer="21">HC-12 RF</text>
+<text x="24.13" y="1.27" size="1.27" layer="21" rot="R90">HC-12 RF</text>
 <pad name="VCC" x="-1.27" y="10.16" drill="0.4" diameter="1.1" shape="square"/>
 <pad name="GND" x="-1.27" y="7.62" drill="0.4" diameter="1.1"/>
 <pad name="RXD" x="-1.27" y="5.08" drill="0.4" diameter="1.1"/>
 <pad name="TXD" x="-1.27" y="2.54" drill="0.4" diameter="1.1"/>
 <pad name="SET" x="-1.27" y="0" drill="0.4" diameter="1.1"/>
-<wire x1="-1.523" y1="11.616" x2="-2.104" y2="11.616" width="0.127" layer="21"/>
-<wire x1="-2.104" y1="11.616" x2="-2.555" y2="11.616" width="0.127" layer="21"/>
 <wire x1="-2.555" y1="11.616" x2="-2.555" y2="-1.366" width="0.127" layer="21"/>
 <wire x1="-2.555" y1="-1.366" x2="6.897" y2="-1.366" width="0.127" layer="21"/>
 <wire x1="6.595" y1="-1.368" x2="24.458" y2="-1.368" width="0.127" layer="21"/>
 <wire x1="24.458" y1="-1.368" x2="24.458" y2="11.616" width="0.127" layer="21"/>
-<wire x1="24.458" y1="11.616" x2="-1.523" y2="11.616" width="0.127" layer="21"/>
+<wire x1="24.458" y1="11.616" x2="-2.555" y2="11.616" width="0.127" layer="21"/>
 </package>
 </packages>
 <symbols>
@@ -1116,16 +1114,16 @@ http://randomnerdtutorials.com/complete-guide-for-ultrasonic-sensor-hc-sr04/&lt;
 <smd name="4" x="3.025" y="0" dx="1.97" dy="3.19" layer="1" roundness="25"/>
 </package>
 <package name="SOT230P700X180-4N#P1">
-<wire x1="-1.85" y1="3.35" x2="1.85" y2="3.35" width="0.127" layer="51"/>
-<wire x1="1.85" y1="3.35" x2="1.85" y2="-3.35" width="0.127" layer="51"/>
-<wire x1="1.85" y1="-3.35" x2="-1.85" y2="-3.35" width="0.127" layer="51"/>
-<wire x1="-1.85" y1="-3.35" x2="-1.85" y2="3.35" width="0.127" layer="51"/>
-<wire x1="1.85" y1="1.95" x2="1.85" y2="3.35" width="0.127" layer="21"/>
-<wire x1="1.85" y1="3.35" x2="-1.85" y2="3.35" width="0.127" layer="21"/>
-<wire x1="-1.85" y1="3.35" x2="-1.85" y2="3.1" width="0.127" layer="21"/>
-<wire x1="1.85" y1="-1.95" x2="1.85" y2="-3.35" width="0.127" layer="21"/>
-<wire x1="1.85" y1="-3.35" x2="-1.85" y2="-3.35" width="0.127" layer="21"/>
-<wire x1="-1.85" y1="-3.35" x2="-1.85" y2="-3.1" width="0.127" layer="21"/>
+<wire x1="-1.85" y1="3.35" x2="1.85" y2="3.35" width="0.127" layer="52"/>
+<wire x1="1.85" y1="3.35" x2="1.85" y2="-3.35" width="0.127" layer="52"/>
+<wire x1="1.85" y1="-3.35" x2="-1.85" y2="-3.35" width="0.127" layer="52"/>
+<wire x1="-1.85" y1="-3.35" x2="-1.85" y2="3.35" width="0.127" layer="52"/>
+<wire x1="1.85" y1="1.95" x2="1.85" y2="3.35" width="0.127" layer="22"/>
+<wire x1="1.85" y1="3.35" x2="-1.85" y2="3.35" width="0.127" layer="22"/>
+<wire x1="-1.85" y1="3.35" x2="-1.85" y2="3.1" width="0.127" layer="22"/>
+<wire x1="1.85" y1="-1.95" x2="1.85" y2="-3.35" width="0.127" layer="22"/>
+<wire x1="1.85" y1="-3.35" x2="-1.85" y2="-3.35" width="0.127" layer="22"/>
+<wire x1="-1.85" y1="-3.35" x2="-1.85" y2="-3.1" width="0.127" layer="22"/>
 <wire x1="2.1" y1="3.6" x2="2.1" y2="1.88" width="0.05" layer="40"/>
 <wire x1="2.1" y1="1.88" x2="4.26" y2="1.88" width="0.05" layer="40"/>
 <wire x1="4.26" y1="1.88" x2="4.26" y2="-1.88" width="0.05" layer="40"/>
@@ -1138,14 +1136,14 @@ http://randomnerdtutorials.com/complete-guide-for-ultrasonic-sensor-hc-sr04/&lt;
 <wire x1="-2.1" y1="-3.03" x2="-2.1" y2="-3.6" width="0.05" layer="40"/>
 <wire x1="-2.1" y1="3.6" x2="2.1" y2="3.6" width="0.05" layer="40"/>
 <wire x1="2.1" y1="-3.6" x2="-2.1" y2="-3.6" width="0.05" layer="40"/>
-<circle x="-4.6" y="2.3" radius="0.1" width="0.2" layer="21"/>
-<circle x="-4.6" y="2.3" radius="0.1" width="0.2" layer="51"/>
-<text x="-3.8" y="4" size="1.27" layer="25">&gt;NAME</text>
-<text x="-3.8" y="-5.2" size="1.27" layer="27">&gt;VALUE</text>
+<circle x="-4.6" y="2.3" radius="0.1" width="0.2" layer="22"/>
+<text x="-3.8" y="4" size="1.27" layer="26">&gt;NAME</text>
+<text x="-3.8" y="-5.2" size="1.27" layer="28">&gt;VALUE</text>
 <smd name="1" x="-3.025" y="2.3" dx="1.97" dy="0.89" layer="16" roundness="25"/>
 <smd name="2" x="-3.025" y="0" dx="1.97" dy="0.89" layer="16" roundness="25"/>
 <smd name="3" x="-3.025" y="-2.3" dx="1.97" dy="0.89" layer="16" roundness="25"/>
 <smd name="4" x="3.025" y="0" dx="1.97" dy="3.19" layer="16" roundness="25"/>
+<circle x="-4.6" y="2.3" radius="0.1" width="0.2" layer="52"/>
 </package>
 </packages>
 <symbols>
@@ -1247,7 +1245,7 @@ http://randomnerdtutorials.com/complete-guide-for-ultrasonic-sensor-hc-sr04/&lt;
 <pad name="GND" x="38.1" y="6.54" drill="1.2" shape="octagon"/>
 <pad name="RST" x="38.1" y="4" drill="1.2" shape="octagon"/>
 <hole x="37.16" y="24.13" drill="3.2"/>
-<text x="15.24" y="1.27" size="1.27" layer="21">SIM800L v2</text>
+<text x="2.54" y="8.89" size="1.27" layer="21" rot="R90">SIM800L v2</text>
 </package>
 </packages>
 <symbols>
@@ -1338,12 +1336,12 @@ http://randomnerdtutorials.com/complete-guide-for-ultrasonic-sensor-hc-sr04/&lt;
 <library name="smd-rlc">
 <packages>
 <package name="C4.7U-SMD">
-<text x="-1.53" y="-1.13" size="0.5" layer="27" align="top-left">&gt;VALUE</text>
-<text x="-1.37" y="1.09" size="0.5" layer="25">&gt;NAME</text>
-<wire x1="1.01" y1="-0.76" x2="-1.35" y2="-0.76" width="0.127" layer="51"/>
-<wire x1="1.01" y1="0.78" x2="-1.35" y2="0.78" width="0.127" layer="51"/>
-<wire x1="1.01" y1="-0.76" x2="1.01" y2="0.78" width="0.127" layer="51"/>
-<wire x1="-1.35" y1="-0.76" x2="-1.35" y2="0.78" width="0.127" layer="51"/>
+<text x="-1.53" y="-1.13" size="0.5" layer="28" align="top-left">&gt;VALUE</text>
+<text x="-1.37" y="1.09" size="0.5" layer="26">&gt;NAME</text>
+<wire x1="1.01" y1="-0.76" x2="-1.35" y2="-0.76" width="0.127" layer="52"/>
+<wire x1="1.01" y1="0.78" x2="-1.35" y2="0.78" width="0.127" layer="52"/>
+<wire x1="1.01" y1="-0.76" x2="1.01" y2="0.78" width="0.127" layer="52"/>
+<wire x1="-1.35" y1="-0.76" x2="-1.35" y2="0.78" width="0.127" layer="52"/>
 <wire x1="-1.535" y1="-0.93" x2="1.185" y2="-0.93" width="0.05" layer="40"/>
 <wire x1="-1.535" y1="0.94" x2="1.185" y2="0.94" width="0.05" layer="40"/>
 <wire x1="-1.535" y1="-0.93" x2="-1.535" y2="0.94" width="0.05" layer="40"/>
@@ -1352,14 +1350,14 @@ http://randomnerdtutorials.com/complete-guide-for-ultrasonic-sensor-hc-sr04/&lt;
 <smd name="2" x="0.59" y="0" dx="0.5" dy="1.25" layer="16"/>
 </package>
 <package name="RSMD">
-<text x="-1.69" y="-1.05" size="0.5" layer="27" align="top-left">&gt;VALUE</text>
-<text x="-1.69" y="1.05" size="0.5" layer="25">&gt;NAME</text>
-<wire x1="1.07" y1="-0.7" x2="-1.07" y2="-0.7" width="0.127" layer="51"/>
-<wire x1="1.07" y1="0.7" x2="-1.07" y2="0.7" width="0.127" layer="51"/>
-<wire x1="1.07" y1="-0.7" x2="1.07" y2="0.7" width="0.127" layer="51"/>
-<wire x1="-1.07" y1="-0.7" x2="-1.07" y2="0.7" width="0.127" layer="51"/>
-<wire x1="-0.12" y1="0.7" x2="0.12" y2="0.7" width="0.127" layer="21"/>
-<wire x1="-0.12" y1="-0.7" x2="0.12" y2="-0.7" width="0.127" layer="21"/>
+<text x="-1.69" y="-1.05" size="0.5" layer="28" align="top-left">&gt;VALUE</text>
+<text x="-1.69" y="1.05" size="0.5" layer="26">&gt;NAME</text>
+<wire x1="1.07" y1="-0.7" x2="-1.07" y2="-0.7" width="0.127" layer="52"/>
+<wire x1="1.07" y1="0.7" x2="-1.07" y2="0.7" width="0.127" layer="52"/>
+<wire x1="1.07" y1="-0.7" x2="1.07" y2="0.7" width="0.127" layer="52"/>
+<wire x1="-1.07" y1="-0.7" x2="-1.07" y2="0.7" width="0.127" layer="52"/>
+<wire x1="-0.12" y1="0.7" x2="0.12" y2="0.7" width="0.127" layer="22"/>
+<wire x1="-0.12" y1="-0.7" x2="0.12" y2="-0.7" width="0.127" layer="22"/>
 <wire x1="-1.685" y1="-0.96" x2="1.685" y2="-0.96" width="0.05" layer="40"/>
 <wire x1="-1.685" y1="0.96" x2="1.685" y2="0.96" width="0.05" layer="40"/>
 <wire x1="-1.685" y1="-0.96" x2="-1.685" y2="0.96" width="0.05" layer="40"/>

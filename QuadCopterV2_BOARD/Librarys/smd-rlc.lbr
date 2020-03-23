@@ -59,14 +59,14 @@
 <library>
 <packages>
 <package name="RSMD">
-<text x="-1.69" y="-1.05" size="0.5" layer="27" align="top-left">&gt;VALUE</text>
-<text x="-1.69" y="1.05" size="0.5" layer="25">&gt;NAME</text>
-<wire x1="1.07" y1="-0.7" x2="-1.07" y2="-0.7" width="0.127" layer="51"/>
-<wire x1="1.07" y1="0.7" x2="-1.07" y2="0.7" width="0.127" layer="51"/>
-<wire x1="1.07" y1="-0.7" x2="1.07" y2="0.7" width="0.127" layer="51"/>
-<wire x1="-1.07" y1="-0.7" x2="-1.07" y2="0.7" width="0.127" layer="51"/>
-<wire x1="-0.12" y1="0.7" x2="0.12" y2="0.7" width="0.127" layer="21"/>
-<wire x1="-0.12" y1="-0.7" x2="0.12" y2="-0.7" width="0.127" layer="21"/>
+<text x="-1.69" y="-1.05" size="0.5" layer="28" align="top-left">&gt;VALUE</text>
+<text x="-1.69" y="1.05" size="0.5" layer="26">&gt;NAME</text>
+<wire x1="1.07" y1="-0.7" x2="-1.07" y2="-0.7" width="0.127" layer="52"/>
+<wire x1="1.07" y1="0.7" x2="-1.07" y2="0.7" width="0.127" layer="52"/>
+<wire x1="1.07" y1="-0.7" x2="1.07" y2="0.7" width="0.127" layer="52"/>
+<wire x1="-1.07" y1="-0.7" x2="-1.07" y2="0.7" width="0.127" layer="52"/>
+<wire x1="-0.12" y1="0.7" x2="0.12" y2="0.7" width="0.127" layer="22"/>
+<wire x1="-0.12" y1="-0.7" x2="0.12" y2="-0.7" width="0.127" layer="22"/>
 <wire x1="-1.685" y1="-0.96" x2="1.685" y2="-0.96" width="0.05" layer="40"/>
 <wire x1="-1.685" y1="0.96" x2="1.685" y2="0.96" width="0.05" layer="40"/>
 <wire x1="-1.685" y1="-0.96" x2="-1.685" y2="0.96" width="0.05" layer="40"/>
@@ -75,12 +75,12 @@
 <smd name="2" x="0.935" y="0" dx="1" dy="1.42" layer="16"/>
 </package>
 <package name="C4.7U-SMD">
-<text x="-1.53" y="-1.13" size="0.5" layer="27" align="top-left">&gt;VALUE</text>
-<text x="-1.37" y="1.09" size="0.5" layer="25">&gt;NAME</text>
-<wire x1="1.01" y1="-0.76" x2="-1.35" y2="-0.76" width="0.127" layer="51"/>
-<wire x1="1.01" y1="0.78" x2="-1.35" y2="0.78" width="0.127" layer="51"/>
-<wire x1="1.01" y1="-0.76" x2="1.01" y2="0.78" width="0.127" layer="51"/>
-<wire x1="-1.35" y1="-0.76" x2="-1.35" y2="0.78" width="0.127" layer="51"/>
+<text x="-1.53" y="-1.13" size="0.5" layer="28" align="top-left">&gt;VALUE</text>
+<text x="-1.37" y="1.09" size="0.5" layer="26">&gt;NAME</text>
+<wire x1="1.01" y1="-0.76" x2="-1.35" y2="-0.76" width="0.127" layer="52"/>
+<wire x1="1.01" y1="0.78" x2="-1.35" y2="0.78" width="0.127" layer="52"/>
+<wire x1="1.01" y1="-0.76" x2="1.01" y2="0.78" width="0.127" layer="52"/>
+<wire x1="-1.35" y1="-0.76" x2="-1.35" y2="0.78" width="0.127" layer="52"/>
 <wire x1="-1.535" y1="-0.93" x2="1.185" y2="-0.93" width="0.05" layer="40"/>
 <wire x1="-1.535" y1="0.94" x2="1.185" y2="0.94" width="0.05" layer="40"/>
 <wire x1="-1.535" y1="-0.93" x2="-1.535" y2="0.94" width="0.05" layer="40"/>
@@ -89,12 +89,12 @@
 <smd name="2" x="0.59" y="0" dx="0.5" dy="1.25" layer="16"/>
 </package>
 <package name="C1U-SMD">
-<text x="-1.33" y="-0.49" size="0.2" layer="27" align="top-left">&gt;VALUE</text>
-<text x="-1.29" y="0.5" size="0.2" layer="25">&gt;NAME</text>
-<wire x1="-0.44" y1="-0.28" x2="-1.15" y2="-0.28" width="0.127" layer="51"/>
-<wire x1="-0.44" y1="0.24" x2="-1.15" y2="0.24" width="0.127" layer="51"/>
-<wire x1="-0.44" y1="-0.28" x2="-0.44" y2="0.24" width="0.127" layer="51"/>
-<wire x1="-1.15" y1="-0.28" x2="-1.15" y2="0.24" width="0.127" layer="51"/>
+<text x="-1.33" y="-0.49" size="0.2" layer="28" align="top-left">&gt;VALUE</text>
+<text x="-1.29" y="0.5" size="0.2" layer="26">&gt;NAME</text>
+<wire x1="-0.44" y1="-0.28" x2="-1.15" y2="-0.28" width="0.127" layer="52"/>
+<wire x1="-0.44" y1="0.24" x2="-1.15" y2="0.24" width="0.127" layer="52"/>
+<wire x1="-0.44" y1="-0.28" x2="-0.44" y2="0.24" width="0.127" layer="52"/>
+<wire x1="-1.15" y1="-0.28" x2="-1.15" y2="0.24" width="0.127" layer="52"/>
 <wire x1="-1.295" y1="-0.42" x2="-0.285" y2="-0.42" width="0.05" layer="40"/>
 <wire x1="-1.295" y1="0.4" x2="-0.285" y2="0.4" width="0.05" layer="40"/>
 <wire x1="-1.295" y1="-0.42" x2="-1.295" y2="0.4" width="0.05" layer="40"/>
