@@ -22,12 +22,12 @@ float hc_sr04_read(){
 }
 
 void hc_sr04_isr(){
-    if(GPIOPinRead(GPIO_PORTD_BASE,GPIO_PIN_1)){
+    if(GPIOPinRead(HC_SR04_ISR_BASE,HC_SR04_ISR_PIN)){
         pulseStart = micros();
-        GPIOIntTypeSet(GPIO_PORTD_BASE, GPIO_PIN_1, GPIO_FALLING_EDGE);
+        GPIOIntTypeSet(HC_SR04_ISR_BASE, HC_SR04_ISR_PIN, GPIO_FALLING_EDGE);
     }else{
         pulseStop = micros();
-        GPIOIntTypeSet(GPIO_PORTD_BASE, GPIO_PIN_1, GPIO_RISING_EDGE);
+        GPIOIntTypeSet(HC_SR04_ISR_BASE, HC_SR04_ISR_PIN, GPIO_RISING_EDGE);
         // read ok
         if(((pulseStop-pulseStart) <= HC_SR04_MAX_ECHO_TIME) && ((pulseStop-pulseStart) >= HC_SR04_MIN_ECHO_TIME)){
             distance = (pulseStop-pulseStart) * 0.034 / 2;

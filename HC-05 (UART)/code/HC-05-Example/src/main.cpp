@@ -49,7 +49,7 @@ void hc_05_status_isr(){
 
 void hc_05_rx_isr(){
     while(HC_05_AVAILABLE){
-        Serial.write(HC_05_READBYTE);
+        Serial.print(HC_05_READBYTE,HEX);
     }
     // clean interrup flag
     HC_05_CLEAN_RX_INT;

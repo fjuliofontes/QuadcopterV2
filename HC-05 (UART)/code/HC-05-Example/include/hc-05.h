@@ -8,20 +8,23 @@
 #include <rom.h>
 #include <pin_map.h>
 
-#define HC_05_UART_BASE UART1_BASE
+#define BT_INIT_OF_FRAME 0xAA
+#define BT_END_OF_FRAME 0xBB
+
+#define HC_05_UART_BASE UART5_BASE
 #define HC_05_BAUDRATE 115200
 #define HC_05_DEVICE_NAME "JulioPi"
 #define HC_05_DEVICE_PASS "1234"
 #define HC_05_OK 0
 #define HC_05_NOT_OK 1
 #define HC_05_TIMEOUT 500
-#define HC_05_STATE_PIN PD_0
-#define HC_05_ENABLE_PIN PB_5
+#define HC_05_STATE_PIN PB_4
+#define HC_05_ENABLE_PIN PA_5
 //#define HC_05_BEGIN(x) Serial1.begin(x)
-#define HC_05_BEGIN(x) ROM_SysCtlPeripheralEnable(SYSCTL_PERIPH_UART1); \
-                            ROM_GPIOPinConfigure(GPIO_PB0_U1RX); \
-                                ROM_GPIOPinConfigure(GPIO_PB1_U1TX); \
-                                    ROM_GPIOPinTypeUART(GPIO_PORTB_BASE, GPIO_PIN_0 | GPIO_PIN_1); \
+#define HC_05_BEGIN(x) ROM_SysCtlPeripheralEnable(SYSCTL_PERIPH_UART5); \
+                            ROM_GPIOPinConfigure(GPIO_PE4_U5RX); \
+                                ROM_GPIOPinConfigure(GPIO_PE5_U5TX); \
+                                    ROM_GPIOPinTypeUART(GPIO_PORTE_BASE, GPIO_PIN_4 | GPIO_PIN_5); \
                                         ROM_UARTConfigSetExpClk(HC_05_UART_BASE, SysCtlClockGet(), x ,(UART_CONFIG_WLEN_8 | UART_CONFIG_STOP_ONE | UART_CONFIG_PAR_NONE)); \
                                             ROM_UARTEnable(HC_05_UART_BASE); \
                                                 SysCtlDelay(100)
