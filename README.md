@@ -32,4 +32,4 @@
   
   ##### Media:
   <img src="QuadCopterV2_BOARD/frame.jpg" width="200" height="200"> <img src="QuadCopterV2/media/top.png" width="200" height="200"> <img src="QuadCopterV2/media/bot.png" width="200" height="200"> <img src="QuadCopterV2/media/quadcopter.png" width="200" height="200">
-  <img src="QuadCopterV2/media/top_22_07.png" width="200" height="200"> <img src="QuadCopterV2/media/bot_22_07.png" width="200" height="200">
+  <img src="QuadCopterV2/media/top_22_07.jpg" width="200" height="200"> <img src="QuadCopterV2/media/bot_22_07.jpg" width="200" height="200">
