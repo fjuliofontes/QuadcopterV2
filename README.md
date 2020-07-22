@@ -31,4 +31,4 @@
   - [ ] Testing all together. 
   
   ##### Media:
-  <img src="QuadCopterV2_BOARD/frame.jpg" width="200" height="200"> <img src="/media/top.png" width="200" height="200"> <img src="/media/bot.png" width="200" height="200"> <img src="media/quadcopter.png" width="200" height="200">
+  <img src="QuadCopterV2_BOARD/frame.jpg" width="200" height="200"> <img src="QuadCopterV2/media/top.png" width="200" height="200"> <img src="QuadCopterV2/media/bot.png" width="200" height="200"> <img src="QuadCopterV2/media/quadcopter.png" width="200" height="200">
