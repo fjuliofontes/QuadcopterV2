@@ -42,7 +42,7 @@ uint8_t state = 0;
 void setup() {
     // Init i2c pins
     Wire = TwoWire(1);
-    Wire.begin();
+    Wire.begin(); // set - ROM_I2CMasterInitExpClk(MASTER_BASE, F_CPU, true); 
 
     // Config baudrate
     Serial.begin(115200);
