@@ -4,6 +4,9 @@
 #include <pins_energia.h>
 #include <stdint.h>
 
+#define TARGET_SSID "ITHome"
+#define TARGET_PWD "pass1234"
+
 #define BATTERY_INDICATOR PD_3
 
 void quad_init();

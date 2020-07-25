@@ -6,9 +6,9 @@
 
 /*GPS VARIABLES*/
 static char gps_ch;
-static uint8_t gps_status = 0;
+static volatile uint8_t gps_status = 0;
 static uint8_t gps_type = 0;
-static char gps_data[100];
+static volatile char gps_data[100];
 static uint8_t gps_len = 0;
 
 uint8_t m8_gps_init(uint32_t baudrate){
@@ -58,9 +58,9 @@ uint8_t m8_gps_getCoords(struct m8_gps *coords){
      *  lat = 000º00'00'N/S
      *  lon = 000º00'00'E/W
      */
-
+    
     uint8_t i,j,k;
-    char *p = gps_data;
+    char *p = (char *)gps_data;
     uint8_t field = 0, start = 0; 
     uint8_t msg[7][20];
     uint8_t len[7];
@@ -81,6 +81,7 @@ uint8_t m8_gps_getCoords(struct m8_gps *coords){
             break;
         }
     }
+
     // convert to degrees
     for(k = 0; k <= 2; k+=2){
         /// check if length ok 
@@ -337,15 +338,16 @@ void m8_gps_rx_isr(){
         case 0xD:
             /* <CR> */
             if(((gps_status&M8_GPS_MODULE_READING) == M8_GPS_MODULE_READING)
-                    || ((gps_status&M8_GPS_MODULE_IGNORING) == M8_GPS_MODULE_IGNORING))
+                    || ((gps_status&M8_GPS_MODULE_IGNORING) == M8_GPS_MODULE_IGNORING)){
                 gps_status |= M8_GPS_MODULE_CR;
+                }
             break;
         case 0xA:
             /* <LF> */
             if((gps_status&M8_GPS_MODULE_CR) == M8_GPS_MODULE_CR){
                 if((gps_status&M8_GPS_MODULE_READING) == M8_GPS_MODULE_READING){
                     gps_data[gps_len++] = '\0';
-                    gps_status |= M8_GPS_MODULE_LF;
+                    gps_status = M8_GPS_MODULE_LF;
                 }
                 else{
                     gps_status &= M8_GPS_MODULE_WAITING;
@@ -364,7 +366,7 @@ void m8_gps_rx_isr(){
             break;
         }
 
-        //Serial.write(M8_GPS_READBYTE);
+        //Serial.write(gps_ch);
     
     }
     // clean interrup flag

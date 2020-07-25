@@ -69,6 +69,9 @@ uint8_t esp_01_disconnect_wifi(){
     if(esp_01_wait_answer()) return ESP_01_NOT_OK;
     esp_01_receive_answer();
 
+    // clear ip
+    _esp_01_ip = "";
+
     // if interrupt was disabled, re-enable it again
     if(rx_int_status) ESP_01_ENABLE_RX_INT;
 
@@ -168,6 +171,10 @@ uint8_t esp_01_connect_wifi(char *ssid, char *pwd){
 }
 
 uint8_t esp_01_tcp_connect(char *ip, char *port){
+    // verify internet connection
+    if(_esp_01_ip == "") return ESP_01_NOT_OK;
+
+    // init variables
     String esp_01_answer;
 
     // check rx interrupt status
@@ -207,6 +214,10 @@ uint8_t esp_01_tcp_connect(char *ip, char *port){
 }
 
 uint8_t esp_01_tcp_send(char * msg, uint32_t len){
+    // verify connection status
+    if(_esp_01_tcp_status == 0) return ESP_01_NOT_OK; // not connected
+
+    // init variables
     uint32_t msg_size = strlen(msg);
     char* slen = myITOA(len,10,0);
 
@@ -236,6 +247,7 @@ uint8_t esp_01_tcp_send(char * msg, uint32_t len){
     }else{
         esp_01_writeWord(msg);
     }
+
     /// wait recv confirmation
     if(esp_01_wait_answer());
     /// receive answer

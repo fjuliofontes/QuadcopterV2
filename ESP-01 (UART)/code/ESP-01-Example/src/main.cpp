@@ -4,6 +4,9 @@
 
 void esp_01_rx_isr();
 
+#define TARGET_SSID "ITHome"
+#define TARGET_PWD "pass1234"
+
 void setup() {
     Serial.begin(115200);
     Serial.println("Starting loop...");
@@ -24,24 +27,33 @@ void setup() {
     ESP_01_RX_INT(esp_01_rx_isr);
     // enables interrupts
     IntMasterEnable();
+
+    //esp_01_disconnect_wifi();
+
+    //esp_01_connect_wifi((char*)"HUAWEI-E5776-D797",(char*)"MFQ548R8");
+
+    esp_01_connect_wifi((char*)TARGET_SSID,(char*)TARGET_PWD);
+    
+    if(esp_01_tcp_connect((char*)"192.168.100.1",(char*)"9090") == ESP_01_OK){
+        esp_01_tcp_send((char*)"ola mundo",9); // aprox 8 ms
+        //esp_01_tcp_disconnect();
+    }
 }
 
 void loop() {
 
     // Read user input if available.  
-    if (Serial.available()){  
+    while (Serial.available()){  
         delay(10); // The DELAY!
         char ch = Serial.read();
-        Serial.write(ch);
-        esp_01_writeByte(ch);  
+        //Serial.print(String((int)ch,16));
+          
+        if(ch == 0xd){
+            esp_01_writeByte('\r');
+            esp_01_writeByte('\n');    
+        }else{
+            esp_01_writeByte(ch);
+        }
     }    
 
-}
-
-void esp_01_rx_isr(){
-    while(ESP_01_AVAILABLE){
-        Serial.write(ESP_01_READBYTE);
-    }
-    // clean interrup flag
-    ESP_01_CLEAN_RX_INT;
 }

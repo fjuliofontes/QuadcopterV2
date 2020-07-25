@@ -8,6 +8,7 @@
 #include "HMC5883L.h"
 #include "m8-gps.h"
 #include "MPU6050.h"
+#include "esp-01.h"
 #include "quad_pins.h"
 
 ////////////////MPU-6050///////////////
@@ -30,9 +31,14 @@ float magnetic_x, magnetic_y, magnetic_z, heading;
 float Xh, Yh;
 //////////////////////////////////////
 
+////////////////GPS///////////////
+struct m8_gps gps_coords;
+//////////////////////////////////
+
 ////////////////LOOP///////////////
 unsigned long last_loop = 0;
 uint32_t count = 0;
+uint8_t retval = 0;
 //////////////////////////////////////
 
 void setup() {
@@ -92,6 +98,22 @@ void setup() {
     }else Serial.println("failed");
     delay(200);
 
+    /* --- Init ESP-01 --- */
+    Serial.println("Initing ESP_01...");
+    if(esp_01_init() == ESP_01_OK){
+        Serial.println("ESP_01 INIT OK ! BAUDRATE = " + String(ESP_01_BAUDRATE));
+        /// connect to wifi
+        if( esp_01_connect_wifi((char*)TARGET_SSID,(char*)TARGET_PWD) == ESP_01_OK){
+            /// open tcp connection
+            if(esp_01_tcp_connect((char*)"192.168.100.1",(char*)"9090") == ESP_01_OK){
+                /// send saudations
+                esp_01_tcp_send((char*)"Hello from Quadcopter V2\r\n",26); // takes to long - 3462us
+            }
+        }
+        /// set interrupt callback
+        ESP_01_RX_INT(esp_01_rx_isr);
+    } else Serial.println("failed");
+
     /* --- Init HMC5883 --- */
     Serial.println("Initing HMC5883...");
     if(!mag.begin()){
@@ -122,7 +144,7 @@ void setup() {
 }
 
 void loop() {
-    // takes 0.824ms
+    // elapsed time = 0.824ms - should repeat at every 4 ms
     if((micros() - last_loop) >= MPU6050_READ_PERI){
         // update last_loop time value
         last_loop = micros();
@@ -196,10 +218,53 @@ void loop() {
         count ++;
     }
 
-    if(count >= 250){
-        count = 0;
-        Serial.println("Pitch : " + String(pitch,2) + " Roll : " + String(roll,2) + " Yaw : " + String(yaw,2));
-        Serial.println("Heading : " + String(heading,2));
+    // at 1 and 1 second - elapsed time = 1600 us aprox 1.6ms
+    else if((count >= 250) && (count <= 253)){
+        //unsigned long meas = micros();
+        switch ((uint8_t)(count-250)){
+        case 0:
+            Serial.print("Pitch : " + String(pitch,2));
+            break;
+        case 1:
+            Serial.print(" Roll : " + String(roll,2));
+            break;
+        case 2:
+            Serial.println(" Yaw : " + String(yaw,2));
+            break;
+        case 3:
+            Serial.println("Heading : " + String(heading,2));
+            break;
+        
+        default:
+            break;
+        }
+        count++;
+        //unsigned long stop = micros();
+        //Serial.println("elapsed time: " + String(stop-meas));
     }
+
+    // data received - elapsed time 1115 aprox 1.1ms
+    else if((count == 300) && m8_gps_pending_read()){
+        count = 50; 
+        //unsigned long meas = micros();
+        retval = m8_gps_getCoords(&gps_coords);
+
+        if(retval == M8_GPS_OK){
+            Serial.print(String(gps_coords.lat.degrees) + "°");
+            Serial.print(String(gps_coords.lat.minutes) + "'");
+            Serial.print(String(gps_coords.lat.seconds) + "''");
+            Serial.println(gps_coords.lat.direction);
+
+            Serial.print(String(gps_coords.lon.degrees) + "°");
+            Serial.print(String(gps_coords.lon.minutes) + "'");
+            Serial.print(String(gps_coords.lon.seconds) + "''");
+            Serial.println(gps_coords.lon.direction);
+        }
+        //unsigned long stop = micros();
+    }    //Serial.println("elapsed time: " + String(stop-meas));
+    else if(count >= 300){
+        count = 50;
+    }
+
 
 }
