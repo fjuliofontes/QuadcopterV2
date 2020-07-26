@@ -389,6 +389,9 @@
 #define MPU6050_GYRO_ANGLE_FACTOR 16375.F // MPU6050_READ_FREQ*MPU6050_GYRO_SCALE_FACTOR
 #define MPU6050_READ_PERI 4000 // 1 / MPU6050_READ_FREQ
 
+#define MPU6050_CALIBRATION_ADDR      0x3C
+#define MPU6050_CALIBRATION_VALIDATOR 0x12345
+
 // note: DMP code memory blocks defined at end of header file
 
 class MPU6050 {
@@ -442,6 +445,10 @@ class MPU6050 {
         void setDeviceID(uint8_t id);
 
         bool calibrate();
+        bool isCalibrated();
+
+        void setEEPROMWriteFunction(uint8_t(*func)(uint32_t addr, uint32_t * data, uint32_t len));
+        void setEEPROMReadFunction(uint8_t(*func)(uint32_t addr, uint32_t * data, uint32_t len));
         
     private:
         uint8_t devAddr;
@@ -451,6 +458,9 @@ class MPU6050 {
         int16_t _mpu6050_ax, _mpu6050_ay, _mpu6050_az;
         int16_t _mpu6050_gx, _mpu6050_gy, _mpu6050_gz;
         bool _mpu6050_calibrated = false;
+
+        uint8_t (*_mpu6050_eeprom_write_function)(uint32_t addr, uint32_t * data, uint32_t len) = NULL;
+        uint8_t (*_mpu6050_eeprom_read_function)(uint32_t addr, uint32_t * data, uint32_t len) = NULL;
 };
 
 #endif /* _MPU6050_H_ */

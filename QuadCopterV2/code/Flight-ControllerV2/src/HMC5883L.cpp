@@ -39,6 +39,14 @@ byte HMC5883L::read8(byte address, byte reg) {
     return value;
 }
 
+void HMC5883L::setEEPROMWriteFunction(uint8_t(*func)(uint32_t addr, uint32_t * data, uint32_t len)){
+    _hmc5883l_eeprom_write_function = func;
+}
+
+void HMC5883L::setEEPROMReadFunction(uint8_t(*func)(uint32_t addr, uint32_t * data, uint32_t len)){
+    _hmc5883l_eeprom_read_function = func;
+}
+
 /**************************************************************************/
 /*!
     @brief  Reads the raw data from the sensor
@@ -95,6 +103,25 @@ bool HMC5883L::begin() {
 
     // Enable the magnetometer (Continuous-measurement mode)
     write8(HMC5883_ADDRESS_MAG, HMC5883_REGISTER_MAG_MR_REG_M, 0x00);
+
+    // try load calibration from EEPROM
+    if(_hmc5883l_eeprom_read_function != NULL){
+        uint32_t data[13];
+        _hmc5883l_eeprom_read_function(HMC5883_CALIBRATION_ADDR,data,52);
+        // reading ok :) 
+        if(data[0] == HMC5883_CALIBRATION_VALIDATOR){
+            _hmc5883l_x_off = data[1] ? (float)(data[2]/100000.0) : (float)-(data[2]/100000.0);
+            _hmc5883l_y_off = data[3] ? (float)(data[4]/100000.0) : (float)-(data[4]/100000.0);
+            _hmc5883l_z_off = data[5] ? (float)(data[6]/100000.0) : (float)-(data[6]/100000.0);
+            _hmc5883l_x_scf = data[7] ? (float)(data[8]/100000.0) : (float)-(data[8]/100000.0);
+            _hmc5883l_y_scf = data[9] ? (float)(data[10]/100000.0): (float)-(data[10]/100000.0);
+            _hmc5883l_z_scf = data[11]? (float)(data[12]/100000.0): (float)-(data[12]/100000.0);
+            Serial.println("Off: x: " + String(_hmc5883l_x_off) + " y: " + String(_hmc5883l_y_off) + " z: " + String(_hmc5883l_z_off) );
+            Serial.println("Scf: x: " + String(_hmc5883l_x_scf) + " y: " + String(_hmc5883l_y_scf) + " z: " + String(_hmc5883l_z_scf) );
+            // flag calibration done
+            _hmc5883l_calibrated = true;
+        }
+    }
 
     return true;
 }
@@ -202,9 +229,44 @@ bool HMC5883L::calibrate(uint8_t seconds){
         _hmc5883l_z_scf = (_hmc5883l_max_x-_hmc5883l_min_x)/(_hmc5883l_max_z-_hmc5883l_min_z);
         _hmc5883l_x_scf = 1;
     } 
+    // toggle led off
+    quad_ledOff();
+
+    // save into eeprom if eeprom function is not null
+    if(_hmc5883l_eeprom_write_function != NULL){
+        uint32_t data[13];
+        data[0] = HMC5883_CALIBRATION_VALIDATOR;
+
+        data[1] = (_hmc5883l_x_off > 0);
+        data[2] = data[1] ? (uint32_t)(_hmc5883l_x_off*100000.0) : (uint32_t)(_hmc5883l_x_off*-100000.0);
+
+        data[3] = (_hmc5883l_y_off > 0);
+        data[4] = data[3] ? (uint32_t)(_hmc5883l_y_off*100000.0) : (uint32_t)(_hmc5883l_y_off*-100000.0);
+
+        data[5] = (_hmc5883l_z_off > 0);
+        data[6] = data[5] ? (uint32_t)(_hmc5883l_z_off*100000.0) : (uint32_t)(_hmc5883l_z_off*-100000.0);
+
+        data[7] = (_hmc5883l_x_scf > 0);
+        data[8] = data[7] ? (uint32_t)(_hmc5883l_x_scf*100000.0) : (uint32_t)(_hmc5883l_x_scf*-100000.0);
+
+        data[9] = (_hmc5883l_y_scf > 0);
+        data[10] = data[9] ? (uint32_t)(_hmc5883l_y_scf*100000.0) : (uint32_t)(_hmc5883l_y_scf*-100000.0);
+
+        data[11] = (_hmc5883l_z_scf > 0);
+        data[12] = data[11] ? (uint32_t)(_hmc5883l_z_scf*100000.0) : (uint32_t)(_hmc5883l_z_scf*-100000.0);
+
+        Serial.println("Off: x: " + String(_hmc5883l_x_off) + " y: " + String(_hmc5883l_y_off) + " z: " + String(_hmc5883l_z_off) );
+        Serial.println("Scf: x: " + String(_hmc5883l_x_scf) + " y: " + String(_hmc5883l_y_scf) + " z: " + String(_hmc5883l_z_scf) );
+        // save to eeprom
+        _hmc5883l_eeprom_write_function(HMC5883_CALIBRATION_ADDR,data,52); // 32 bit = 4 bytes -- 13 * 4 = 52 bytes -- sizeof(data)
+    }
+
     // flag calibration done
     _hmc5883l_calibrated = true;
-    quad_ledOff();
+    
     return _hmc5883l_calibrated;
 }
 
+bool HMC5883L::isCalibrated(){
+    return _hmc5883l_calibrated;
+}

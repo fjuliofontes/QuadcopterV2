@@ -22,6 +22,25 @@ void MPU6050::initialize() {
     setFullScaleGyroRange(MPU6050_GYRO_FS_250);
     setFullScaleAccelRange(MPU6050_ACCEL_FS_2);
     setSleepEnabled(false); // thanks to Jack Elston for pointing this one out!
+
+    // try load calibration from EEPROM
+    if(_mpu6050_eeprom_read_function != NULL){
+        uint32_t data[13];
+        _mpu6050_eeprom_read_function(MPU6050_CALIBRATION_ADDR,data,52);
+        // reading ok :) 
+        if(data[0] == MPU6050_CALIBRATION_VALIDATOR){
+            _mpu6050_gyro_x_cal  = data[1] ? (float)(data[2]/100000.0)  : (float)-(data[2]/100000.0);
+            _mpu6050_gyro_y_cal  = data[3] ? (float)(data[4]/100000.0)  : (float)-(data[4]/100000.0);
+            _mpu6050_gyro_z_cal  = data[5] ? (float)(data[6]/100000.0)  : (float)-(data[6]/100000.0);
+            _mpu6050_accel_x_cal = data[7] ? (float)(data[8]/100000.0)  : (float)-(data[8]/100000.0);
+            _mpu6050_accel_y_cal = data[9] ? (float)(data[10]/100000.0) : (float)-(data[10]/100000.0);
+            _mpu6050_accel_z_cal = data[11]? (float)(data[12]/100000.0) : (float)-(data[12]/100000.0);
+            Serial.println("GYRO: x: " + String(_mpu6050_gyro_x_cal) + " y: " + String(_mpu6050_gyro_x_cal) + " z: " + String(_mpu6050_gyro_x_cal) );
+            Serial.println("ACCEL: x: " + String(_mpu6050_accel_z_cal) + " y: " + String(_mpu6050_accel_z_cal) + " z: " + String(_mpu6050_accel_z_cal) );
+            // flag calibration done
+            _mpu6050_calibrated = true;
+        }
+    }
 }
 
 /** Verify the I2C connection.
@@ -471,7 +490,52 @@ bool MPU6050::calibrate(){
     _mpu6050_accel_y_cal = (accel_y_cal / MPU6050_CAL_SAMPLES) * -1;
     _mpu6050_accel_z_cal = MPU6050_ACCEL_SCALE_FACTOR - (accel_z_cal / MPU6050_CAL_SAMPLES); // for 1 g cal
 
+    // toggle led off
+    quad_ledOff();
+
+    // save into eeprom if eeprom function is not null
+    if(_mpu6050_eeprom_write_function != NULL){
+        uint32_t data[13];
+        data[0] = MPU6050_CALIBRATION_VALIDATOR;
+
+        data[1] = (_mpu6050_gyro_x_cal > 0);
+        data[2] = data[1] ? (uint32_t)(_mpu6050_gyro_x_cal*100000.0) : (uint32_t)(_mpu6050_gyro_x_cal*-100000.0);
+
+        data[3] = (_mpu6050_gyro_y_cal > 0);
+        data[4] = data[3] ? (uint32_t)(_mpu6050_gyro_y_cal*100000.0) : (uint32_t)(_mpu6050_gyro_y_cal*-100000.0);
+
+        data[5] = (_mpu6050_gyro_z_cal > 0);
+        data[6] = data[5] ? (uint32_t)(_mpu6050_gyro_z_cal*100000.0) : (uint32_t)(_mpu6050_gyro_z_cal*-100000.0);
+
+        data[7] = (_mpu6050_accel_x_cal > 0);
+        data[8] = data[7] ? (uint32_t)(_mpu6050_accel_x_cal*100000.0) : (uint32_t)(_mpu6050_accel_x_cal*-100000.0);
+
+        data[9] = (_mpu6050_accel_y_cal > 0);
+        data[10] = data[9] ? (uint32_t)(_mpu6050_accel_y_cal*100000.0) : (uint32_t)(_mpu6050_accel_y_cal*-100000.0);
+
+        data[11] = (_mpu6050_accel_z_cal > 0);
+        data[12] = data[11] ? (uint32_t)(_mpu6050_accel_z_cal*100000.0) : (uint32_t)(_mpu6050_accel_z_cal*-100000.0);
+
+        Serial.println("GYRO: x: " + String(_mpu6050_gyro_x_cal) + " y: " + String(_mpu6050_gyro_x_cal) + " z: " + String(_mpu6050_gyro_x_cal) );
+        Serial.println("ACCEL: x: " + String(_mpu6050_accel_z_cal) + " y: " + String(_mpu6050_accel_z_cal) + " z: " + String(_mpu6050_accel_z_cal) );
+        // save to eeprom
+        _mpu6050_eeprom_write_function(MPU6050_CALIBRATION_ADDR,data,52); // 32 bit = 4 bytes -- 13 * 4 = 52 bytes -- sizeof(data)
+    }
+
+    // flag calibration done
     _mpu6050_calibrated = true;
 
     return _mpu6050_calibrated;
+}
+
+bool MPU6050::isCalibrated(){
+    return _mpu6050_calibrated;
+}
+
+void MPU6050::setEEPROMWriteFunction(uint8_t(*func)(uint32_t addr, uint32_t * data, uint32_t len)){
+    _mpu6050_eeprom_write_function = func;
+}
+
+void MPU6050::setEEPROMReadFunction(uint8_t(*func)(uint32_t addr, uint32_t * data, uint32_t len)){
+    _mpu6050_eeprom_read_function = func;
 }

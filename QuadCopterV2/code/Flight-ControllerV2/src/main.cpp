@@ -61,6 +61,21 @@ void setup() {
     Wire.begin(); 
     delay(200);
 
+    /* --- Init EEPROM --- */
+    Serial.println("Initing EEPROM...");
+    if(quad_init_eeprom() == QUAD_OK){
+        Serial.println("EEPROM OK!");
+        // set magnetometer eeprom callbacks
+        mag.setEEPROMWriteFunction(quad_write_eeprom);
+        mag.setEEPROMReadFunction(quad_read_eeprom);
+        // set mpu6050 eeprom callbacks
+        accelgyro.setEEPROMWriteFunction(quad_write_eeprom);
+        accelgyro.setEEPROMReadFunction(quad_read_eeprom);
+    }else Serial.println("EEPROM NOT OK!");
+    // EEPROM Size (bytes) : 2048 EEPROM Bytes Pear Block : 64
+    Serial.println("EEPROM Size (bytes) : " + String(quad_eeprom_get_size()) + " EEPROM Bytes Pear Block : " 
+                                + String(quad_eeprom_get_bytes_pear_block()));
+
     /* --- Init HC-05 --- */
     Serial.println("Initing HC-05...");
     if(hc_05_init() == HC_05_OK){
@@ -116,11 +131,10 @@ void setup() {
 
     /* --- Init HMC5883 --- */
     Serial.println("Initing HMC5883...");
-    if(!mag.begin()){
-        // There was a problem detecting the HMC5883 ... check your connections 
-        Serial.println("Ooops, no HMC5883 detected ... Check your wiring!");
-    }else{
-        mag.calibrate(30); // calibrate for 30 seconds
+    //init sensor
+    if(!mag.begin()) Serial.println("Ooops, no HMC5883 detected ... Check your wiring!");
+    else {
+        if(!mag.isCalibrated()) mag.calibrate(30); // calibrate for 30 seconds
     }
     delay(2000);
 
@@ -133,7 +147,7 @@ void setup() {
         accelgyro.setFullScaleGyroRange(MPU6050_GYRO_FS_500);
         accelgyro.setFullScaleAccelRange(MPU6050_ACCEL_FS_8);
         delay(200);
-        accelgyro.calibrate();
+        if(!accelgyro.isCalibrated()) accelgyro.calibrate(); 
     }else Serial.println("MPU6050 connection failed");
     delay(2000);
 

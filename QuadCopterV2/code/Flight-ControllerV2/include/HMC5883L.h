@@ -13,6 +13,9 @@
 
 #define SENSORS_GAUSS_TO_MICROTESLA 100 /**< Gauss to micro-Tesla multiplier */
 
+#define HMC5883_CALIBRATION_ADDR      0x00
+#define HMC5883_CALIBRATION_VALIDATOR 0x12345
+
 /*!
  @brief Registers
  */
@@ -74,6 +77,7 @@ typedef struct hmc5883MagData_s {
   float orientation; //!< Magnetometer orientation
 } hmc5883MagData;
 
+//typedef uint8_t (*callback_function)(uint32_t addr, uint32_t * data, uint32_t len); // type for conciseness
 
 /*!
  * @brief Chip ID
@@ -92,6 +96,10 @@ public:
   void setMagGain(hmc5883MagGain gain); //!< @param gain Desired magnetic gain
   void getMotion(float *x, float *y, float *z, float *orientation=NULL);
   bool calibrate(uint8_t seconds);
+  bool isCalibrated();
+
+  void setEEPROMWriteFunction(uint8_t(*func)(uint32_t addr, uint32_t * data, uint32_t len));
+  void setEEPROMReadFunction(uint8_t(*func)(uint32_t addr, uint32_t * data, uint32_t len));
 
 private:
   hmc5883MagGain _magGain;
@@ -109,6 +117,11 @@ private:
   float _hmc5883l_x_scf, _hmc5883l_y_scf, _hmc5883l_z_scf;
   
   bool _hmc5883l_calibrated = false;
+
+  uint8_t (*_hmc5883l_eeprom_write_function)(uint32_t addr, uint32_t * data, uint32_t len) = NULL;
+  uint8_t (*_hmc5883l_eeprom_read_function)(uint32_t addr, uint32_t * data, uint32_t len) = NULL;
+  //callback_function _hmc5883l_eeprom_write_function = NULL; // variable to store function pointer type
+  //callback_function _hmc5883l_eeprom_read_function = NULL; // variable to store function pointer type
 };
 
 #endif
