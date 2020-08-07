@@ -1,0 +1,1 @@
+python3 esptool.py --port /dev/tty.usbmodem14103 write_flash -fm dout 0x00000 v0.9.2.2ATFirmware.bin

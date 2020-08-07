@@ -20,6 +20,9 @@ void setup() {
     else
         Serial.println("failed");
 
+    hc_12_version();
+    hc_12_rx_params();
+
     // set HC_12 rx interrupt callback
     HC_12_RX_INT(hc_12_rx_isr);
     // enables interrupts

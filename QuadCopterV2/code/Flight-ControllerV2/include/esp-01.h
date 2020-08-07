@@ -15,6 +15,10 @@
 #define ESP_01_OK 0
 #define ESP_01_NOT_OK 1
 #define ESP_01_TIMEOUT 10000
+#define ESP_01_STATUS_NORMAL_MODE 0
+#define ESP_01_STATUS_ANSW_CMD 1
+#define ESP_01_TCP_CONNECTED 1
+#define ESP_01_TCP_DISCONNECTED 0
 #define ESP_01_RST_PIN PA_2
 //#define ESP_01_BEGIN(x) Serial1.begin(x)
 #define ESP_01_BEGIN(x) ROM_SysCtlPeripheralEnable(SYSCTL_PERIPH_UART3); \
@@ -30,10 +34,11 @@
 #define ESP_01_READBYTE ROM_UARTCharGetNonBlocking(ESP_01_UART_BASE)
 //#define ESP_01_WRITEBYTE(x) Serial1.write(x)
 #define ESP_01_WRITEBYTE(x) ROM_UARTCharPut(ESP_01_UART_BASE, x)
-#define ESP_01_RX_INT(x)   UARTIntDisable(ESP_01_UART_BASE, UART_INT_TX | UART_INT_RX); \
+#define ESP_01_RX_INT(x)   UARTIntDisable(ESP_01_UART_BASE, UART_INT_RX); \
                             UARTIntRegister(ESP_01_UART_BASE, x); \
-                                ROM_UARTFIFOLevelSet(ESP_01_UART_BASE, UART_FIFO_TX1_8, UART_FIFO_RX1_8); \
-                                    ROM_UARTIntEnable(ESP_01_UART_BASE,UART_INT_RX)
+                                ROM_UARTIntEnable(ESP_01_UART_BASE,UART_INT_RX)
+
+// ROM_UARTFIFOLevelSet(ESP_01_UART_BASE, UART_FIFO_TX1_8, UART_FIFO_RX1_8);
 
 #define ESP_01_DISABLE_RX_INT UARTIntDisable(ESP_01_UART_BASE, UART_INT_RX)
 #define ESP_01_DISABLE_TX_INT UARTIntDisable(ESP_01_UART_BASE, UART_INT_TX)
@@ -52,10 +57,9 @@ uint8_t esp_01_available();
 void esp_01_writeByte(uint8_t ch);
 uint8_t esp_01_readByte();
 void esp_01_writeWord(char *word);
-uint8_t esp_01_connect_wifi(char *ssid, char *pwd);
 uint8_t esp_01_disconnect_wifi();
 uint8_t esp_01_tcp_connect(char *ip, char *port);
-uint8_t esp_01_tcp_send(char * msg, uint32_t len);
+uint8_t esp_01_tcp_send(char * msg);
 void esp_01_tcp_disconnect();
 void esp_01_rx_isr();
 

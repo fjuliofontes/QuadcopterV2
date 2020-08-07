@@ -2,6 +2,7 @@
 
 #include <interrupt.h>
 #include <math.h>
+//#include <gpio.h>
 
 #include "hc-05.h"
 #include "hc-sr04.h"
@@ -10,6 +11,7 @@
 #include "MPU6050.h"
 #include "esp-01.h"
 #include "quad_pins.h"
+#include "util.h"
 
 ////////////////MPU-6050///////////////
 MPU6050 accelgyro;
@@ -39,11 +41,19 @@ struct m8_gps gps_coords;
 unsigned long last_loop = 0;
 uint32_t count = 0;
 uint8_t retval = 0;
+char uart0_tx_buffer[100];
+char* float_conv_ptr;
+char* int_conv_ptr;
+uint8_t isNewInc = 0;
+unsigned long tic;
+unsigned long toc;
+bool flag = false;
 //////////////////////////////////////
 
 void setup() {
     // start initing serial port
     Serial.begin(115200);
+    pinMode(PA_4,OUTPUT);
     
     /* --- Init LED's and Analogs --- */
     quad_init();
@@ -86,7 +96,6 @@ void setup() {
         // set hc-05 rx interrupt callback
         HC_05_RX_INT(hc_05_rx_isr);
     }else Serial.println("failed");
-
     delay(200);
 
     /* --- Init HC-SR04 --- */
@@ -94,7 +103,7 @@ void setup() {
     hc_sr04_init();
     delay(200);
 
-    /* --- Init M8_GPS --- */
+    /* --- Init M8_GPS --- 
     Serial.println("Initing M8_GPS...");
     //init M8_GPS
     //// set baudrate
@@ -112,22 +121,18 @@ void setup() {
         M8_GPS_RX_INT(m8_gps_rx_isr);
     }else Serial.println("failed");
     delay(200);
+    */
 
     /* --- Init ESP-01 --- */
     Serial.println("Initing ESP_01...");
     if(esp_01_init() == ESP_01_OK){
         Serial.println("ESP_01 INIT OK ! BAUDRATE = " + String(ESP_01_BAUDRATE));
-        /// connect to wifi
-        if( esp_01_connect_wifi((char*)TARGET_SSID,(char*)TARGET_PWD) == ESP_01_OK){
-            /// open tcp connection
-            if(esp_01_tcp_connect((char*)"192.168.100.1",(char*)"9090") == ESP_01_OK){
-                /// send saudations
-                esp_01_tcp_send((char*)"Hello from Quadcopter V2\r\n",26); // takes to long - 3462us
-            }
-        }
+        /// open tcp connection
+        esp_01_tcp_connect((char*)"192.168.100.1",(char*)"9090");
         /// set interrupt callback
         ESP_01_RX_INT(esp_01_rx_isr);
     } else Serial.println("failed");
+    delay(200);
 
     /* --- Init HMC5883 --- */
     Serial.println("Initing HMC5883...");
@@ -136,7 +141,7 @@ void setup() {
     else {
         if(!mag.isCalibrated()) mag.calibrate(30); // calibrate for 30 seconds
     }
-    delay(2000);
+    delay(200);
 
     /* --- Init MPU6050 --- */
     Serial.println("Initing MPU6050...");
@@ -149,7 +154,7 @@ void setup() {
         delay(200);
         if(!accelgyro.isCalibrated()) accelgyro.calibrate(); 
     }else Serial.println("MPU6050 connection failed");
-    delay(2000);
+    delay(200);
 
     // enables interrupts
     IntMasterEnable();
@@ -158,10 +163,14 @@ void setup() {
 }
 
 void loop() {
-    // elapsed time = 0.824ms - should repeat at every 4 ms
+    // elapsed time = 0.9ms - should repeat at every 4 ms
     if((micros() - last_loop) >= MPU6050_READ_PERI){
         // update last_loop time value
         last_loop = micros();
+
+        if(flag) GPIOPinWrite(0x40004000, 0x10, 0x10);
+        else GPIOPinWrite(0x40004000, 0x10, 0x00);
+        flag = !flag;
 
         ///////////MPU6050-READING//////////////////////
         accelgyro.getMotion6(&accel_x, &accel_y, &accel_z, &gyro_x, &gyro_y, &gyro_z);
@@ -229,56 +238,112 @@ void loop() {
             heading -= 360;
         /////////////////////////////////////////
 
+        isNewInc = 1; // is new increment ? - yes
         count ++;
     }
+    
+    // have spare time ? play a little bit with it  - max reported - 1627us but play safe
+    else if((micros() - last_loop <= MPU6050_READ_PERI-2000) && isNewInc){
+        // toggle isNewInc - is new increment ? 
+        isNewInc = 0;
 
-    // at 1 and 1 second - elapsed time = 1600 us aprox 1.6ms
-    else if((count >= 250) && (count <= 253)){
-        //unsigned long meas = micros();
-        switch ((uint8_t)(count-250)){
-        case 0:
-            Serial.print("Pitch : " + String(pitch,2));
-            break;
-        case 1:
-            Serial.print(" Roll : " + String(roll,2));
-            break;
-        case 2:
-            Serial.println(" Yaw : " + String(yaw,2));
-            break;
-        case 3:
-            Serial.println("Heading : " + String(heading,2));
-            break;
+        // at 1 and 1 second - elapsed time = 1200 us aprox 1.2ms 
+        if((count >= 250) && (count <= 295)){    
+            switch (count){
+            case 250:
+                // takes 36 us
+                float_conv_ptr = (pitch > 0) ? myFTOA(pitch, 2 , 10) : myFTOA(pitch*-1, 2 , 10);
+                (pitch > 0) ? strncat(uart0_tx_buffer,"Pitch : ",8) : strncat(uart0_tx_buffer,"Pitch : -",9);
+                strncat(uart0_tx_buffer,float_conv_ptr,strlen(float_conv_ptr));
+                retval = esp_01_tcp_send(uart0_tx_buffer);
+
+                // takes 55 us
+                if(retval == ESP_01_NOT_OK) Serial.print(uart0_tx_buffer);
+                break;
+            case 265:
+                // takes 36 us
+                float_conv_ptr = (roll > 0) ? myFTOA(roll, 2 , 10) : myFTOA(roll*-1, 2 , 10);
+                (roll > 0) ? strncat(uart0_tx_buffer," Roll : ",8) : strncat(uart0_tx_buffer," Roll : -",9);
+                strncat(uart0_tx_buffer,float_conv_ptr,strlen(float_conv_ptr));
+                retval = esp_01_tcp_send(uart0_tx_buffer);
+
+                // takes 55 us
+                if(retval == ESP_01_NOT_OK) Serial.print(uart0_tx_buffer);
+                break;
+            case 280:
+                // takes 36 us
+                float_conv_ptr = (yaw > 0) ? myFTOA(yaw, 2 , 10) : myFTOA(yaw*-1, 2 , 10);
+                (yaw > 0) ? strncat(uart0_tx_buffer," Yaw : ",7) : strncat(uart0_tx_buffer," Yaw : -",8);
+                strncat(uart0_tx_buffer,float_conv_ptr,strlen(float_conv_ptr));
+                retval = esp_01_tcp_send(uart0_tx_buffer);
+                esp_01_tcp_send((char*)"\n");
+
+                // takes 55 us
+                if(retval == ESP_01_NOT_OK) Serial.println(uart0_tx_buffer);
+                break;
+            case 295:
+                // takes 36 us
+                float_conv_ptr = (heading > 0) ? myFTOA(heading, 2 , 10) : myFTOA(heading*-1, 2 , 10);
+                (heading > 0) ? strncat(uart0_tx_buffer,"Heading : ",10) : strncat(uart0_tx_buffer,"Heading : -",11);
+                strncat(uart0_tx_buffer,float_conv_ptr,strlen(float_conv_ptr));
+                retval = esp_01_tcp_send(uart0_tx_buffer);
+                esp_01_tcp_send((char*)"\n");
+
+                // takes 55 us
+                if(retval == ESP_01_NOT_OK) Serial.println(uart0_tx_buffer);
+                break;
+            
+            default:
+                break;
+
+            }
+            // clean uart0_tx_buffer
+            memset(uart0_tx_buffer,'\0',strlen(uart0_tx_buffer));
+        }
+
+        // data received - elapsed time 880us
+        else if((count >= 310) && m8_gps_pending_read()){
+            count = 0; 
+            retval = m8_gps_getCoords(&gps_coords);
+
+            if(retval == M8_GPS_OK){
+                // latitude
+                int_conv_ptr = myITOA(gps_coords.lat.degrees,10,0);
+                strncat(uart0_tx_buffer,int_conv_ptr,strlen(int_conv_ptr));
+                strncat(uart0_tx_buffer,"?",1);
+                int_conv_ptr = myITOA(gps_coords.lat.minutes,10,0);
+                strncat(uart0_tx_buffer,int_conv_ptr,strlen(int_conv_ptr));
+                strncat(uart0_tx_buffer,"'",1);
+                int_conv_ptr = myITOA(gps_coords.lat.seconds,10,0);
+                strncat(uart0_tx_buffer,int_conv_ptr,strlen(int_conv_ptr));
+                strncat(uart0_tx_buffer,"''",2);
+                strncat(uart0_tx_buffer,&gps_coords.lat.direction,1);
+                strncat(uart0_tx_buffer,"\n",1);
+
+                // longitude
+                int_conv_ptr = myITOA(gps_coords.lon.degrees,10,0);
+                strncat(uart0_tx_buffer,int_conv_ptr,strlen(int_conv_ptr));
+                strncat(uart0_tx_buffer,"?",1);
+                int_conv_ptr = myITOA(gps_coords.lon.minutes,10,0);
+                strncat(uart0_tx_buffer,int_conv_ptr,strlen(int_conv_ptr));
+                strncat(uart0_tx_buffer,"'",1);
+                int_conv_ptr = myITOA(gps_coords.lon.seconds,10,0);
+                strncat(uart0_tx_buffer,int_conv_ptr,strlen(int_conv_ptr));
+                strncat(uart0_tx_buffer,"''",2);
+                strncat(uart0_tx_buffer,&gps_coords.lon.direction,1);
+                strncat(uart0_tx_buffer,"\n",1);
+
+                // try to send
+                retval = esp_01_tcp_send(uart0_tx_buffer);
+                if(retval == ESP_01_NOT_OK) Serial.println(uart0_tx_buffer);
+
+                // clean buffer
+                memset(uart0_tx_buffer,'\0',strlen(uart0_tx_buffer));
+            }
+        }   
         
-        default:
-            break;
+        else if(count >= 310){
+            count = 0;
         }
-        count++;
-        //unsigned long stop = micros();
-        //Serial.println("elapsed time: " + String(stop-meas));
     }
-
-    // data received - elapsed time 1115 aprox 1.1ms
-    else if((count == 300) && m8_gps_pending_read()){
-        count = 50; 
-        //unsigned long meas = micros();
-        retval = m8_gps_getCoords(&gps_coords);
-
-        if(retval == M8_GPS_OK){
-            Serial.print(String(gps_coords.lat.degrees) + "°");
-            Serial.print(String(gps_coords.lat.minutes) + "'");
-            Serial.print(String(gps_coords.lat.seconds) + "''");
-            Serial.println(gps_coords.lat.direction);
-
-            Serial.print(String(gps_coords.lon.degrees) + "°");
-            Serial.print(String(gps_coords.lon.minutes) + "'");
-            Serial.print(String(gps_coords.lon.seconds) + "''");
-            Serial.println(gps_coords.lon.direction);
-        }
-        //unsigned long stop = micros();
-    }    //Serial.println("elapsed time: " + String(stop-meas));
-    else if(count >= 300){
-        count = 50;
-    }
-
-
 }
