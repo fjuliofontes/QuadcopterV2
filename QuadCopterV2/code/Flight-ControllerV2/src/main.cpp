@@ -10,6 +10,8 @@
 #include "m8-gps.h"
 #include "MPU6050.h"
 #include "esp-01.h"
+#include "hc-12.h"
+#include "sim800l.h"
 #include "quad_pins.h"
 #include "util.h"
 
@@ -23,6 +25,7 @@ float XY_distance, YZ_distance, ZX_distance;
 float phi, theta, psi;
 // flight variables
 float pitch = 0, roll = 0, yaw = 0;
+float quad_pitch, quad_roll, quad_yaw;
 //////////////////////////////////////
 
 ////////////////HMC5883L///////////////
@@ -35,6 +38,10 @@ float Xh, Yh;
 
 ////////////////GPS///////////////
 struct m8_gps gps_coords;
+//////////////////////////////////
+
+////////////////SIM800L///////////////
+sim800l sim;
 //////////////////////////////////
 
 ////////////////LOOP///////////////
@@ -65,6 +72,11 @@ void setup() {
     quad_redOn();
     Serial.println("System Clock Frequency : " + String(SysCtlClockGet()/1000000) + " Mhz");
     Serial.println("System Battery : " + String(quad_readBatteryVoltage()) + " Volt");
+    if(quad_readBatteryVoltage() < 5){
+        Serial.println("Not enough power to start ...");
+        // TODO: take precautions
+        while(1);
+    }
 
     /* --- Init i2c pins --- */
     Wire = TwoWire(1);
@@ -86,7 +98,7 @@ void setup() {
     Serial.println("EEPROM Size (bytes) : " + String(quad_eeprom_get_size()) + " EEPROM Bytes Pear Block : " 
                                 + String(quad_eeprom_get_bytes_pear_block()));
 
-    /* --- Init HC-05 --- */
+    /* --- Init HC-05 --- 
     Serial.println("Initing HC-05...");
     if(hc_05_init() == HC_05_OK){
         Serial.println("HC-05 INIT OK ! BAUDRATE = " + String(HC_05_BAUDRATE) + 
@@ -95,12 +107,32 @@ void setup() {
         HC_05_STATE_INT(hc_05_status_isr);
         // set hc-05 rx interrupt callback
         HC_05_RX_INT(hc_05_rx_isr);
-    }else Serial.println("failed");
+    }else Serial.println("HC-05 INIT FAILED !");
     delay(200);
+    */
+
+    /* --- Init HC-12 --- 
+    Serial.println("Initing HC-12...");
+    if(hc_12_init() == HC_12_OK){
+        Serial.println("HC-12 INIT OK ! BAUDRATE = " + String(HC_12_BAUDRATE));
+        Serial.println("Channel: " + String(433.4F + hc_12_getRadioChannel()*0.5F ) + "Mhz");
+        Serial.print("Device Mode: ");
+        switch (hc_12_getDeviceMode()){
+        case HC_12_MODERATE_POWER_SAVING_MODE: Serial.println("\"MODERATE POWER SAVING MODE\""); break;
+        case HC_12_EXTREME_POWER_SAVING_MODE: Serial.println("\"EXTREME POWER SAVING MODE\""); break;
+        case HC_12_GENERAL_PURPOSE_MODE: Serial.println("\"GENERAL PURPOSE MODE\""); break;
+        case HC_12_LONG_RANGE_MODE: Serial.println("\"LONG RANGE MODE\""); break;                                
+        default: Serial.println("Invalid Mode!"); break; }
+        Serial.println("TX Power: " + String(0.8F*pow(2,hc_12_getTXpower()-1)) + "mW");
+    }else Serial.println("HC-12 INIT FAILED !");
+    delay(200);
+    */
 
     /* --- Init HC-SR04 --- */
     Serial.println("Initing HC-SR04...");
-    hc_sr04_init();
+    if(hc_sr04_init(HC_SR04_EXPECTED_HEIGHT) == HC_SR04_0K){
+        Serial.println("HC-SR04 INIT OK");
+    }else Serial.println("HC-SR04 INIT FAILED");
     delay(200);
 
     /* --- Init M8_GPS --- 
@@ -119,11 +151,20 @@ void setup() {
         m8_gps_setMsgRate(M8_GPS_GSV_MESSAGE, M8_GPS_MESSAGE_DISABLED);
         //// set M8_GPS rx interrupt callback
         M8_GPS_RX_INT(m8_gps_rx_isr);
-    }else Serial.println("failed");
+    }else Serial.println("M8_GPS FAILED!");
     delay(200);
     */
 
-    /* --- Init ESP-01 --- */
+    /* --- Init SIM800L --- 
+    Serial.println("Initing SIM800L...");
+    if(sim.begin(SIM800L_BAUDRATE) == SIM800L_OK){
+        Serial.println("SIM800L INIT OK ! BAUDRATE = " + String(SIM800L_BAUDRATE));
+        SIM800L_RX_INT(sim800l_rx_isr);
+    }else  Serial.println("SIM800L INIT FAILED!");
+    delay(200);
+    */
+
+    /* --- Init ESP-01 --- 
     Serial.println("Initing ESP_01...");
     if(esp_01_init() == ESP_01_OK){
         Serial.println("ESP_01 INIT OK ! BAUDRATE = " + String(ESP_01_BAUDRATE));
@@ -131,13 +172,14 @@ void setup() {
         esp_01_tcp_connect((char*)"192.168.100.1",(char*)"9090");
         /// set interrupt callback
         ESP_01_RX_INT(esp_01_rx_isr);
-    } else Serial.println("failed");
+    } else Serial.println("ESP_01 INIT FAILED!");
     delay(200);
+    */
 
     /* --- Init HMC5883 --- */
     Serial.println("Initing HMC5883...");
     //init sensor
-    if(!mag.begin()) Serial.println("Ooops, no HMC5883 detected ... Check your wiring!");
+    if(!mag.begin()) Serial.println("HMC5883 INIT FAILED!");
     else {
         if(!mag.isCalibrated()) mag.calibrate(30); // calibrate for 30 seconds
     }
@@ -147,13 +189,13 @@ void setup() {
     Serial.println("Initing MPU6050...");
     accelgyro.initialize();
     if(accelgyro.testConnection()){
-        Serial.println("MPU6050 connection successful");
+        Serial.println("MPU6050 INIT OK!");
         // config MPU6050 resolution
         accelgyro.setFullScaleGyroRange(MPU6050_GYRO_FS_500);
         accelgyro.setFullScaleAccelRange(MPU6050_ACCEL_FS_8);
         delay(200);
         if(!accelgyro.isCalibrated()) accelgyro.calibrate(); 
-    }else Serial.println("MPU6050 connection failed");
+    }else Serial.println("MPU6050 INIT FAILED!");
     delay(200);
 
     // enables interrupts
@@ -207,8 +249,18 @@ void loop() {
         roll -= pitch * sin(gyro_z * DEG_TO_RAD);     
         // removing drift
         pitch = pitch * 0.9996 + psi * 0.0004;     
-        roll = roll * 0.9996 + theta * -0.0004;        
+        roll = roll * 0.9996 + theta * -0.0004; 
         ////////////////////////////////////////////////////////////////
+
+        //////////// TRANSFER MPU6050 COORDS TO QUAD COORDS //////////////
+        // mpu6050 can be mounted at different locations on the quadcopter
+        // the goal here, is create a calibration program that will assign
+        // the mpu6050 coords to the quad coords. Quad coords are based
+        // on the GPS Module arrow
+        quad_pitch = -roll;
+        quad_roll  = -pitch;
+        quad_yaw   = yaw;
+        //////////////////////////////////////////////////////////////////
 
         ///////////HMC5883L-READING//////////////////////
         mag.getMotion(&magnetic_x,&magnetic_y,&magnetic_z);
@@ -216,15 +268,22 @@ void loop() {
 
         ///////////CALCULATIONS/////////////////
         // tilt corrections
-        Xh = magnetic_x*cos(pitch*DEG_TO_RAD) + magnetic_y*sin(roll*DEG_TO_RAD)*sin(pitch*DEG_TO_RAD) 
-                                    - magnetic_z*cos(roll*DEG_TO_RAD)*sin(pitch*DEG_TO_RAD);
-        Yh = magnetic_y*cos(roll*DEG_TO_RAD) + magnetic_z*sin(roll*DEG_TO_RAD);
+        Xh = magnetic_x*cos(quad_pitch*DEG_TO_RAD) + magnetic_y*sin(quad_roll*DEG_TO_RAD)*sin(quad_pitch*DEG_TO_RAD) 
+                                    - magnetic_z*cos(quad_roll*DEG_TO_RAD)*sin(quad_pitch*DEG_TO_RAD);
+        Yh = magnetic_y*cos(quad_roll*DEG_TO_RAD) + magnetic_z*sin(quad_roll*DEG_TO_RAD);
         // heading calculation
-        if(Xh < 0)                    heading = 180 - atan2(Yh,Xh)*RAD_TO_DEG;
-        else if((Xh > 0) && (Yh < 0)) heading = -atan2(Yh,Xh)*RAD_TO_DEG;
-        else if((Xh > 0) && (Yh > 0)) heading = 360-atan2(Yh,Xh)*RAD_TO_DEG;
-        else if((Xh = 0) && (Yh < 0)) heading = 90;
-        else if((Xh = 0) && (Yh > 0)) heading = 270;
+        //if(Xh < 0)                    heading = 180 - atan2(Yh,Xh)*RAD_TO_DEG;
+        //else if((Xh > 0) && (Yh < 0)) heading = -atan2(Yh,Xh)*RAD_TO_DEG;
+        //else if((Xh > 0) && (Yh > 0)) heading = 360-atan2(Yh,Xh)*RAD_TO_DEG;
+        //else if((Xh = 0) && (Yh < 0)) heading = 90;
+        //else if((Xh = 0) && (Yh > 0)) heading = 270;
+        
+        //Now that the horizontal values are known the heading can be calculated. With the following lines of code the heading is calculated in degrees.
+        //Please note that the atan2 uses radians in stead of degrees. That is why the 180/3.14 is used.
+        if (Yh < 0) heading = 180 + (180 + ((atan2(Yh, Xh)) * RAD_TO_DEG));
+        else heading = (atan2(Yh, Xh)) * RAD_TO_DEG;
+
+        //heading += declination;                                 //Add the declination to the magnetic compass heading to get the geographic north.
         //heading = -atan2(magnetic_y, magnetic_x);
         ////////////////////////////////////////
 
@@ -252,8 +311,8 @@ void loop() {
             switch (count){
             case 250:
                 // takes 36 us
-                float_conv_ptr = (pitch > 0) ? myFTOA(pitch, 2 , 10) : myFTOA(pitch*-1, 2 , 10);
-                (pitch > 0) ? strncat(uart0_tx_buffer,"Pitch : ",8) : strncat(uart0_tx_buffer,"Pitch : -",9);
+                float_conv_ptr = (quad_pitch > 0) ? myFTOA(quad_pitch, 2 , 10) : myFTOA(quad_pitch*-1, 2 , 10);
+                (quad_pitch > 0) ? strncat(uart0_tx_buffer,"Pitch : ",8) : strncat(uart0_tx_buffer,"Pitch : -",9);
                 strncat(uart0_tx_buffer,float_conv_ptr,strlen(float_conv_ptr));
                 retval = esp_01_tcp_send(uart0_tx_buffer);
 
@@ -262,8 +321,8 @@ void loop() {
                 break;
             case 265:
                 // takes 36 us
-                float_conv_ptr = (roll > 0) ? myFTOA(roll, 2 , 10) : myFTOA(roll*-1, 2 , 10);
-                (roll > 0) ? strncat(uart0_tx_buffer," Roll : ",8) : strncat(uart0_tx_buffer," Roll : -",9);
+                float_conv_ptr = (quad_roll > 0) ? myFTOA(quad_roll, 2 , 10) : myFTOA(quad_roll*-1, 2 , 10);
+                (quad_roll > 0) ? strncat(uart0_tx_buffer," Roll : ",8) : strncat(uart0_tx_buffer," Roll : -",9);
                 strncat(uart0_tx_buffer,float_conv_ptr,strlen(float_conv_ptr));
                 retval = esp_01_tcp_send(uart0_tx_buffer);
 
@@ -272,8 +331,8 @@ void loop() {
                 break;
             case 280:
                 // takes 36 us
-                float_conv_ptr = (yaw > 0) ? myFTOA(yaw, 2 , 10) : myFTOA(yaw*-1, 2 , 10);
-                (yaw > 0) ? strncat(uart0_tx_buffer," Yaw : ",7) : strncat(uart0_tx_buffer," Yaw : -",8);
+                float_conv_ptr = (quad_yaw > 0) ? myFTOA(quad_yaw, 2 , 10) : myFTOA(quad_yaw*-1, 2 , 10);
+                (quad_yaw > 0) ? strncat(uart0_tx_buffer," Yaw : ",7) : strncat(uart0_tx_buffer," Yaw : -",8);
                 strncat(uart0_tx_buffer,float_conv_ptr,strlen(float_conv_ptr));
                 retval = esp_01_tcp_send(uart0_tx_buffer);
                 esp_01_tcp_send((char*)"\n");

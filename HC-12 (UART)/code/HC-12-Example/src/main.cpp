@@ -2,8 +2,6 @@
 #include "hc-12.h"
 #include <interrupt.h>
 
-void hc_12_rx_isr();
-
 void setup() {
     Serial.begin(115200);
     Serial.println("Starting loop...");
@@ -39,12 +37,4 @@ void loop() {
         hc_12_writeByte(ch);  
     }    
 
-}
-
-void hc_12_rx_isr(){
-    while(HC_12_AVAILABLE){
-        Serial.write(HC_12_READBYTE);
-    }
-    // clean interrup flag
-    HC_12_CLEAN_RX_INT;
 }

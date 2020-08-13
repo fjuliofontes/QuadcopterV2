@@ -2,6 +2,8 @@
 #include "sim800l.h"
 #include <interrupt.h>
 
+sim800l dev;
+
 void sim800l_rx_isr();
 
 void setup() {
@@ -14,16 +16,41 @@ void setup() {
     Serial.println("SIM800L Library");
     Serial.println("Initing SIM800L...");
 
-    // try to init SIM800L
-    if(sim800l_init() == SIM800L_OK)
-        Serial.println("SIM800L INIT OK ! BAUDRATE = " + String(SIM800L_BAUDRATE));
-    else
-        Serial.println("failed");
+    dev.begin(115200);
+    
+    Serial.println("Init OK...");
+
+    /*Serial.print(dev.getOperatorsList());
+    if(dev.calculateLocation() == SIM800L_OK){
+        Serial.println(dev.getLocationCode());
+        Serial.println(dev.getLatitude());
+        Serial.println(dev.getLongitude());
+    }else Serial.println("Error While Calculating Location");*/
 
     // set SIM800L rx interrupt callback
     SIM800L_RX_INT(sim800l_rx_isr);
     // enables interrupts
     IntMasterEnable();
+
+    while(!dev.simReady()){
+        delay(1000);
+    };
+
+    Serial.println("Sending sms!");
+
+    Serial.println(dev.sendSms((char*)"+351911599040",(char*)"Teste!"));
+    delay(1000);
+    
+    //read sms
+    uint8_t index_list[10];
+    uint8_t len;
+    
+    if(dev.unReadSms(index_list,&len)){
+        for(int k = 0; k < len; k++){
+            Serial.println(dev.readSms(index_list[k]));
+        }
+    }
+    
 }
 
 void loop() {
@@ -33,15 +60,8 @@ void loop() {
         delay(10); // The DELAY!
         char ch = Serial.read();
         Serial.write(ch);
-        sim800l_writeByte(ch);  
+        dev.writeByte(ch);  
     }    
 
 }
 
-void sim800l_rx_isr(){
-    while(SIM800L_AVAILABLE){
-        Serial.write(SIM800L_READBYTE);
-    }
-    // clean interrup flag
-    SIM800L_CLEAN_RX_INT;
-}

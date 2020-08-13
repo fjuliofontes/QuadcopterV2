@@ -323,3 +323,11 @@ void hc_12_reset(){
         hc_12_normal_mode();
     }
 }
+
+void hc_12_rx_isr(){
+    while(HC_12_AVAILABLE){
+        Serial.write(HC_12_READBYTE);
+    }
+    // clean interrup flag
+    HC_12_CLEAN_RX_INT;
+}

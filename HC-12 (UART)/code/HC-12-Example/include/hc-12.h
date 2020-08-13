@@ -78,4 +78,6 @@ void hc_12_version();
 void hc_12_reset();
 void hc_12_rx_params();
 
+void hc_12_rx_isr();
+
 #endif
