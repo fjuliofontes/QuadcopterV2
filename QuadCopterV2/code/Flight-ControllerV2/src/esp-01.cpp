@@ -107,9 +107,7 @@ uint8_t esp_01_tcp_send(char * msg){
     if(_esp_01_tcp_status == ESP_01_TCP_DISCONNECTED) return ESP_01_NOT_OK; // not connected
 
     // send msg
-    unsigned long meas = micros();
     esp_01_writeWord(msg);
-    Serial.println(micros()-meas);
 
     // send msg terminator
     esp_01_writeByte('\r');

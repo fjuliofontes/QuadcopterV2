@@ -26,6 +26,7 @@ float phi, theta, psi;
 // flight variables
 float pitch = 0, roll = 0, yaw = 0;
 float quad_pitch, quad_roll, quad_yaw;
+bool yawFirstTime = true;
 //////////////////////////////////////
 
 ////////////////HMC5883L///////////////
@@ -57,13 +58,28 @@ unsigned long toc;
 bool flag = false;
 //////////////////////////////////////
 
+//////////CALIBRATION//////////////
+void sw2_isr();
+void sw1_isr();
+// for magnetometer
+bool isMagCal = false;
+// for MPU-6050
+bool isMpuCal = false;
+//////////////////////////////////////
+
 void setup() {
     // start initing serial port
     Serial.begin(115200);
-    pinMode(PA_4,OUTPUT);
+    pinMode(PA_4,OUTPUT); // for debugging 
     
     /* --- Init LED's and Analogs --- */
     quad_init();
+
+    /* --- Init rotines to trigger a newer calibration --- */
+    pinMode(PF_4,INPUT_PULLUP);
+    pinMode(PF_0,INPUT_PULLUP);
+    attachInterrupt(PF_4,sw1_isr, FALLING);
+    attachInterrupt(PF_0,sw2_isr, FALLING);
 
     // let voltages stable
     delay(3000);
@@ -98,7 +114,7 @@ void setup() {
     Serial.println("EEPROM Size (bytes) : " + String(quad_eeprom_get_size()) + " EEPROM Bytes Pear Block : " 
                                 + String(quad_eeprom_get_bytes_pear_block()));
 
-    /* --- Init HC-05 --- 
+    /* --- Init HC-05 --- */
     Serial.println("Initing HC-05...");
     if(hc_05_init() == HC_05_OK){
         Serial.println("HC-05 INIT OK ! BAUDRATE = " + String(HC_05_BAUDRATE) + 
@@ -109,9 +125,8 @@ void setup() {
         HC_05_RX_INT(hc_05_rx_isr);
     }else Serial.println("HC-05 INIT FAILED !");
     delay(200);
-    */
 
-    /* --- Init HC-12 --- 
+    /* --- Init HC-12 --- */
     Serial.println("Initing HC-12...");
     if(hc_12_init() == HC_12_OK){
         Serial.println("HC-12 INIT OK ! BAUDRATE = " + String(HC_12_BAUDRATE));
@@ -126,7 +141,6 @@ void setup() {
         Serial.println("TX Power: " + String(0.8F*pow(2,hc_12_getTXpower()-1)) + "mW");
     }else Serial.println("HC-12 INIT FAILED !");
     delay(200);
-    */
 
     /* --- Init HC-SR04 --- */
     Serial.println("Initing HC-SR04...");
@@ -135,7 +149,7 @@ void setup() {
     }else Serial.println("HC-SR04 INIT FAILED");
     delay(200);
 
-    /* --- Init M8_GPS --- 
+    /* --- Init M8_GPS --- */
     Serial.println("Initing M8_GPS...");
     //init M8_GPS
     //// set baudrate
@@ -153,18 +167,16 @@ void setup() {
         M8_GPS_RX_INT(m8_gps_rx_isr);
     }else Serial.println("M8_GPS FAILED!");
     delay(200);
-    */
 
-    /* --- Init SIM800L --- 
+    /* --- Init SIM800L --- */
     Serial.println("Initing SIM800L...");
     if(sim.begin(SIM800L_BAUDRATE) == SIM800L_OK){
         Serial.println("SIM800L INIT OK ! BAUDRATE = " + String(SIM800L_BAUDRATE));
         SIM800L_RX_INT(sim800l_rx_isr);
     }else  Serial.println("SIM800L INIT FAILED!");
     delay(200);
-    */
 
-    /* --- Init ESP-01 --- 
+    /* --- Init ESP-01 --- */
     Serial.println("Initing ESP_01...");
     if(esp_01_init() == ESP_01_OK){
         Serial.println("ESP_01 INIT OK ! BAUDRATE = " + String(ESP_01_BAUDRATE));
@@ -174,7 +186,6 @@ void setup() {
         ESP_01_RX_INT(esp_01_rx_isr);
     } else Serial.println("ESP_01 INIT FAILED!");
     delay(200);
-    */
 
     /* --- Init HMC5883 --- */
     Serial.println("Initing HMC5883...");
@@ -205,7 +216,7 @@ void setup() {
 }
 
 void loop() {
-    // elapsed time = 0.9ms - should repeat at every 4 ms
+    // elapsed time = 0.755ms - should repeat at every 4 ms
     if((micros() - last_loop) >= MPU6050_READ_PERI){
         // update last_loop time value
         last_loop = micros();
@@ -243,13 +254,16 @@ void loop() {
         /////////////////////////REMOVE GYRO DRIFT//////////////////////
         pitch += gyro_x;
         roll += gyro_y;
-        yaw += gyro_z;
+        yaw += -gyro_z;
         // for tranfering pitch to roll
-        pitch += roll * sin(gyro_z * DEG_TO_RAD);  // pi/180 = 0.01745
-        roll -= pitch * sin(gyro_z * DEG_TO_RAD);     
+        pitch += roll * sinf(gyro_z * DEG_TO_RAD);  // pi/180 = 0.01745
+        roll -= pitch * sinf(gyro_z * DEG_TO_RAD);     
         // removing drift
         pitch = pitch * 0.9996 + psi * 0.0004;     
-        roll = roll * 0.9996 + theta * -0.0004; 
+        roll = roll * 0.9996 + theta * -0.0004;
+        // saturate yaw if needed
+        if(yaw > 360) yaw -= 360;
+        if(yaw < 0)   yaw += 360; 
         ////////////////////////////////////////////////////////////////
 
         //////////// TRANSFER MPU6050 COORDS TO QUAD COORDS //////////////
@@ -258,8 +272,7 @@ void loop() {
         // the mpu6050 coords to the quad coords. Quad coords are based
         // on the GPS Module arrow
         quad_pitch = -roll;
-        quad_roll  = -pitch;
-        quad_yaw   = yaw;
+        quad_roll  = pitch;
         //////////////////////////////////////////////////////////////////
 
         ///////////HMC5883L-READING//////////////////////
@@ -267,35 +280,34 @@ void loop() {
         ////////////////////////////////////////////////
 
         ///////////CALCULATIONS/////////////////
-        // tilt corrections
-        Xh = magnetic_x*cos(quad_pitch*DEG_TO_RAD) + magnetic_y*sin(quad_roll*DEG_TO_RAD)*sin(quad_pitch*DEG_TO_RAD) 
-                                    - magnetic_z*cos(quad_roll*DEG_TO_RAD)*sin(quad_pitch*DEG_TO_RAD);
-        Yh = magnetic_y*cos(quad_roll*DEG_TO_RAD) + magnetic_z*sin(quad_roll*DEG_TO_RAD);
-        // heading calculation
-        //if(Xh < 0)                    heading = 180 - atan2(Yh,Xh)*RAD_TO_DEG;
-        //else if((Xh > 0) && (Yh < 0)) heading = -atan2(Yh,Xh)*RAD_TO_DEG;
-        //else if((Xh > 0) && (Yh > 0)) heading = 360-atan2(Yh,Xh)*RAD_TO_DEG;
-        //else if((Xh = 0) && (Yh < 0)) heading = 90;
-        //else if((Xh = 0) && (Yh > 0)) heading = 270;
-        
+        /* tilt corrections */
+        Xh = magnetic_x*cosf(-quad_pitch*DEG_TO_RAD) + magnetic_y*sinf(quad_roll*DEG_TO_RAD)*sinf(-quad_pitch*DEG_TO_RAD) 
+                    - magnetic_z*cosf(quad_roll*DEG_TO_RAD)*sinf(-quad_pitch*DEG_TO_RAD);
+        Yh = magnetic_y*cosf(quad_roll*DEG_TO_RAD) + magnetic_z*sinf(quad_roll*DEG_TO_RAD);
         //Now that the horizontal values are known the heading can be calculated. With the following lines of code the heading is calculated in degrees.
         //Please note that the atan2 uses radians in stead of degrees. That is why the 180/3.14 is used.
-        if (Yh < 0) heading = 180 + (180 + ((atan2(Yh, Xh)) * RAD_TO_DEG));
-        else heading = (atan2(Yh, Xh)) * RAD_TO_DEG;
-
-        //heading += declination;                                 //Add the declination to the magnetic compass heading to get the geographic north.
-        //heading = -atan2(magnetic_y, magnetic_x);
+        if (Yh < 0) heading = 360 + atan2f(Yh, Xh)*RAD_TO_DEG;
+        else heading = atan2f(Yh, Xh)*RAD_TO_DEG;  
         ////////////////////////////////////////
 
         ///////////CORRECTIONS////////////////////
-        //heading += 4.869; // north correction
+        heading += -1.7667F; // declination correction
         // Correct for when signs are reversed.
-        if(heading < 0)
-            heading += 360;
+        if(heading < 0)   heading += 360;
         // Check for wrap due to addition of declination.
-        if(heading > 360)
-            heading -= 360;
+        if(heading > 360) heading -= 360;
         /////////////////////////////////////////
+
+        ////////////////YAW CORRECTIONS//////////////////
+        if(yawFirstTime){
+            yawFirstTime = false; // not first time anymore
+            yaw = heading; // assign heading to yaw
+        }
+        // removing yaw drift
+        yaw = yaw * 0.9996 + heading * 0.0004; 
+        // transfering mpu6050 coords to quad coords
+        quad_yaw = yaw;
+        /////////////////////////////////////////////
 
         isNewInc = 1; // is new increment ? - yes
         count ++;
@@ -340,7 +352,7 @@ void loop() {
                 // takes 55 us
                 if(retval == ESP_01_NOT_OK) Serial.println(uart0_tx_buffer);
                 break;
-            case 295:
+            case 295:          
                 // takes 36 us
                 float_conv_ptr = (heading > 0) ? myFTOA(heading, 2 , 10) : myFTOA(heading*-1, 2 , 10);
                 (heading > 0) ? strncat(uart0_tx_buffer,"Heading : ",10) : strncat(uart0_tx_buffer,"Heading : -",11);
@@ -405,4 +417,24 @@ void loop() {
             count = 0;
         }
     }
+    
+    // no time to print, but still needs to check if it is to start a newer calibration procedure
+    else if( isMagCal ){
+        mag.calibrate(30);
+        isMagCal = false; // set to false
+    }
+
+    // no time to print, but still needs to check if it is to start a newer calibration procedure
+    else if( isMpuCal ){
+        accelgyro.calibrate();
+        isMpuCal = false; // set to false
+    }
+}
+
+void sw1_isr(){
+    if(!isMagCal) isMagCal = true;
+}
+
+void sw2_isr(){
+    if(!isMpuCal) isMpuCal = true;
 }

@@ -56,17 +56,17 @@ void HMC5883L::read() {
     static uint8_t data[6];
     I2Cdev::readBytes((byte)HMC5883_ADDRESS_MAG, (uint8_t)HMC5883_REGISTER_MAG_OUT_X_H_M, 6 , data);
 
-    uint8_t xhi = data[0];
-    uint8_t xlo = data[1];
+    uint8_t yhi = data[0];
+    uint8_t ylo = data[1];
     uint8_t zhi = data[2];
     uint8_t zlo = data[3];
-    uint8_t yhi = data[4];
-    uint8_t ylo = data[5];
+    uint8_t xhi = data[4];
+    uint8_t xlo = data[5];
 
     // Shift values to create properly formed integer (low byte first)
-    _magData.x = (int16_t)(xlo | ((int16_t)xhi << 8));
-    _magData.y = (int16_t)(ylo | ((int16_t)yhi << 8));
-    _magData.z = (int16_t)(zlo | ((int16_t)zhi << 8));
+    _magData.x = -((int16_t)(xlo | ((int16_t)xhi << 8)));
+    _magData.y = -((int16_t)(ylo | ((int16_t)yhi << 8)));
+    _magData.z =   (int16_t)(zlo | ((int16_t)zhi << 8));
 
     // ToDo: Calculate orientation
     _magData.orientation = 0.0;
@@ -110,14 +110,14 @@ bool HMC5883L::begin() {
         _hmc5883l_eeprom_read_function(HMC5883_CALIBRATION_ADDR,data,52);
         // reading ok :) 
         if(data[0] == HMC5883_CALIBRATION_VALIDATOR){
-            _hmc5883l_x_off = data[1] ? (float)(data[2]/100000.0) : (float)-(data[2]/100000.0);
-            _hmc5883l_y_off = data[3] ? (float)(data[4]/100000.0) : (float)-(data[4]/100000.0);
-            _hmc5883l_z_off = data[5] ? (float)(data[6]/100000.0) : (float)-(data[6]/100000.0);
-            _hmc5883l_x_scf = data[7] ? (float)(data[8]/100000.0) : (float)-(data[8]/100000.0);
-            _hmc5883l_y_scf = data[9] ? (float)(data[10]/100000.0): (float)-(data[10]/100000.0);
-            _hmc5883l_z_scf = data[11]? (float)(data[12]/100000.0): (float)-(data[12]/100000.0);
-            Serial.println("Off: x: " + String(_hmc5883l_x_off) + " y: " + String(_hmc5883l_y_off) + " z: " + String(_hmc5883l_z_off) );
-            Serial.println("Scf: x: " + String(_hmc5883l_x_scf) + " y: " + String(_hmc5883l_y_scf) + " z: " + String(_hmc5883l_z_scf) );
+            _hmc5883l_x_off = data[1] ? (float)(data[2]/100000.f) : (float)-(data[2]/100000.f);
+            _hmc5883l_y_off = data[3] ? (float)(data[4]/100000.f) : (float)-(data[4]/100000.f);
+            _hmc5883l_z_off = data[5] ? (float)(data[6]/100000.f) : (float)-(data[6]/100000.f);
+            _hmc5883l_x_scf = data[7] ? (float)(data[8]/100000.f) : (float)-(data[8]/100000.f);
+            _hmc5883l_y_scf = data[9] ? (float)(data[10]/100000.f): (float)-(data[10]/100000.f);
+            _hmc5883l_z_scf = data[11]? (float)(data[12]/100000.f): (float)-(data[12]/100000.f);
+            //Serial.println("Off: x: " + String(_hmc5883l_x_off) + " y: " + String(_hmc5883l_y_off) + " z: " + String(_hmc5883l_z_off) );
+            //Serial.println("Scf: x: " + String(_hmc5883l_x_scf) + " y: " + String(_hmc5883l_y_scf) + " z: " + String(_hmc5883l_z_scf) );
             // flag calibration done
             _hmc5883l_calibrated = true;
         }
@@ -170,11 +170,18 @@ void HMC5883L::setMagGain(hmc5883MagGain gain) {
 
 void HMC5883L::getMotion(float *x, float *y, float *z, float *orientation){
     HMC5883L::read();
-
+    
+    /*
+    // results in uT, but it's not needed for heading calculation
     *x = (_magData.x / _hmc5883_Gauss_LSB_XY) * SENSORS_GAUSS_TO_MICROTESLA;
     *y = (_magData.y / _hmc5883_Gauss_LSB_XY) * SENSORS_GAUSS_TO_MICROTESLA;
     *z = (_magData.z / _hmc5883_Gauss_LSB_Z)  * SENSORS_GAUSS_TO_MICROTESLA;
+    */
 
+    *x = _magData.x;
+    *y = _magData.y;
+    *z = _magData.z;
+    
     if(_hmc5883l_calibrated){
         *x = (*x + _hmc5883l_x_off)*_hmc5883l_x_scf;
         *y = (*y + _hmc5883l_y_off)*_hmc5883l_y_scf;
@@ -188,7 +195,7 @@ bool HMC5883L::calibrate(uint8_t seconds){
     // start by re-setting the _calibration state
     _hmc5883l_calibrated = false;
     // define variables
-    float magnetic_x, magnetic_y, magnetic_z, first_mag_z;
+    float magnetic_x, magnetic_y, magnetic_z;
     uint16_t h = 10, i = 0; // worst case scenario refresh rate of 75Hz
     bool blinkState = false; // for animation
     long last_time = millis();
@@ -197,38 +204,40 @@ bool HMC5883L::calibrate(uint8_t seconds){
     // init max and min vars and first magnetic field on z axis
     _hmc5883l_max_x = magnetic_x,_hmc5883l_max_y = magnetic_y,_hmc5883l_max_z = magnetic_z;
     _hmc5883l_min_x = magnetic_x,_hmc5883l_min_y = magnetic_y,_hmc5883l_min_z = magnetic_z;
-    first_mag_z = magnetic_z;
     // loop until reach seconds
     while(millis()-last_time < seconds*1000){
         // get a new sensor read
         getMotion(&magnetic_x,&magnetic_y,&magnetic_z); // Get a new sensor event 
         // get minimum for all the axis, but ignore readings where mag_z are high for x and y axis
-        if((magnetic_x<_hmc5883l_min_x) && (magnetic_z*0.7 < first_mag_z) && (magnetic_z*1.3 > first_mag_z)) _hmc5883l_min_x = magnetic_x;
-        if((magnetic_y<_hmc5883l_min_y) && (magnetic_z*0.7 < first_mag_z) && (magnetic_z*1.3 > first_mag_z)) _hmc5883l_min_y = magnetic_y;
+        if(magnetic_x<_hmc5883l_min_x) _hmc5883l_min_x = magnetic_x;
+        if(magnetic_y<_hmc5883l_min_y) _hmc5883l_min_y = magnetic_y;
         if(magnetic_z<_hmc5883l_min_z) _hmc5883l_min_z = magnetic_z;
-        // get maximum for all the axis, but ignore readings where mag_z are high for x and y axis
-        if((magnetic_x>_hmc5883l_max_x) && (magnetic_z*0.7 < first_mag_z) && (magnetic_z*1.3 > first_mag_z)) _hmc5883l_max_x = magnetic_x;
-        if((magnetic_y>_hmc5883l_max_y) && (magnetic_z*0.7 < first_mag_z) && (magnetic_z*1.3 > first_mag_z)) _hmc5883l_max_y = magnetic_y;
+        // get maximum
+        if(magnetic_x>_hmc5883l_max_x) _hmc5883l_max_x = magnetic_x;
+        if(magnetic_y>_hmc5883l_max_y) _hmc5883l_max_y = magnetic_y;
         if(magnetic_z>_hmc5883l_max_z) _hmc5883l_max_z = magnetic_z;
         delay(h); // pause until next reading ready 
         //if(((i++)%20) == 0) Serial.print('.'); // print '.' at every +/- 200ms
         if(((i++)%50) == 0) { blinkState = !blinkState; quad_led(GREEN_LED,blinkState);} // blink every 500 ms
     }
-    // calculate offsets from center (0,0)
-    _hmc5883l_x_off = -(_hmc5883l_max_x+_hmc5883l_min_x)/2;
-    _hmc5883l_y_off = -(_hmc5883l_max_y+_hmc5883l_min_y)/2;
-    _hmc5883l_z_off = -(_hmc5883l_max_z+_hmc5883l_min_z)/2;
+    
     // calculate scale factor
     _hmc5883l_x_scf = (_hmc5883l_max_y-_hmc5883l_min_y)/(_hmc5883l_max_x-_hmc5883l_min_x);
     _hmc5883l_y_scf = (_hmc5883l_max_x-_hmc5883l_min_x)/(_hmc5883l_max_y-_hmc5883l_min_y);
-    // choose the biggest scale factor (avoid elipt)
+    /* choose the biggest scale factor (avoid elipt) */
     if(_hmc5883l_x_scf > _hmc5883l_y_scf){
         _hmc5883l_y_scf = 1;
         _hmc5883l_z_scf = (_hmc5883l_max_y-_hmc5883l_min_y)/(_hmc5883l_max_z-_hmc5883l_min_z);
     } else{
+        // ymfc-al uses always this state
         _hmc5883l_z_scf = (_hmc5883l_max_x-_hmc5883l_min_x)/(_hmc5883l_max_z-_hmc5883l_min_z);
         _hmc5883l_x_scf = 1;
-    } 
+    }
+    // calculate offsets from center (0,0)
+    _hmc5883l_x_off = - ((_hmc5883l_max_x + _hmc5883l_min_x) / 2.0f);
+    _hmc5883l_y_off = - ((_hmc5883l_max_y + _hmc5883l_min_y) / 2.0f);
+    _hmc5883l_z_off = - ((_hmc5883l_max_z + _hmc5883l_min_z) / 2.0f);
+    
     // toggle led off
     quad_ledOff();
 
@@ -238,25 +247,25 @@ bool HMC5883L::calibrate(uint8_t seconds){
         data[0] = HMC5883_CALIBRATION_VALIDATOR;
 
         data[1] = (_hmc5883l_x_off > 0);
-        data[2] = data[1] ? (uint32_t)(_hmc5883l_x_off*100000.0) : (uint32_t)(_hmc5883l_x_off*-100000.0);
+        data[2] = data[1] ? (uint32_t)(_hmc5883l_x_off*100000.f) : (uint32_t)(_hmc5883l_x_off*-100000.f);
 
         data[3] = (_hmc5883l_y_off > 0);
-        data[4] = data[3] ? (uint32_t)(_hmc5883l_y_off*100000.0) : (uint32_t)(_hmc5883l_y_off*-100000.0);
+        data[4] = data[3] ? (uint32_t)(_hmc5883l_y_off*100000.f) : (uint32_t)(_hmc5883l_y_off*-100000.f);
 
         data[5] = (_hmc5883l_z_off > 0);
-        data[6] = data[5] ? (uint32_t)(_hmc5883l_z_off*100000.0) : (uint32_t)(_hmc5883l_z_off*-100000.0);
+        data[6] = data[5] ? (uint32_t)(_hmc5883l_z_off*100000.f) : (uint32_t)(_hmc5883l_z_off*-100000.f);
 
         data[7] = (_hmc5883l_x_scf > 0);
-        data[8] = data[7] ? (uint32_t)(_hmc5883l_x_scf*100000.0) : (uint32_t)(_hmc5883l_x_scf*-100000.0);
+        data[8] = data[7] ? (uint32_t)(_hmc5883l_x_scf*100000.f) : (uint32_t)(_hmc5883l_x_scf*-100000.f);
 
         data[9] = (_hmc5883l_y_scf > 0);
-        data[10] = data[9] ? (uint32_t)(_hmc5883l_y_scf*100000.0) : (uint32_t)(_hmc5883l_y_scf*-100000.0);
+        data[10] = data[9] ? (uint32_t)(_hmc5883l_y_scf*100000.f) : (uint32_t)(_hmc5883l_y_scf*-100000.f);
 
         data[11] = (_hmc5883l_z_scf > 0);
-        data[12] = data[11] ? (uint32_t)(_hmc5883l_z_scf*100000.0) : (uint32_t)(_hmc5883l_z_scf*-100000.0);
+        data[12] = data[11] ? (uint32_t)(_hmc5883l_z_scf*100000.f) : (uint32_t)(_hmc5883l_z_scf*-100000.f);
 
-        Serial.println("Off: x: " + String(_hmc5883l_x_off) + " y: " + String(_hmc5883l_y_off) + " z: " + String(_hmc5883l_z_off) );
-        Serial.println("Scf: x: " + String(_hmc5883l_x_scf) + " y: " + String(_hmc5883l_y_scf) + " z: " + String(_hmc5883l_z_scf) );
+        //Serial.println("Off: x: " + String(_hmc5883l_x_off) + " y: " + String(_hmc5883l_y_off) + " z: " + String(_hmc5883l_z_off) );
+        //Serial.println("Scf: x: " + String(_hmc5883l_x_scf) + " y: " + String(_hmc5883l_y_scf) + " z: " + String(_hmc5883l_z_scf) );
         // save to eeprom
         _hmc5883l_eeprom_write_function(HMC5883_CALIBRATION_ADDR,data,52); // 32 bit = 4 bytes -- 13 * 4 = 52 bytes -- sizeof(data)
     }
