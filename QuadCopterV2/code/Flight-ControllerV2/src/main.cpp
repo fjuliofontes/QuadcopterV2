@@ -12,6 +12,7 @@
 #include "esp-01.h"
 #include "hc-12.h"
 #include "sim800l.h"
+#include "MS5611.h"
 #include "quad_pins.h"
 #include "util.h"
 
@@ -35,6 +36,12 @@ HMC5883L mag = HMC5883L(0);
 float magnetic_x, magnetic_y, magnetic_z, heading;
 // for tilt correction
 float Xh, Yh;
+//////////////////////////////////////
+
+////////////////MS5611///////////////
+MS5611 baro = MS5611();
+// for altitude measurements 
+float altitude, temperature;
 //////////////////////////////////////
 
 ////////////////GPS///////////////
@@ -193,19 +200,26 @@ void setup() {
     if(!mag.begin()) Serial.println("HMC5883 INIT FAILED!");
     else {
         if(!mag.isCalibrated()) mag.calibrate(30); // calibrate for 30 seconds
+        Serial.println("HMC5883 INIT OK!");
     }
+    delay(200);
+
+    /* --- MS5611 --- */
+    Serial.println("Initing MS5611...");
+    if(baro.init(MS5611_ADDR_CSB_LOW) == MS5611_OK) Serial.println("HMC5883 INIT OK!");
+    else Serial.println("MS5611 INIT FAILED!");
     delay(200);
 
     /* --- Init MPU6050 --- */
     Serial.println("Initing MPU6050...");
     accelgyro.initialize();
     if(accelgyro.testConnection()){
-        Serial.println("MPU6050 INIT OK!");
         // config MPU6050 resolution
         accelgyro.setFullScaleGyroRange(MPU6050_GYRO_FS_500);
         accelgyro.setFullScaleAccelRange(MPU6050_ACCEL_FS_8);
         delay(200);
         if(!accelgyro.isCalibrated()) accelgyro.calibrate(); 
+        Serial.println("MPU6050 INIT OK!");
     }else Serial.println("MPU6050 INIT FAILED!");
     delay(200);
 
@@ -216,7 +230,7 @@ void setup() {
 }
 
 void loop() {
-    // elapsed time = 0.755ms - should repeat at every 4 ms
+    // elapsed time = 966us - should repeat at every 4 ms
     if((micros() - last_loop) >= MPU6050_READ_PERI){
         // update last_loop time value
         last_loop = micros();
@@ -309,8 +323,16 @@ void loop() {
         quad_yaw = yaw;
         /////////////////////////////////////////////
 
-        isNewInc = 1; // is new increment ? - yes
-        count ++;
+        ///////////  READ ALTITUDE (126us) //////////////////
+        temperature = baro.getTemperature();
+        altitude    = baro.getAltitude();
+        /////////////////////////////////////////////
+
+        // if isNewInc equals to zero, change back to one and increment 
+        if(isNewInc == 0){
+            isNewInc = 1;
+            count ++;
+        }
     }
     
     // have spare time ? play a little bit with it  - max reported - 1627us but play safe
@@ -319,103 +341,119 @@ void loop() {
         isNewInc = 0;
 
         // at 1 and 1 second - elapsed time = 1200 us aprox 1.2ms 
-        if((count >= 250) && (count <= 295)){    
-            switch (count){
-            case 250:
-                // takes 36 us
-                float_conv_ptr = (quad_pitch > 0) ? myFTOA(quad_pitch, 2 , 10) : myFTOA(quad_pitch*-1, 2 , 10);
-                (quad_pitch > 0) ? strncat(uart0_tx_buffer,"Pitch : ",8) : strncat(uart0_tx_buffer,"Pitch : -",9);
-                strncat(uart0_tx_buffer,float_conv_ptr,strlen(float_conv_ptr));
-                retval = esp_01_tcp_send(uart0_tx_buffer);
+        switch (count){
+        case 250:
+            // takes 36 us
+            float_conv_ptr = (quad_pitch > 0) ? myFTOA(quad_pitch, 2 , 10) : myFTOA(quad_pitch*-1, 2 , 10);
+            (quad_pitch > 0) ? strncat(uart0_tx_buffer,"Pitch : ",8) : strncat(uart0_tx_buffer,"Pitch : -",9);
+            strncat(uart0_tx_buffer,float_conv_ptr,strlen(float_conv_ptr));
+            retval = esp_01_tcp_send(uart0_tx_buffer);
 
-                // takes 55 us
-                if(retval == ESP_01_NOT_OK) Serial.print(uart0_tx_buffer);
-                break;
-            case 265:
-                // takes 36 us
-                float_conv_ptr = (quad_roll > 0) ? myFTOA(quad_roll, 2 , 10) : myFTOA(quad_roll*-1, 2 , 10);
-                (quad_roll > 0) ? strncat(uart0_tx_buffer," Roll : ",8) : strncat(uart0_tx_buffer," Roll : -",9);
-                strncat(uart0_tx_buffer,float_conv_ptr,strlen(float_conv_ptr));
-                retval = esp_01_tcp_send(uart0_tx_buffer);
+            // takes 55 us
+            if(retval == ESP_01_NOT_OK) Serial.print(uart0_tx_buffer);
+            break;
+        case 265:
+            // takes 36 us
+            float_conv_ptr = (quad_roll > 0) ? myFTOA(quad_roll, 2 , 10) : myFTOA(quad_roll*-1, 2 , 10);
+            (quad_roll > 0) ? strncat(uart0_tx_buffer," Roll : ",8) : strncat(uart0_tx_buffer," Roll : -",9);
+            strncat(uart0_tx_buffer,float_conv_ptr,strlen(float_conv_ptr));
+            retval = esp_01_tcp_send(uart0_tx_buffer);
 
-                // takes 55 us
-                if(retval == ESP_01_NOT_OK) Serial.print(uart0_tx_buffer);
-                break;
-            case 280:
-                // takes 36 us
-                float_conv_ptr = (quad_yaw > 0) ? myFTOA(quad_yaw, 2 , 10) : myFTOA(quad_yaw*-1, 2 , 10);
-                (quad_yaw > 0) ? strncat(uart0_tx_buffer," Yaw : ",7) : strncat(uart0_tx_buffer," Yaw : -",8);
-                strncat(uart0_tx_buffer,float_conv_ptr,strlen(float_conv_ptr));
-                retval = esp_01_tcp_send(uart0_tx_buffer);
-                esp_01_tcp_send((char*)"\n");
+            // takes 55 us
+            if(retval == ESP_01_NOT_OK) Serial.print(uart0_tx_buffer);
+            break;
+        case 280:
+            // takes 36 us
+            float_conv_ptr = (quad_yaw > 0) ? myFTOA(quad_yaw, 2 , 10) : myFTOA(quad_yaw*-1, 2 , 10);
+            (quad_yaw > 0) ? strncat(uart0_tx_buffer," Yaw : ",7) : strncat(uart0_tx_buffer," Yaw : -",8);
+            strncat(uart0_tx_buffer,float_conv_ptr,strlen(float_conv_ptr));
+            retval = esp_01_tcp_send(uart0_tx_buffer);
+            esp_01_tcp_send((char*)"\n");
 
-                // takes 55 us
-                if(retval == ESP_01_NOT_OK) Serial.println(uart0_tx_buffer);
-                break;
-            case 295:          
-                // takes 36 us
-                float_conv_ptr = (heading > 0) ? myFTOA(heading, 2 , 10) : myFTOA(heading*-1, 2 , 10);
-                (heading > 0) ? strncat(uart0_tx_buffer,"Heading : ",10) : strncat(uart0_tx_buffer,"Heading : -",11);
-                strncat(uart0_tx_buffer,float_conv_ptr,strlen(float_conv_ptr));
-                retval = esp_01_tcp_send(uart0_tx_buffer);
-                esp_01_tcp_send((char*)"\n");
+            // takes 55 us
+            if(retval == ESP_01_NOT_OK) Serial.println(uart0_tx_buffer);
+            break;
+        case 295:          
+            // takes 36 us
+            float_conv_ptr = (heading > 0) ? myFTOA(heading, 2 , 10) : myFTOA(heading*-1, 2 , 10);
+            (heading > 0) ? strncat(uart0_tx_buffer,"Heading : ",10) : strncat(uart0_tx_buffer,"Heading : -",11);
+            strncat(uart0_tx_buffer,float_conv_ptr,strlen(float_conv_ptr));
+            retval = esp_01_tcp_send(uart0_tx_buffer);
+            esp_01_tcp_send((char*)"\n");
 
-                // takes 55 us
-                if(retval == ESP_01_NOT_OK) Serial.println(uart0_tx_buffer);
-                break;
-            
-            default:
-                break;
-
-            }
-            // clean uart0_tx_buffer
-            memset(uart0_tx_buffer,'\0',strlen(uart0_tx_buffer));
-        }
-
-        // data received - elapsed time 880us
-        else if((count >= 310) && m8_gps_pending_read()){
-            count = 0; 
-            retval = m8_gps_getCoords(&gps_coords);
-
-            if(retval == M8_GPS_OK){
-                // latitude
-                int_conv_ptr = myITOA(gps_coords.lat.degrees,10,0);
-                strncat(uart0_tx_buffer,int_conv_ptr,strlen(int_conv_ptr));
-                strncat(uart0_tx_buffer,"?",1);
-                int_conv_ptr = myITOA(gps_coords.lat.minutes,10,0);
-                strncat(uart0_tx_buffer,int_conv_ptr,strlen(int_conv_ptr));
-                strncat(uart0_tx_buffer,"'",1);
-                int_conv_ptr = myITOA(gps_coords.lat.seconds,10,0);
-                strncat(uart0_tx_buffer,int_conv_ptr,strlen(int_conv_ptr));
-                strncat(uart0_tx_buffer,"''",2);
-                strncat(uart0_tx_buffer,&gps_coords.lat.direction,1);
-                strncat(uart0_tx_buffer,"\n",1);
-
-                // longitude
-                int_conv_ptr = myITOA(gps_coords.lon.degrees,10,0);
-                strncat(uart0_tx_buffer,int_conv_ptr,strlen(int_conv_ptr));
-                strncat(uart0_tx_buffer,"?",1);
-                int_conv_ptr = myITOA(gps_coords.lon.minutes,10,0);
-                strncat(uart0_tx_buffer,int_conv_ptr,strlen(int_conv_ptr));
-                strncat(uart0_tx_buffer,"'",1);
-                int_conv_ptr = myITOA(gps_coords.lon.seconds,10,0);
-                strncat(uart0_tx_buffer,int_conv_ptr,strlen(int_conv_ptr));
-                strncat(uart0_tx_buffer,"''",2);
-                strncat(uart0_tx_buffer,&gps_coords.lon.direction,1);
-                strncat(uart0_tx_buffer,"\n",1);
-
-                // try to send
-                retval = esp_01_tcp_send(uart0_tx_buffer);
-                if(retval == ESP_01_NOT_OK) Serial.println(uart0_tx_buffer);
-
-                // clean buffer
-                memset(uart0_tx_buffer,'\0',strlen(uart0_tx_buffer));
-            }
-        }   
+            // takes 55 us
+            if(retval == ESP_01_NOT_OK) Serial.println(uart0_tx_buffer);
+            break;
         
-        else if(count >= 310){
-            count = 0;
+        case 310:
+            // takes 36 us
+            float_conv_ptr = (temperature > 0) ? myFTOA(temperature, 2 , 10) : myFTOA(temperature*-1, 2 , 10);
+            (temperature > 0) ? strncat(uart0_tx_buffer,"Temp : ",7) : strncat(uart0_tx_buffer,"Temp : -",8);
+            strncat(uart0_tx_buffer,float_conv_ptr,strlen(float_conv_ptr));
+            retval = esp_01_tcp_send(uart0_tx_buffer);
+            
+            // takes 55 us
+            if(retval == ESP_01_NOT_OK) Serial.print(uart0_tx_buffer);
+            break;
+        
+        case 325:
+            // takes 36 us
+            float_conv_ptr = (altitude > 0) ? myFTOA(altitude, 2 , 10) : myFTOA(altitude*-1, 2 , 10);
+            (altitude > 0) ? strncat(uart0_tx_buffer," Alt : ",7) : strncat(uart0_tx_buffer," Alt : -",8);
+            strncat(uart0_tx_buffer,float_conv_ptr,strlen(float_conv_ptr));
+            retval = esp_01_tcp_send(uart0_tx_buffer);
+            esp_01_tcp_send((char*)"\n");
+            
+            // takes 55 us
+            if(retval == ESP_01_NOT_OK) Serial.println(uart0_tx_buffer);
+
+            break;
+
+        case 340:
+            // takes 880us
+            if(m8_gps_pending_read()){
+                retval = m8_gps_getCoords(&gps_coords);
+                if(retval == M8_GPS_OK){
+                    // latitude
+                    int_conv_ptr = myITOA(gps_coords.lat.degrees,10,0);
+                    strncat(uart0_tx_buffer,int_conv_ptr,strlen(int_conv_ptr));
+                    strncat(uart0_tx_buffer,"?",1);
+                    int_conv_ptr = myITOA(gps_coords.lat.minutes,10,0);
+                    strncat(uart0_tx_buffer,int_conv_ptr,strlen(int_conv_ptr));
+                    strncat(uart0_tx_buffer,"'",1);
+                    int_conv_ptr = myITOA(gps_coords.lat.seconds,10,0);
+                    strncat(uart0_tx_buffer,int_conv_ptr,strlen(int_conv_ptr));
+                    strncat(uart0_tx_buffer,"''",2);
+                    strncat(uart0_tx_buffer,&gps_coords.lat.direction,1);
+                    strncat(uart0_tx_buffer,"\n",1);
+
+                    // longitude
+                    int_conv_ptr = myITOA(gps_coords.lon.degrees,10,0);
+                    strncat(uart0_tx_buffer,int_conv_ptr,strlen(int_conv_ptr));
+                    strncat(uart0_tx_buffer,"?",1);
+                    int_conv_ptr = myITOA(gps_coords.lon.minutes,10,0);
+                    strncat(uart0_tx_buffer,int_conv_ptr,strlen(int_conv_ptr));
+                    strncat(uart0_tx_buffer,"'",1);
+                    int_conv_ptr = myITOA(gps_coords.lon.seconds,10,0);
+                    strncat(uart0_tx_buffer,int_conv_ptr,strlen(int_conv_ptr));
+                    strncat(uart0_tx_buffer,"''",2);
+                    strncat(uart0_tx_buffer,&gps_coords.lon.direction,1);
+                    strncat(uart0_tx_buffer,"\n",1);
+
+                    // try to send
+                    retval = esp_01_tcp_send(uart0_tx_buffer);
+                    if(retval == ESP_01_NOT_OK) Serial.println(uart0_tx_buffer);
+                }
+            }
+
+            count = 0; // reset count
+            break;
+        
+        default:
+            break;
         }
+        // clean uart0_tx_buffer
+        memset(uart0_tx_buffer,'\0',strlen(uart0_tx_buffer));
     }
     
     // no time to print, but still needs to check if it is to start a newer calibration procedure
