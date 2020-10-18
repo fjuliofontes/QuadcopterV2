@@ -75,10 +75,10 @@ void setup() {
     the base of the module being used. PWM_OUT_0 is the PWM output to modify, which is tied to
     a pin. 12500 is the clock ticks of the width of the pulse. 12500 would be a 50% duty cycle for the 25000
     clock tick period. */
-    PWMPulseWidthSet(PWM0_BASE, PWM_OUT_0, 12500);
-    PWMPulseWidthSet(PWM0_BASE, PWM_OUT_1, 18750);
-    PWMPulseWidthSet(PWM0_BASE, PWM_OUT_6, 6250);
-    PWMPulseWidthSet(PWM0_BASE, PWM_OUT_7, 22500);
+    PWMPulseWidthSet(PWM0_BASE, PWM_OUT_0, 1250);
+    PWMPulseWidthSet(PWM0_BASE, PWM_OUT_1, 1250);
+    PWMPulseWidthSet(PWM0_BASE, PWM_OUT_6, 1250);
+    PWMPulseWidthSet(PWM0_BASE, PWM_OUT_7, 1250);
 
     /*This function enables the PWM generator. Now that the previous values have been set, the
     generator may now be turned on. PWM0_BASE is the base of the module being used.
@@ -95,12 +95,79 @@ void setup() {
     PWMOutputState(PWM0_BASE, PWM_OUT_0_BIT | PWM_OUT_1_BIT | PWM_OUT_6_BIT | PWM_OUT_7_BIT, true);
 
     /* Config GPIO PD3 as analog input */
-    analogReadResolution(12); // 12 bit resolution
+    //analogReadResolution(12); // 12 bit resolution
 
 }
 
 void loop() {
     // put your main code here, to run repeatedly:
-    delay(1000);
-    Serial.println("ADC VAL = " + String(analogRead(PD_3)));
+    if(Serial.available()){
+        switch (Serial.read())
+        {
+        case '0':
+            PWMPulseWidthSet(PWM0_BASE, PWM_OUT_0, 1250);
+            PWMPulseWidthSet(PWM0_BASE, PWM_OUT_1, 1250);
+            PWMPulseWidthSet(PWM0_BASE, PWM_OUT_6, 1250);
+            PWMPulseWidthSet(PWM0_BASE, PWM_OUT_7, 1250);
+            break;
+        case '1':
+            PWMPulseWidthSet(PWM0_BASE, PWM_OUT_0, 1375);
+            PWMPulseWidthSet(PWM0_BASE, PWM_OUT_1, 1375);
+            PWMPulseWidthSet(PWM0_BASE, PWM_OUT_6, 1375);
+            PWMPulseWidthSet(PWM0_BASE, PWM_OUT_7, 1375);
+            break;
+        case '2':
+            PWMPulseWidthSet(PWM0_BASE, PWM_OUT_0, 1500);
+            PWMPulseWidthSet(PWM0_BASE, PWM_OUT_1, 1500);
+            PWMPulseWidthSet(PWM0_BASE, PWM_OUT_6, 1500);
+            PWMPulseWidthSet(PWM0_BASE, PWM_OUT_7, 1500);
+            break;
+        case '3':
+            PWMPulseWidthSet(PWM0_BASE, PWM_OUT_0, 1625);
+            PWMPulseWidthSet(PWM0_BASE, PWM_OUT_1, 1625);
+            PWMPulseWidthSet(PWM0_BASE, PWM_OUT_6, 1625);
+            PWMPulseWidthSet(PWM0_BASE, PWM_OUT_7, 1625);
+            break;
+        case '4':
+            PWMPulseWidthSet(PWM0_BASE, PWM_OUT_0, 1750);
+            PWMPulseWidthSet(PWM0_BASE, PWM_OUT_1, 1750);
+            PWMPulseWidthSet(PWM0_BASE, PWM_OUT_6, 1750);
+            PWMPulseWidthSet(PWM0_BASE, PWM_OUT_7, 1750);
+            break;
+        case '5':
+            PWMPulseWidthSet(PWM0_BASE, PWM_OUT_0, 1875);
+            PWMPulseWidthSet(PWM0_BASE, PWM_OUT_1, 1875);
+            PWMPulseWidthSet(PWM0_BASE, PWM_OUT_6, 1875);
+            PWMPulseWidthSet(PWM0_BASE, PWM_OUT_7, 1875);
+            break;
+        case '6':
+            PWMPulseWidthSet(PWM0_BASE, PWM_OUT_0, 2000);
+            PWMPulseWidthSet(PWM0_BASE, PWM_OUT_1, 2000);
+            PWMPulseWidthSet(PWM0_BASE, PWM_OUT_6, 2000);
+            PWMPulseWidthSet(PWM0_BASE, PWM_OUT_7, 2000);
+            break;
+        case '7':
+            PWMPulseWidthSet(PWM0_BASE, PWM_OUT_0, 2125);
+            PWMPulseWidthSet(PWM0_BASE, PWM_OUT_1, 2125);
+            PWMPulseWidthSet(PWM0_BASE, PWM_OUT_6, 2125);
+            PWMPulseWidthSet(PWM0_BASE, PWM_OUT_7, 2125);
+            break;
+        case '8':
+            PWMPulseWidthSet(PWM0_BASE, PWM_OUT_0, 2250);
+            PWMPulseWidthSet(PWM0_BASE, PWM_OUT_1, 2250);
+            PWMPulseWidthSet(PWM0_BASE, PWM_OUT_6, 2250);
+            PWMPulseWidthSet(PWM0_BASE, PWM_OUT_7, 2250);
+            break;
+        case '9':
+            PWMPulseWidthSet(PWM0_BASE, PWM_OUT_0, 2500);
+            PWMPulseWidthSet(PWM0_BASE, PWM_OUT_1, 2500);
+            PWMPulseWidthSet(PWM0_BASE, PWM_OUT_6, 2500);
+            PWMPulseWidthSet(PWM0_BASE, PWM_OUT_7, 2500);
+            break;
+        
+        default:
+            break;
+        }
+    }
+    //Serial.println("ADC VAL = " + String(analogRead(PD_3)));
 }

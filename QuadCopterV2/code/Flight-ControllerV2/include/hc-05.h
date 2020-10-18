@@ -8,8 +8,8 @@
 #include <rom.h>
 #include <pin_map.h>
 
-#define BT_INIT_OF_FRAME 0xAA
-#define BT_END_OF_FRAME 0xBB
+#define BT_INIT_OF_FRAME 0xAABB
+#define BT_END_OF_FRAME 0xCCDD
 
 #define HC_05_UART_BASE UART5_BASE
 #define HC_05_BAUDRATE 115200
@@ -36,10 +36,13 @@
 #define HC_05_WRITEBYTE(x) ROM_UARTCharPut(HC_05_UART_BASE, x)
 #define HC_05_RX_INT(x)   UARTIntDisable(HC_05_UART_BASE, UART_INT_TX | UART_INT_RX); \
                             UARTIntRegister(HC_05_UART_BASE, x); \
-                                ROM_UARTFIFOLevelSet(HC_05_UART_BASE, UART_FIFO_TX1_8, UART_FIFO_RX1_8); \
+                                UARTFIFODisable(HC_05_UART_BASE); \
                                     ROM_UARTIntEnable(HC_05_UART_BASE,UART_INT_RX)
+
 #define HC_05_STATE_INT(x) pinMode(HC_05_STATE_PIN,INPUT); \
-                                attachInterrupt(HC_05_STATE_PIN,x, FALLING)
+                                attachInterrupt(HC_05_STATE_PIN,x,CHANGE)
+
+// ROM_UARTFIFOLevelSet(HC_05_UART_BASE, UART_FIFO_TX1_8, UART_FIFO_RX1_8);
 
 #define HC_05_CLEAN_RX_INT UARTIntClear(HC_05_UART_BASE, UART_INT_RX)
 
@@ -56,7 +59,11 @@
 #define HC_05_SLAVE 0
 #define HC_05_MASTER 1
 
-
+#define HC_05_MODULE_WAITING        0x00
+#define HC_05_MODULE_START          0x01
+#define HC_05_MODULE_READING        0x02
+#define HC_05_MODULE_STOP           0x04
+#define HC_05_MODULE_DISCONNECTED   0x08
 
 uint8_t hc_05_init();
 uint8_t hc_05_available();
@@ -73,5 +80,6 @@ String hc_05_getName();
 String hc_05_getPass();
 void hc_05_status_isr();
 void hc_05_rx_isr();
+uint8_t hc_05_readChannels(uint16_t * ch);
 
 #endif

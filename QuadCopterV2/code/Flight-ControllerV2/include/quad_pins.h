@@ -3,11 +3,17 @@
 
 #include <pins_energia.h>
 #include <stdint.h>
+#include <pwm.h>
 
 #define TARGET_SSID "ITHome"
 #define TARGET_PWD "pass1234"
 #define QUAD_OK 0
 #define QUAD_NOT_OK 1
+
+#define MOTOR1  PWM_OUT_6
+#define MOTOR2  PWM_OUT_7
+#define MOTOR3  PWM_OUT_1
+#define MOTOR4  PWM_OUT_0
 
 #define BATTERY_INDICATOR PD_3
 
@@ -28,5 +34,8 @@ uint8_t quad_read_eeprom(uint32_t addr, uint32_t * data, uint32_t len);
 uint32_t quad_eeprom_get_size();
 uint8_t quad_eeprom_get_bytes_pear_block();
 uint8_t quad_init_eeprom();
+
+void quad_esc_motors_init();
+void quad_esc_set_thrust(uint32_t motor, uint16_t throttle);
 
 #endif

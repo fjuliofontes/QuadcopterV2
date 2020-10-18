@@ -4,6 +4,13 @@
 static uint32_t _hc_05_baud = 0;
 static String _hc_05_name = "";
 static String _hc_05_pass = "";
+static char _hc_05_byte = ' ';
+
+// for receiving the control signal
+static volatile uint8_t _hc_05_status = HC_05_MODULE_DISCONNECTED;
+static uint8_t _hc_05_channel = 0;
+static bool _hc_05_channel_isFirstByte = true;
+static volatile uint16_t _hc_05_ch[4];
 
 uint8_t hc_05_init(){
     // config status and enable pin
@@ -265,13 +272,118 @@ String hc_05_getPass(){
     return response;
 }
 
+uint8_t hc_05_readChannels(uint16_t * ch){
+    // TODO: put timeout to be safe
+    if(_hc_05_status == HC_05_MODULE_DISCONNECTED) return HC_05_NOT_OK;
+    while (_hc_05_status==HC_05_MODULE_READING);
+    ch[0] = _hc_05_ch[0];
+    ch[1] = _hc_05_ch[1];
+    ch[2] = _hc_05_ch[2];
+    ch[3] = _hc_05_ch[3];
+}
+
 void hc_05_status_isr(){
-    Serial.println("HC-05 Disconected!");
+    // TODO: replace digitalRead()
+    if(digitalRead(HC_05_STATE_PIN)){
+        _hc_05_status = HC_05_MODULE_WAITING;
+    }
+    else{
+        _hc_05_status = HC_05_MODULE_DISCONNECTED;
+    }
 }
 
 void hc_05_rx_isr(){
     while(HC_05_AVAILABLE){
-        Serial.print(HC_05_READBYTE,HEX);
+        _hc_05_byte = HC_05_READBYTE;
+        switch (_hc_05_byte)
+        {
+        /* AA */
+        case BT_INIT_OF_FRAME>>8:
+            if(_hc_05_status == HC_05_MODULE_WAITING)
+                _hc_05_status |= HC_05_MODULE_START;
+            else if((_hc_05_status&HC_05_MODULE_READING) == HC_05_MODULE_READING){
+                if(_hc_05_channel_isFirstByte){
+                    _hc_05_ch[_hc_05_channel] = _hc_05_byte << 8;
+                }else{
+                    _hc_05_ch[_hc_05_channel] |= _hc_05_byte;
+                    _hc_05_channel ++;
+                }
+                _hc_05_channel_isFirstByte = !_hc_05_channel_isFirstByte;
+            }
+            break;
+        /* BB */
+        case BT_INIT_OF_FRAME&0xFF:
+            if((_hc_05_status&HC_05_MODULE_START) == HC_05_MODULE_START){
+                _hc_05_status |= HC_05_MODULE_READING;
+                _hc_05_status &= ~HC_05_MODULE_START;
+                _hc_05_channel = 0;
+            }
+            else if((_hc_05_status&HC_05_MODULE_READING) == HC_05_MODULE_READING){
+                if(_hc_05_channel_isFirstByte){
+                    _hc_05_ch[_hc_05_channel] = _hc_05_byte << 8;
+                }else{
+                    _hc_05_ch[_hc_05_channel] |= _hc_05_byte;
+                    _hc_05_channel ++;
+                }
+                _hc_05_channel_isFirstByte = !_hc_05_channel_isFirstByte;
+            }
+            break;
+        /* CC */
+        case BT_END_OF_FRAME>>8:
+            if(((_hc_05_status&HC_05_MODULE_READING)==HC_05_MODULE_READING) && (_hc_05_channel == 4)){
+                _hc_05_status |= HC_05_MODULE_STOP;
+                _hc_05_status &= ~HC_05_MODULE_READING;
+            }
+            else if((_hc_05_status&HC_05_MODULE_READING)==HC_05_MODULE_READING){
+                if(_hc_05_channel_isFirstByte){
+                    _hc_05_ch[_hc_05_channel] = _hc_05_byte << 8;
+                }else{
+                    _hc_05_ch[_hc_05_channel] |= _hc_05_byte;
+                    _hc_05_channel ++;
+                }
+                _hc_05_channel_isFirstByte = !_hc_05_channel_isFirstByte;
+            }
+            break;
+        /* DD */
+        case BT_END_OF_FRAME&0xFF:
+            if((_hc_05_status&HC_05_MODULE_STOP)==HC_05_MODULE_STOP){
+                _hc_05_status &= ~HC_05_MODULE_STOP;
+                /*
+                Serial.print("CH1: ");
+                Serial.print(_hc_05_ch[0]);
+                Serial.print(" CH2: ");
+                Serial.print(_hc_05_ch[1]);
+                Serial.print(" CH3: ");
+                Serial.print(_hc_05_ch[2]);
+                Serial.print(" CH4: ");
+                Serial.print(_hc_05_ch[3]);
+                Serial.println();
+                */
+            }
+            else if((_hc_05_status&HC_05_MODULE_READING)==HC_05_MODULE_READING){
+                if(_hc_05_channel_isFirstByte){
+                    _hc_05_ch[_hc_05_channel] = _hc_05_byte << 8;
+                }else{
+                    _hc_05_ch[_hc_05_channel] |= _hc_05_byte;
+                    _hc_05_channel ++;
+                }
+                _hc_05_channel_isFirstByte = !_hc_05_channel_isFirstByte;
+            }
+            break;
+        
+        default:
+            if((_hc_05_status&HC_05_MODULE_READING)==HC_05_MODULE_READING){
+                if(_hc_05_channel_isFirstByte){
+                    _hc_05_ch[_hc_05_channel] = _hc_05_byte << 8;
+                }else{
+                    _hc_05_ch[_hc_05_channel] |= _hc_05_byte;
+                    _hc_05_channel ++;
+                }
+                _hc_05_channel_isFirstByte = !_hc_05_channel_isFirstByte;
+            }
+            break;
+        }
+        //Serial.print(_hc_05_byte,HEX);
     }
     // clean interrup flag
     HC_05_CLEAN_RX_INT;

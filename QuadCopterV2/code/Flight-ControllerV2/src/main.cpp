@@ -74,6 +74,15 @@ bool isMagCal = false;
 bool isMpuCal = false;
 //////////////////////////////////////
 
+//////////REMOTE////////////
+int32_t motor1_thrust = 0;
+int32_t motor2_thrust = 0;
+int32_t motor3_thrust = 0;
+int32_t motor4_thrust = 0;
+float thrust_cmd, yaw_cmd, pitch_cmd, roll_cmd;
+uint16_t ch[4];
+////////////////////////////
+
 void setup() {
     // start initing serial port
     Serial.begin(115200);
@@ -81,6 +90,9 @@ void setup() {
     
     /* --- Init LED's and Analogs --- */
     quad_init();
+
+    /* --- Init ESC Motors --- */
+    quad_esc_motors_init();
 
     /* --- Init rotines to trigger a newer calibration --- */
     pinMode(PF_4,INPUT_PULLUP);
@@ -327,6 +339,37 @@ void loop() {
         temperature = baro.getTemperature();
         altitude    = baro.getAltitude();
         /////////////////////////////////////////////
+
+        //////////// READ REMOTE //////////////////
+        if(hc_05_readChannels(ch) == HC_05_NOT_OK){
+            // TODO: READ HC-12
+            ch[0] = 625;
+            ch[1] = 0;
+            ch[2] = 625;
+            ch[3] = 625;
+        }
+        ///////////////////////////////////////////
+
+        /// CONVERT REMOTE TO DEG's AND ALTITUDE //
+        yaw_cmd = (ch[0]-625)/4.0;
+        thrust_cmd = ch[1]/2.0;
+        pitch_cmd = (ch[3]-625)/4.0;
+        roll_cmd = (ch[2]-625)/4.0;
+        ///////////////////////////////////////////
+
+        /////////// CALCULATE MOTOR THRUST ////////
+        motor1_thrust = thrust_cmd - yaw_cmd + pitch_cmd - roll_cmd;
+        motor2_thrust = thrust_cmd + yaw_cmd + pitch_cmd + roll_cmd;
+        motor3_thrust = thrust_cmd + yaw_cmd - pitch_cmd - roll_cmd;
+        motor4_thrust = thrust_cmd - yaw_cmd - pitch_cmd + roll_cmd;
+        ///////////////////////////////////////////
+
+        //////////// SET THRUST //////////////////
+        motor1_thrust > 0 ? quad_esc_set_thrust(MOTOR1, motor1_thrust) : quad_esc_set_thrust(MOTOR1, 0);
+        motor2_thrust > 0 ? quad_esc_set_thrust(MOTOR2, motor2_thrust) : quad_esc_set_thrust(MOTOR2, 0);
+        motor3_thrust > 0 ? quad_esc_set_thrust(MOTOR3, motor3_thrust) : quad_esc_set_thrust(MOTOR3, 0);
+        motor4_thrust > 0 ? quad_esc_set_thrust(MOTOR4, motor4_thrust) : quad_esc_set_thrust(MOTOR4, 0);
+        ///////////////////////////////////////////
 
         // if isNewInc equals to zero, change back to one and increment 
         if(isNewInc == 0){

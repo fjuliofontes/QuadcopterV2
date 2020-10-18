@@ -30,6 +30,7 @@
 #define HC_12_WRITEBYTE(x) ROM_UARTCharPut(HC_12_UART_BASE, x)
 #define HC_12_RX_INT(x)   UARTIntDisable(HC_12_UART_BASE, UART_INT_TX | UART_INT_RX); \
                             UARTIntRegister(HC_12_UART_BASE, x); \
+                                UARTFIFODisable(HC_12_UART_BASE); \
                                     ROM_UARTIntEnable(HC_12_UART_BASE,UART_INT_RX)
 
 // ROM_UARTFIFOLevelSet(HC_12_UART_BASE, UART_FIFO_TX1_8, UART_FIFO_RX1_8);
