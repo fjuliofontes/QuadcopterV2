@@ -699,34 +699,44 @@ void loop() {
         case 415:
             // takes 36 us
             float_conv_ptr = (thrust_u > 0) ? myFTOA(thrust_u, 2 , 10) : myFTOA(thrust_u*-1, 2 , 10);
-            (thrust_u > 0) ? strncat(uart0_tx_buffer,"thrust_u : ",11) : strncat(uart0_tx_buffer,"thrust_u : -",12);
+            (thrust_u > 0) ? strncat(uart0_tx_buffer,"Thrust_u : ",11) : strncat(uart0_tx_buffer,"Thrust_u : -",12);
             strncat(uart0_tx_buffer,float_conv_ptr,strlen(float_conv_ptr));
             retval = esp_01_tcp_send(uart0_tx_buffer);
+            
             // takes 55 us
             if(retval == ESP_01_NOT_OK) Serial.print(uart0_tx_buffer);
-            uart0_tx_buffer[0] = '\0';
+            break;
+        
+        case 430:
             // takes 36 us
             float_conv_ptr = (pitch_u > 0) ? myFTOA(pitch_u, 2 , 10) : myFTOA(pitch_u*-1, 2 , 10);
-            (pitch_u > 0) ? strncat(uart0_tx_buffer," pitch_u : ",11) : strncat(uart0_tx_buffer," pitch_u : -",12);
+            (pitch_u > 0) ? strncat(uart0_tx_buffer," Pitch_u : ",11) : strncat(uart0_tx_buffer," Pitch_u : -",12);
             strncat(uart0_tx_buffer,float_conv_ptr,strlen(float_conv_ptr));
             retval = esp_01_tcp_send(uart0_tx_buffer);
+            
             // takes 55 us
             if(retval == ESP_01_NOT_OK) Serial.print(uart0_tx_buffer);
-            uart0_tx_buffer[0] = '\0';
+            break;
+        
+        case 445:
             // takes 36 us
             float_conv_ptr = (roll_u > 0) ? myFTOA(roll_u, 2 , 10) : myFTOA(roll_u*-1, 2 , 10);
-            (roll_u > 0) ? strncat(uart0_tx_buffer," roll_u : ",10) : strncat(uart0_tx_buffer," roll_u : -",11);
+            (roll_u > 0) ? strncat(uart0_tx_buffer," Roll_u : ",10) : strncat(uart0_tx_buffer," Roll_u : -",11);
             strncat(uart0_tx_buffer,float_conv_ptr,strlen(float_conv_ptr));
             retval = esp_01_tcp_send(uart0_tx_buffer);
+            
             // takes 55 us
             if(retval == ESP_01_NOT_OK) Serial.print(uart0_tx_buffer);
-            uart0_tx_buffer[0] = '\0';
+            break;
+        
+        case 450:
             // takes 36 us
             float_conv_ptr = (yaw_u > 0) ? myFTOA(yaw_u, 2 , 10) : myFTOA(yaw_u*-1, 2 , 10);
-            (yaw_u > 0) ? strncat(uart0_tx_buffer," yaw_u : ",9) : strncat(uart0_tx_buffer," yaw_u : -",10);
+            (yaw_u > 0) ? strncat(uart0_tx_buffer," Yaw_u : ",9) : strncat(uart0_tx_buffer," Yaw_u : -",10);
             strncat(uart0_tx_buffer,float_conv_ptr,strlen(float_conv_ptr));
             retval = esp_01_tcp_send(uart0_tx_buffer);
             esp_01_tcp_send((char*)"\n");
+            
             // takes 55 us
             if(retval == ESP_01_NOT_OK) Serial.println(uart0_tx_buffer);
             
@@ -737,7 +747,8 @@ void loop() {
             break;
         }
         // clean uart0_tx_buffer
-        memset(uart0_tx_buffer,'\0',strlen(uart0_tx_buffer));
+        // memset(uart0_tx_buffer,'\0',strlen(uart0_tx_buffer));
+        uart0_tx_buffer[0] = '\0';
     }
     
     // no time to print, but still needs to check if it is to start a newer calibration procedure
