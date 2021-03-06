@@ -16,6 +16,60 @@
 #include "quad_pins.h"
 #include "util.h"
 
+///////////////// SAFETY DEFINES //////////////
+#define QUADCOPTER_MIN_BATTERY_VOLTAGE 9
+//////////////////////////////////////////////
+
+///////////////// PID AND OTHERS DEFINES ///////////////
+//>>> PID
+/* PID General Equation 
+ *
+ * u(n) = kp  *e(n) + ki  ∑ e(n)T + kd *( e(n)-e(n-1)/T)
+ * kp   - proportional gain
+ * ki   - integral gain
+ * kd   - derivative gain
+ * e(n) - setpoint - current value
+ * T    - sampling time = 0.004 seconds
+ */
+//<<< PID EOF
+
+//>>> ALTITUDE
+#define QUADCOPTER_MAX_ALTITUDE_ALLOWED 1000 // cm
+#define QUADCOPTER_ALTITUDE_SCALE_FACTOR (1250.f/QUADCOPTER_MAX_ALTITUDE_ALLOWED)
+#define PID_ALTITUDE_MAX_INTEGRAL 25
+#define PID_ALTITUDE_KP 1
+#define PID_ALTITUDE_KI 0.01f
+#define PID_ALTITUDE_KD 0.001f
+//<<< ALTITUDE EOF
+
+//>>> ROLL
+#define QUADCOPTER_MAX_ROLL_ALLOWED 25  // degrees
+#define QUADCOPTER_ROLL_SCALE_FACTOR (625.f/QUADCOPTER_MAX_ROLL_ALLOWED)
+#define PID_ROLL_MAX_INTEGRAL 25
+#define PID_ROLL_KP 3
+#define PID_ROLL_KI 0.01f
+#define PID_ROLL_KD 0.001f
+//<< ROLL EOF
+
+//>>> PITCH
+#define QUADCOPTER_MAX_PITCH_ALLOWED 25  // degrees
+#define QUADCOPTER_PITCH_SCALE_FACTOR (625.f/QUADCOPTER_MAX_PITCH_ALLOWED)
+#define PID_PITCH_MAX_INTEGRAL 25
+#define PID_PITCH_KP 3
+#define PID_PITCH_KI 0.01f
+#define PID_PITCH_KD 0.001f
+//<< PITCH EOF
+
+//>>> YAW
+#define QUADCOPTER_MAX_YAW_ALLOWED 60  // degrees
+#define QUADCOPTER_YAW_SCALE_FACTOR (625.f/QUADCOPTER_MAX_YAW_ALLOWED)
+#define PID_YAW_MAX_INTEGRAL 25
+#define PID_YAW_KP 0.5f
+#define PID_YAW_KI 0.0001f
+#define PID_YAW_KD 0.000001f
+//<< YAW EOF
+////////////////////////////////////////////////////////
+
 ////////////////MPU-6050///////////////
 MPU6050 accelgyro;
 // for angle measurement based on gyro
@@ -41,7 +95,7 @@ float Xh, Yh;
 ////////////////MS5611///////////////
 MS5611 baro = MS5611();
 // for altitude measurements 
-float altitude, temperature;
+float altitude, temperature, baro_correction_coeff;
 //////////////////////////////////////
 
 ////////////////GPS///////////////
@@ -79,9 +133,19 @@ int32_t motor1_thrust = 0;
 int32_t motor2_thrust = 0;
 int32_t motor3_thrust = 0;
 int32_t motor4_thrust = 0;
-float thrust_cmd, yaw_cmd, pitch_cmd, roll_cmd;
+float thrust_cmd, yaw_cmd, pitch_cmd, roll_cmd, initial_yaw;
+float thrust_u, yaw_u, pitch_u, roll_u;
 uint16_t ch[4];
 ////////////////////////////
+
+////////////PID////////////
+float thrust_last_error = 0, thrust_error = 0;
+float yaw_last_error = 0, yaw_error = 0;
+float pitch_last_error = 0, pitch_error = 0;
+float roll_last_error = 0, roll_error = 0;
+float yaw_integral, roll_integral;
+float thrust_integral, pitch_integral;
+///////////////////////////
 
 void setup() {
     // start initing serial port
@@ -100,17 +164,16 @@ void setup() {
     attachInterrupt(PF_4,sw1_isr, FALLING);
     attachInterrupt(PF_0,sw2_isr, FALLING);
 
-    // let voltages stable
+    // let voltage stable
     delay(3000);
 
     // print system information
     quad_redOn();
     Serial.println("System Clock Frequency : " + String(SysCtlClockGet()/1000000) + " Mhz");
     Serial.println("System Battery : " + String(quad_readBatteryVoltage()) + " Volt");
-    if(quad_readBatteryVoltage() < 5){
+    if(quad_readBatteryVoltage() < QUADCOPTER_MIN_BATTERY_VOLTAGE){
         Serial.println("Not enough power to start ...");
-        // TODO: take precautions
-        while(1);
+        while(1); // TODO: BLINK
     }
 
     /* --- Init i2c pins --- */
@@ -128,7 +191,10 @@ void setup() {
         // set mpu6050 eeprom callbacks
         accelgyro.setEEPROMWriteFunction(quad_write_eeprom);
         accelgyro.setEEPROMReadFunction(quad_read_eeprom);
-    }else Serial.println("EEPROM NOT OK!");
+    } else {
+        Serial.println("EEPROM NOT OK!");
+        while(1); // TODO: BLINK
+    }
     // EEPROM Size (bytes) : 2048 EEPROM Bytes Pear Block : 64
     Serial.println("EEPROM Size (bytes) : " + String(quad_eeprom_get_size()) + " EEPROM Bytes Pear Block : " 
                                 + String(quad_eeprom_get_bytes_pear_block()));
@@ -142,7 +208,10 @@ void setup() {
         HC_05_STATE_INT(hc_05_status_isr);
         // set hc-05 rx interrupt callback
         HC_05_RX_INT(hc_05_rx_isr);
-    }else Serial.println("HC-05 INIT FAILED !");
+    } else {
+        Serial.println("HC-05 INIT FAILED !");
+        while(1); // TODO: BLINK
+    }
     delay(200);
 
     /* --- Init HC-12 --- */
@@ -158,14 +227,17 @@ void setup() {
         case HC_12_LONG_RANGE_MODE: Serial.println("\"LONG RANGE MODE\""); break;                                
         default: Serial.println("Invalid Mode!"); break; }
         Serial.println("TX Power: " + String(0.8F*pow(2,hc_12_getTXpower()-1)) + "mW");
-    }else Serial.println("HC-12 INIT FAILED !");
+    } else {
+        Serial.println("HC-12 INIT FAILED !");
+        while(1); // TODO: BLINK
+    }
     delay(200);
 
     /* --- Init HC-SR04 --- */
     Serial.println("Initing HC-SR04...");
     if(hc_sr04_init(HC_SR04_EXPECTED_HEIGHT) == HC_SR04_0K){
         Serial.println("HC-SR04 INIT OK");
-    }else Serial.println("HC-SR04 INIT FAILED");
+    } else Serial.println("HC-SR04 INIT FAILED");
     delay(200);
 
     /* --- Init M8_GPS --- */
@@ -184,7 +256,10 @@ void setup() {
         m8_gps_setMsgRate(M8_GPS_GSV_MESSAGE, M8_GPS_MESSAGE_DISABLED);
         //// set M8_GPS rx interrupt callback
         M8_GPS_RX_INT(m8_gps_rx_isr);
-    }else Serial.println("M8_GPS FAILED!");
+    } else {
+        Serial.println("M8_GPS FAILED!");
+        while(1); // TODO: BLINK
+    }
     delay(200);
 
     /* --- Init SIM800L --- */
@@ -192,7 +267,10 @@ void setup() {
     if(sim.begin(SIM800L_BAUDRATE) == SIM800L_OK){
         Serial.println("SIM800L INIT OK ! BAUDRATE = " + String(SIM800L_BAUDRATE));
         SIM800L_RX_INT(sim800l_rx_isr);
-    }else  Serial.println("SIM800L INIT FAILED!");
+    }else {
+        Serial.println("SIM800L INIT FAILED!");
+        while(1); // TODO: BLINK
+    }
     delay(200);
 
     /* --- Init ESP-01 --- */
@@ -203,14 +281,18 @@ void setup() {
         esp_01_tcp_connect((char*)"192.168.100.1",(char*)"9090");
         /// set interrupt callback
         ESP_01_RX_INT(esp_01_rx_isr);
-    } else Serial.println("ESP_01 INIT FAILED!");
+    } else {
+        Serial.println("ESP_01 INIT FAILED!");
+    }
     delay(200);
 
     /* --- Init HMC5883 --- */
     Serial.println("Initing HMC5883...");
     //init sensor
-    if(!mag.begin()) Serial.println("HMC5883 INIT FAILED!");
-    else {
+    if(!mag.begin()) {
+        Serial.println("HMC5883 INIT FAILED!");
+        while(1); // TODO: BLINK
+    } else {
         if(!mag.isCalibrated()) mag.calibrate(30); // calibrate for 30 seconds
         Serial.println("HMC5883 INIT OK!");
     }
@@ -218,8 +300,12 @@ void setup() {
 
     /* --- MS5611 --- */
     Serial.println("Initing MS5611...");
-    if(baro.init(MS5611_ADDR_CSB_LOW) == MS5611_OK) Serial.println("HMC5883 INIT OK!");
-    else Serial.println("MS5611 INIT FAILED!");
+    if(baro.init(MS5611_ADDR_CSB_LOW) == MS5611_OK) {
+        Serial.println("HMC5883 INIT OK!");
+    } else {
+        Serial.println("MS5611 INIT FAILED!");
+        while(1); // TODO: BLINK
+    }
     delay(200);
 
     /* --- Init MPU6050 --- */
@@ -232,12 +318,47 @@ void setup() {
         delay(200);
         if(!accelgyro.isCalibrated()) accelgyro.calibrate(); 
         Serial.println("MPU6050 INIT OK!");
-    }else Serial.println("MPU6050 INIT FAILED!");
+    } else {
+        Serial.println("MPU6050 INIT FAILED!");
+        while(1); // TODO: BLINK
+    }
     delay(200);
 
     // enables interrupts
     IntMasterEnable();
 
+    // apply correction to altimeter
+    float sr04_height, sr04_average_height = 0;
+    float baro_average_altitude = 0;
+    int readings_counter = 0;
+    for (;;) {
+        // start sr04 reading
+        hc_sr04_trigger();
+        // get altitude using the altimeter
+        baro.getTemperature();
+        baro_average_altitude = baro_average_altitude*0.1 + baro.getAltitude()*0.9;
+        // wait sr04 result
+        while(hc_sr04_read(&sr04_height) == HC_SR04_WAITING_MEASUREMENT);
+        // valid reading ? 
+        if ( sr04_height != -1 ) {
+            sr04_average_height = sr04_average_height*0.45 + sr04_height*0.55;
+        }
+        // more than 10 seconds ? 
+        if( (readings_counter++ >= 1000) && 
+            (sr04_average_height >= HC_SR04_EXPECTED_HEIGHT*0.8) &&  
+            (sr04_average_height <= HC_SR04_EXPECTED_HEIGHT*1.2 )
+        ){
+            break;
+        }
+        delay(10);
+    }
+    // get the correction coeff
+    baro_correction_coeff = baro_average_altitude - (sr04_average_height/100);
+    Serial.print("SR04 Average Height: ");   Serial.println(sr04_average_height);
+    Serial.print("Baro Average Altitude: "); Serial.println(baro_average_altitude);
+    Serial.print("Baro correction coeff: "); Serial.println(baro_correction_coeff);
+
+    // ok :) good to go!
     quad_blueOn();
 }
 
@@ -328,6 +449,7 @@ void loop() {
         if(yawFirstTime){
             yawFirstTime = false; // not first time anymore
             yaw = heading; // assign heading to yaw
+            initial_yaw = yaw - 180;
         }
         // removing yaw drift
         yaw = yaw * 0.9996 + heading * 0.0004; 
@@ -337,7 +459,8 @@ void loop() {
 
         ///////////  READ ALTITUDE (126us) //////////////////
         temperature = baro.getTemperature();
-        altitude    = baro.getAltitude();
+        altitude    = (baro.getAltitude() - baro_correction_coeff) * 100; // in cm
+        if(altitude < 0) altitude = 0;
         /////////////////////////////////////////////
 
         //////////// READ REMOTE //////////////////
@@ -351,17 +474,54 @@ void loop() {
         ///////////////////////////////////////////
 
         /// CONVERT REMOTE TO DEG's AND ALTITUDE //
-        yaw_cmd = (ch[0]-625)/4.0;
-        thrust_cmd = ch[1]/2.0;
-        pitch_cmd = (ch[3]-625)/4.0;
-        roll_cmd = (ch[2]-625)/4.0;
+        yaw_cmd    = yaw_cmd    * 0.6 + ((ch[0]-625)/QUADCOPTER_YAW_SCALE_FACTOR)   * 0.4; // -25 ... 0 ... 25 degrees
+        thrust_cmd = thrust_cmd * 0.6 + (ch[1]/QUADCOPTER_ALTITUDE_SCALE_FACTOR)    * 0.4; //   0 ... 5 ... 10 meters
+        pitch_cmd  = pitch_cmd  * 0.6 + ((625-ch[3])/QUADCOPTER_PITCH_SCALE_FACTOR) * 0.4; // -25 ... 0 ... 25 degrees
+        roll_cmd   = roll_cmd   * 0.6 + ((ch[2]-625)/QUADCOPTER_ROLL_SCALE_FACTOR)  * 0.4; // -25 ... 0 ... 25 degrees
+        ///////////////////////////////////////////
+
+        /////////// PID CALCULATIONS ///////////////
+        // calculate errors
+        thrust_error = (thrust_cmd - altitude);
+        pitch_error  = (pitch_cmd  - quad_pitch);
+        roll_error   = (roll_cmd   - quad_roll);
+        yaw_error    = ((initial_yaw - yaw_cmd) - (quad_yaw-180));
+
+        // calculate and saturate integral
+        thrust_integral += thrust_error;
+        if(thrust_integral > PID_ALTITUDE_MAX_INTEGRAL) thrust_integral = PID_ALTITUDE_MAX_INTEGRAL;
+        if(thrust_integral < - PID_ALTITUDE_MAX_INTEGRAL) thrust_integral = -PID_ALTITUDE_MAX_INTEGRAL;
+
+        pitch_integral += pitch_error;
+        if(pitch_integral > PID_PITCH_MAX_INTEGRAL) pitch_integral = PID_PITCH_MAX_INTEGRAL;
+        if(pitch_integral < - PID_PITCH_MAX_INTEGRAL) pitch_integral = -PID_PITCH_MAX_INTEGRAL;
+
+        roll_integral += roll_error;
+        if(roll_integral > PID_ROLL_MAX_INTEGRAL) roll_integral = PID_ROLL_MAX_INTEGRAL;
+        if(roll_integral < - PID_ROLL_MAX_INTEGRAL) roll_integral = -PID_ROLL_MAX_INTEGRAL;
+
+        yaw_integral += yaw_error;
+        if(yaw_integral > PID_YAW_MAX_INTEGRAL) yaw_integral = PID_YAW_MAX_INTEGRAL;
+        if(yaw_integral < - PID_YAW_MAX_INTEGRAL) yaw_integral = -PID_YAW_MAX_INTEGRAL;
+
+        // calculate control signal
+        thrust_u = PID_ALTITUDE_KP * thrust_error + PID_ALTITUDE_KI * thrust_integral + PID_ALTITUDE_KD * (thrust_error - thrust_last_error);
+        pitch_u  = PID_PITCH_KP    * pitch_error  + PID_PITCH_KI    * pitch_integral  + PID_PITCH_KD    * (pitch_error  - pitch_last_error);
+        roll_u   = PID_ROLL_KP     * roll_error   + PID_ROLL_KI     * roll_integral   + PID_ROLL_KD     * (roll_error   - roll_last_error);
+        yaw_u    = PID_YAW_KP      * yaw_error    + PID_YAW_KI      * yaw_integral    + PID_YAW_KD      * (yaw_error    - yaw_last_error);
+        
+        // update last errors
+        thrust_last_error = thrust_error;
+        pitch_last_error  = pitch_error;
+        roll_last_error   = roll_error;
+        yaw_last_error    = yaw_error;
         ///////////////////////////////////////////
 
         /////////// CALCULATE MOTOR THRUST ////////
-        motor1_thrust = thrust_cmd - yaw_cmd + pitch_cmd - roll_cmd;
-        motor2_thrust = thrust_cmd + yaw_cmd + pitch_cmd + roll_cmd;
-        motor3_thrust = thrust_cmd + yaw_cmd - pitch_cmd - roll_cmd;
-        motor4_thrust = thrust_cmd - yaw_cmd - pitch_cmd + roll_cmd;
+        motor1_thrust = thrust_u - yaw_u - pitch_u - roll_u;
+        motor2_thrust = thrust_u + yaw_u - pitch_u + roll_u;
+        motor3_thrust = thrust_u + yaw_u + pitch_u - roll_u;
+        motor4_thrust = thrust_u - yaw_u + pitch_u + roll_u;
         ///////////////////////////////////////////
 
         //////////// SET THRUST //////////////////
@@ -485,10 +645,91 @@ void loop() {
 
                     // try to send
                     retval = esp_01_tcp_send(uart0_tx_buffer);
-                    if(retval == ESP_01_NOT_OK) Serial.println(uart0_tx_buffer);
+                    if(retval == ESP_01_NOT_OK) Serial.print(uart0_tx_buffer);
                 }
             }
+            break;
 
+        case 355:
+            // takes 36 us
+            float_conv_ptr = (thrust_cmd > 0) ? myFTOA(thrust_cmd, 2 , 10) : myFTOA(thrust_cmd*-1, 2 , 10);
+            (thrust_cmd > 0) ? strncat(uart0_tx_buffer,"Thrust_cmd : ",13) : strncat(uart0_tx_buffer,"Thrust_cmd : -",14);
+            strncat(uart0_tx_buffer,float_conv_ptr,strlen(float_conv_ptr));
+            retval = esp_01_tcp_send(uart0_tx_buffer);
+            
+            // takes 55 us
+            if(retval == ESP_01_NOT_OK) Serial.print(uart0_tx_buffer);
+            break;
+        
+        case 370:
+            // takes 36 us
+            float_conv_ptr = (pitch_cmd > 0) ? myFTOA(pitch_cmd, 2 , 10) : myFTOA(pitch_cmd*-1, 2 , 10);
+            (pitch_cmd > 0) ? strncat(uart0_tx_buffer," Pitch_cmd : ",13) : strncat(uart0_tx_buffer," Pitch_cmd : -",14);
+            strncat(uart0_tx_buffer,float_conv_ptr,strlen(float_conv_ptr));
+            retval = esp_01_tcp_send(uart0_tx_buffer);
+            
+            // takes 55 us
+            if(retval == ESP_01_NOT_OK) Serial.print(uart0_tx_buffer);
+            break;
+        
+        case 385:
+            // takes 36 us
+            float_conv_ptr = (roll_cmd > 0) ? myFTOA(roll_cmd, 2 , 10) : myFTOA(roll_cmd*-1, 2 , 10);
+            (roll_cmd > 0) ? strncat(uart0_tx_buffer," Roll_cmd : ",12) : strncat(uart0_tx_buffer," Roll_cmd : -",13);
+            strncat(uart0_tx_buffer,float_conv_ptr,strlen(float_conv_ptr));
+            retval = esp_01_tcp_send(uart0_tx_buffer);
+            
+            // takes 55 us
+            if(retval == ESP_01_NOT_OK) Serial.print(uart0_tx_buffer);
+
+            break;
+        
+        case 400:
+            // takes 36 us
+            float_conv_ptr = (yaw_cmd > 0) ? myFTOA(yaw_cmd, 2 , 10) : myFTOA(yaw_cmd*-1, 2 , 10);
+            (yaw_cmd > 0) ? strncat(uart0_tx_buffer," Yaw_cmd : ",11) : strncat(uart0_tx_buffer," yaw_cmd : -",12);
+            strncat(uart0_tx_buffer,float_conv_ptr,strlen(float_conv_ptr));
+            retval = esp_01_tcp_send(uart0_tx_buffer);
+            esp_01_tcp_send((char*)"\n");
+            
+            // takes 55 us
+            if(retval == ESP_01_NOT_OK) Serial.println(uart0_tx_buffer);
+            break;
+        
+        case 415:
+            // takes 36 us
+            float_conv_ptr = (thrust_u > 0) ? myFTOA(thrust_u, 2 , 10) : myFTOA(thrust_u*-1, 2 , 10);
+            (thrust_u > 0) ? strncat(uart0_tx_buffer,"thrust_u : ",11) : strncat(uart0_tx_buffer,"thrust_u : -",12);
+            strncat(uart0_tx_buffer,float_conv_ptr,strlen(float_conv_ptr));
+            retval = esp_01_tcp_send(uart0_tx_buffer);
+            // takes 55 us
+            if(retval == ESP_01_NOT_OK) Serial.print(uart0_tx_buffer);
+            uart0_tx_buffer[0] = '\0';
+            // takes 36 us
+            float_conv_ptr = (pitch_u > 0) ? myFTOA(pitch_u, 2 , 10) : myFTOA(pitch_u*-1, 2 , 10);
+            (pitch_u > 0) ? strncat(uart0_tx_buffer," pitch_u : ",11) : strncat(uart0_tx_buffer," pitch_u : -",12);
+            strncat(uart0_tx_buffer,float_conv_ptr,strlen(float_conv_ptr));
+            retval = esp_01_tcp_send(uart0_tx_buffer);
+            // takes 55 us
+            if(retval == ESP_01_NOT_OK) Serial.print(uart0_tx_buffer);
+            uart0_tx_buffer[0] = '\0';
+            // takes 36 us
+            float_conv_ptr = (roll_u > 0) ? myFTOA(roll_u, 2 , 10) : myFTOA(roll_u*-1, 2 , 10);
+            (roll_u > 0) ? strncat(uart0_tx_buffer," roll_u : ",10) : strncat(uart0_tx_buffer," roll_u : -",11);
+            strncat(uart0_tx_buffer,float_conv_ptr,strlen(float_conv_ptr));
+            retval = esp_01_tcp_send(uart0_tx_buffer);
+            // takes 55 us
+            if(retval == ESP_01_NOT_OK) Serial.print(uart0_tx_buffer);
+            uart0_tx_buffer[0] = '\0';
+            // takes 36 us
+            float_conv_ptr = (yaw_u > 0) ? myFTOA(yaw_u, 2 , 10) : myFTOA(yaw_u*-1, 2 , 10);
+            (yaw_u > 0) ? strncat(uart0_tx_buffer," yaw_u : ",9) : strncat(uart0_tx_buffer," yaw_u : -",10);
+            strncat(uart0_tx_buffer,float_conv_ptr,strlen(float_conv_ptr));
+            retval = esp_01_tcp_send(uart0_tx_buffer);
+            esp_01_tcp_send((char*)"\n");
+            // takes 55 us
+            if(retval == ESP_01_NOT_OK) Serial.println(uart0_tx_buffer);
+            
             count = 0; // reset count
             break;
         

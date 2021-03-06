@@ -8,8 +8,8 @@
 #include <rom.h>
 #include <pin_map.h>
 
-#define BT_INIT_OF_FRAME 0xAA
-#define BT_END_OF_FRAME 0xBB
+#define BT_INIT_OF_FRAME 0xAABB
+#define BT_END_OF_FRAME 0xCCDD
 
 #define HC_05_UART_BASE UART5_BASE
 #define HC_05_BAUDRATE 115200
