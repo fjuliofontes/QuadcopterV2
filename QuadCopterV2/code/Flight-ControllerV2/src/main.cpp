@@ -36,37 +36,37 @@
 //>>> ALTITUDE
 #define QUADCOPTER_MAX_ALTITUDE_ALLOWED 1000 // cm
 #define QUADCOPTER_ALTITUDE_SCALE_FACTOR (1250.f/QUADCOPTER_MAX_ALTITUDE_ALLOWED)
-#define PID_ALTITUDE_MAX_INTEGRAL 25
-#define PID_ALTITUDE_KP 1
-#define PID_ALTITUDE_KI 0.01f
-#define PID_ALTITUDE_KD 0.001f
+#define PID_ALTITUDE_MAX_INTEGRAL 50
+#define PID_ALTITUDE_KP 0.6
+#define PID_ALTITUDE_KI 0.05f
+#define PID_ALTITUDE_KD 0.005f
 //<<< ALTITUDE EOF
 
 //>>> ROLL
 #define QUADCOPTER_MAX_ROLL_ALLOWED 25  // degrees
 #define QUADCOPTER_ROLL_SCALE_FACTOR (625.f/QUADCOPTER_MAX_ROLL_ALLOWED)
-#define PID_ROLL_MAX_INTEGRAL 25
-#define PID_ROLL_KP 3
-#define PID_ROLL_KI 0.01f
-#define PID_ROLL_KD 0.001f
+#define PID_ROLL_MAX_INTEGRAL 50
+#define PID_ROLL_KP 15
+#define PID_ROLL_KI 0.03f
+#define PID_ROLL_KD 0.009f
 //<< ROLL EOF
 
 //>>> PITCH
 #define QUADCOPTER_MAX_PITCH_ALLOWED 25  // degrees
 #define QUADCOPTER_PITCH_SCALE_FACTOR (625.f/QUADCOPTER_MAX_PITCH_ALLOWED)
-#define PID_PITCH_MAX_INTEGRAL 25
-#define PID_PITCH_KP 3
-#define PID_PITCH_KI 0.01f
-#define PID_PITCH_KD 0.001f
+#define PID_PITCH_MAX_INTEGRAL 50
+#define PID_PITCH_KP 15
+#define PID_PITCH_KI 0.03f
+#define PID_PITCH_KD 0.009f
 //<< PITCH EOF
 
 //>>> YAW
 #define QUADCOPTER_MAX_YAW_ALLOWED 60  // degrees
 #define QUADCOPTER_YAW_SCALE_FACTOR (625.f/QUADCOPTER_MAX_YAW_ALLOWED)
 #define PID_YAW_MAX_INTEGRAL 25
-#define PID_YAW_KP 0.5f
-#define PID_YAW_KI 0.0001f
-#define PID_YAW_KD 0.000001f
+#define PID_YAW_KP 0
+#define PID_YAW_KI 0
+#define PID_YAW_KD 0
 //<< YAW EOF
 ////////////////////////////////////////////////////////
 
@@ -135,7 +135,7 @@ int32_t motor3_thrust = 0;
 int32_t motor4_thrust = 0;
 float thrust_cmd, yaw_cmd, pitch_cmd, roll_cmd, initial_yaw;
 float thrust_u, yaw_u, pitch_u, roll_u;
-uint16_t ch[4];
+uint16_t ch[4] = { 625, 0, 625, 625 };
 ////////////////////////////
 
 ////////////PID////////////
@@ -466,18 +466,18 @@ void loop() {
         //////////// READ REMOTE //////////////////
         if(hc_05_readChannels(ch) == HC_05_NOT_OK){
             // TODO: READ HC-12
-            ch[0] = 625;
-            ch[1] = 0;
-            ch[2] = 625;
-            ch[3] = 625;
+            ch[0] = ch[0]*0.999995 + 625*0.000005;  // In case of losting connection
+            ch[1] = ch[1]*0.999995 + 0*0.000005;    // This will increasingly start falling the 
+            ch[2] = ch[2]*0.999995 + 625*0.000005;  // quadcopter ...
+            ch[3] = ch[3]*0.999995 + 625*0.000005;
         }
         ///////////////////////////////////////////
 
         /// CONVERT REMOTE TO DEG's AND ALTITUDE //
-        yaw_cmd    = yaw_cmd    * 0.6 + ((ch[0]-625)/QUADCOPTER_YAW_SCALE_FACTOR)   * 0.4; // -25 ... 0 ... 25 degrees
-        thrust_cmd = thrust_cmd * 0.6 + (ch[1]/QUADCOPTER_ALTITUDE_SCALE_FACTOR)    * 0.4; //   0 ... 5 ... 10 meters
-        pitch_cmd  = pitch_cmd  * 0.6 + ((625-ch[3])/QUADCOPTER_PITCH_SCALE_FACTOR) * 0.4; // -25 ... 0 ... 25 degrees
-        roll_cmd   = roll_cmd   * 0.6 + ((ch[2]-625)/QUADCOPTER_ROLL_SCALE_FACTOR)  * 0.4; // -25 ... 0 ... 25 degrees
+        yaw_cmd    = ((ch[0]-625)/QUADCOPTER_YAW_SCALE_FACTOR)   ; // -25 ... 0 ... 25 degrees
+        thrust_cmd = (ch[1]/QUADCOPTER_ALTITUDE_SCALE_FACTOR)    ; //   0 ... 5 ... 10 meters
+        pitch_cmd  = ((625-ch[3])/QUADCOPTER_PITCH_SCALE_FACTOR) ; // -25 ... 0 ... 25 degrees
+        roll_cmd   = ((ch[2]-625)/QUADCOPTER_ROLL_SCALE_FACTOR)  ; // -25 ... 0 ... 25 degrees
         ///////////////////////////////////////////
 
         /////////// PID CALCULATIONS ///////////////
@@ -490,7 +490,7 @@ void loop() {
         // calculate and saturate integral
         thrust_integral += thrust_error;
         if(thrust_integral > PID_ALTITUDE_MAX_INTEGRAL) thrust_integral = PID_ALTITUDE_MAX_INTEGRAL;
-        if(thrust_integral < - PID_ALTITUDE_MAX_INTEGRAL) thrust_integral = -PID_ALTITUDE_MAX_INTEGRAL;
+        if(thrust_integral < -PID_ALTITUDE_MAX_INTEGRAL) thrust_integral = -PID_ALTITUDE_MAX_INTEGRAL;
 
         pitch_integral += pitch_error;
         if(pitch_integral > PID_PITCH_MAX_INTEGRAL) pitch_integral = PID_PITCH_MAX_INTEGRAL;
@@ -498,11 +498,11 @@ void loop() {
 
         roll_integral += roll_error;
         if(roll_integral > PID_ROLL_MAX_INTEGRAL) roll_integral = PID_ROLL_MAX_INTEGRAL;
-        if(roll_integral < - PID_ROLL_MAX_INTEGRAL) roll_integral = -PID_ROLL_MAX_INTEGRAL;
+        if(roll_integral < -PID_ROLL_MAX_INTEGRAL) roll_integral = -PID_ROLL_MAX_INTEGRAL;
 
         yaw_integral += yaw_error;
         if(yaw_integral > PID_YAW_MAX_INTEGRAL) yaw_integral = PID_YAW_MAX_INTEGRAL;
-        if(yaw_integral < - PID_YAW_MAX_INTEGRAL) yaw_integral = -PID_YAW_MAX_INTEGRAL;
+        if(yaw_integral < -PID_YAW_MAX_INTEGRAL) yaw_integral = -PID_YAW_MAX_INTEGRAL;
 
         // calculate control signal
         thrust_u = PID_ALTITUDE_KP * thrust_error + PID_ALTITUDE_KI * thrust_integral + PID_ALTITUDE_KD * (thrust_error - thrust_last_error);
@@ -687,7 +687,7 @@ void loop() {
         case 400:
             // takes 36 us
             float_conv_ptr = (yaw_cmd > 0) ? myFTOA(yaw_cmd, 2 , 10) : myFTOA(yaw_cmd*-1, 2 , 10);
-            (yaw_cmd > 0) ? strncat(uart0_tx_buffer," Yaw_cmd : ",11) : strncat(uart0_tx_buffer," yaw_cmd : -",12);
+            (yaw_cmd > 0) ? strncat(uart0_tx_buffer," Yaw_cmd : ",11) : strncat(uart0_tx_buffer," Yaw_cmd : -",12);
             strncat(uart0_tx_buffer,float_conv_ptr,strlen(float_conv_ptr));
             retval = esp_01_tcp_send(uart0_tx_buffer);
             esp_01_tcp_send((char*)"\n");

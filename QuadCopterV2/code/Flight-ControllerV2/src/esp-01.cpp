@@ -165,14 +165,15 @@ void esp_01_rx_isr(){
             }
             // normal operation
             else if(_esp_01_status == ESP_01_STATUS_NORMAL_MODE){
-                Serial.write(_esp_01_ch);
+                //Serial.write(_esp_01_ch);
+                Serial.print(" "); Serial.print((uint8_t)_esp_01_ch); Serial.print(" ");
             }
             break;
         
         default:
             // normal operation
             if(_esp_01_status == ESP_01_STATUS_NORMAL_MODE){
-                Serial.write(_esp_01_ch);
+                Serial.print(" "); Serial.print((uint8_t)_esp_01_ch); Serial.print(" ");
             }
             // answer to commands
             else if(_esp_01_status == ESP_01_STATUS_ANSW_CMD){

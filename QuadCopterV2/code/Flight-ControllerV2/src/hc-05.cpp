@@ -10,7 +10,7 @@ static char _hc_05_byte = ' ';
 static volatile uint8_t _hc_05_status = HC_05_MODULE_DISCONNECTED;
 static uint8_t _hc_05_channel = 0;
 static bool _hc_05_channel_isFirstByte = true;
-static volatile uint16_t _hc_05_ch[4];
+static volatile uint16_t _hc_05_ch[4] = {625, 0, 625, 625};
 
 uint8_t hc_05_init(){
     // config status and enable pin
@@ -272,14 +272,28 @@ String hc_05_getPass(){
     return response;
 }
 
-uint8_t hc_05_readChannels(uint16_t * ch){
-    // TODO: put timeout to be safe
+uint8_t hc_05_readChannels(uint16_t * ch) {
+    static unsigned long start_timestamp = 0;
+
     if(_hc_05_status == HC_05_MODULE_DISCONNECTED) return HC_05_NOT_OK;
-    while (_hc_05_status==HC_05_MODULE_READING);
+    
+    if (_hc_05_status == HC_05_MODULE_READING) {
+        start_timestamp = micros();
+        do {
+            // check if we lost the connection
+            if ( _hc_05_status == HC_05_MODULE_DISCONNECTED ) return HC_05_NOT_OK;
+            // check if we got a timeout
+            else if ( (micros() - start_timestamp) >= HC_05_WAITING_REMOTE_TIMEOUT ) return HC_05_NOT_OK;
+        } while ( _hc_05_status == HC_05_MODULE_READING );
+    }
+        
+    // get the most recent reading
     ch[0] = _hc_05_ch[0];
     ch[1] = _hc_05_ch[1];
     ch[2] = _hc_05_ch[2];
     ch[3] = _hc_05_ch[3];
+
+    return HC_05_OK;
 }
 
 void hc_05_status_isr(){
