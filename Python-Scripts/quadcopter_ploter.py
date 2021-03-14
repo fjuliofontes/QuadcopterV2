@@ -57,7 +57,7 @@ app.layout = html.Div(
         dcc.Graph(id='live-update-graph'),
         dcc.Interval(
             id='interval-component',
-            interval= 10000, # in milliseconds
+            interval = 500, # in milliseconds
             n_intervals=0
         )
     ])
@@ -67,7 +67,7 @@ app.layout = html.Div(
 @app.callback(Output('interval-component', 'interval'),
               Input('interval-component', 'n_intervals'))
 def update_interval(n):
-    return 10000
+    return 500
 
 # @app.callback(Output('live-update-text', 'children'),
 #               Input('interval-component', 'n_intervals'))
@@ -108,7 +108,7 @@ def update_graph_live(n):
     # Collect some data [from last hour until now]
     # timestamp,quad_roll,quad_pitch,quad_yaw,quad_altitude,quad_temperature,u_roll,u_pitch,u_yaw,u_altitude,cmd_roll,cmd_pitch,cmd_yaw,cmd_altitude,heading,lat,lon
     # 1615072045,25.2,25.5,180.23,300,24.4,-25,-25,0,300,0,0,0,0,180,41.026,-8.453111
-    rows = get_data_from_interval(datetime.datetime.now()-datetime.timedelta(seconds=1000*60),datetime.datetime.now())
+    rows = get_data_from_interval(datetime.datetime.now()-datetime.timedelta(seconds=60),datetime.datetime.now())
     #rows = get_data_from_interval(datetime.datetime.fromtimestamp(1611599124),datetime.datetime.fromtimestamp(1611600255))
 
     for row in rows:

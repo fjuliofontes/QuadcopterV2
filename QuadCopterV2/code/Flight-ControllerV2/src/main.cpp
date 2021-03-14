@@ -37,36 +37,36 @@
 #define QUADCOPTER_MAX_ALTITUDE_ALLOWED 1000 // cm
 #define QUADCOPTER_ALTITUDE_SCALE_FACTOR (1250.f/QUADCOPTER_MAX_ALTITUDE_ALLOWED)
 #define PID_ALTITUDE_MAX_INTEGRAL 50
-#define PID_ALTITUDE_KP 0.6
-#define PID_ALTITUDE_KI 0.05f
-#define PID_ALTITUDE_KD 0.005f
+#define PID_ALTITUDE_KP 0.8
+#define PID_ALTITUDE_KI 0
+#define PID_ALTITUDE_KD 0
 //<<< ALTITUDE EOF
 
 //>>> ROLL
 #define QUADCOPTER_MAX_ROLL_ALLOWED 25  // degrees
 #define QUADCOPTER_ROLL_SCALE_FACTOR (625.f/QUADCOPTER_MAX_ROLL_ALLOWED)
 #define PID_ROLL_MAX_INTEGRAL 50
-#define PID_ROLL_KP 15
-#define PID_ROLL_KI 0.03f
-#define PID_ROLL_KD 0.009f
+#define PID_ROLL_KP 1.25f//15
+#define PID_ROLL_KI 0.06//0.03f
+#define PID_ROLL_KD 20//0.009f
 //<< ROLL EOF
 
 //>>> PITCH
 #define QUADCOPTER_MAX_PITCH_ALLOWED 25  // degrees
 #define QUADCOPTER_PITCH_SCALE_FACTOR (625.f/QUADCOPTER_MAX_PITCH_ALLOWED)
 #define PID_PITCH_MAX_INTEGRAL 50
-#define PID_PITCH_KP 15
-#define PID_PITCH_KI 0.03f
-#define PID_PITCH_KD 0.009f
+#define PID_PITCH_KP 1.25f//15
+#define PID_PITCH_KI 0.06//0.03f
+#define PID_PITCH_KD 20//0.009f
 //<< PITCH EOF
 
 //>>> YAW
 #define QUADCOPTER_MAX_YAW_ALLOWED 60  // degrees
 #define QUADCOPTER_YAW_SCALE_FACTOR (625.f/QUADCOPTER_MAX_YAW_ALLOWED)
 #define PID_YAW_MAX_INTEGRAL 25
-#define PID_YAW_KP 0
+#define PID_YAW_KP 1
 #define PID_YAW_KI 0
-#define PID_YAW_KD 0
+#define PID_YAW_KD 5
 //<< YAW EOF
 ////////////////////////////////////////////////////////
 
@@ -363,8 +363,8 @@ void setup() {
 }
 
 void loop() {
-    // elapsed time = 966us - should repeat at every 4 ms
-    if((micros() - last_loop) >= MPU6050_READ_PERI){
+    // elapsed time = 999us - should repeat at every 4 ms
+    if((micros() - last_loop) >= MPU6050_READ_PERI) {
         // update last_loop time value
         last_loop = micros();
 
@@ -457,7 +457,7 @@ void loop() {
         quad_yaw = yaw;
         /////////////////////////////////////////////
 
-        ///////////  READ ALTITUDE (126us) //////////////////
+        ///////////  READ ALTITUDE ( < 250 us ) //////////////////
         temperature = baro.getTemperature();
         altitude    = (baro.getAltitude() - baro_correction_coeff) * 100; // in cm
         if(altitude < 0) altitude = 0;
@@ -518,10 +518,10 @@ void loop() {
         ///////////////////////////////////////////
 
         /////////// CALCULATE MOTOR THRUST ////////
-        motor1_thrust = thrust_u - yaw_u - pitch_u - roll_u;
-        motor2_thrust = thrust_u + yaw_u - pitch_u + roll_u;
-        motor3_thrust = thrust_u + yaw_u + pitch_u - roll_u;
-        motor4_thrust = thrust_u - yaw_u + pitch_u + roll_u;
+        motor1_thrust = thrust_u + yaw_u - pitch_u - roll_u;
+        motor2_thrust = thrust_u - yaw_u - pitch_u + roll_u;
+        motor3_thrust = thrust_u - yaw_u + pitch_u - roll_u;
+        motor4_thrust = thrust_u + yaw_u + pitch_u + roll_u;
         ///////////////////////////////////////////
 
         //////////// SET THRUST //////////////////
@@ -538,13 +538,15 @@ void loop() {
         }
     }
     
-    // have spare time ? play a little bit with it  - max reported - 1627us but play safe
-    else if((micros() - last_loop <= MPU6050_READ_PERI-2000) && isNewInc){
+    // have spare time ? play a little bit with it  - max reported - 877us but play safe
+    if ( (int) ( MPU6050_READ_PERI - (micros()-last_loop) ) < 1052) return;
+
+    if (isNewInc) {
         // toggle isNewInc - is new increment ? 
         isNewInc = 0;
 
         // at 1 and 1 second - elapsed time = 1200 us aprox 1.2ms 
-        switch (count){
+        switch (count) {
         case 250:
             // takes 36 us
             float_conv_ptr = (quad_pitch > 0) ? myFTOA(quad_pitch, 2 , 10) : myFTOA(quad_pitch*-1, 2 , 10);
@@ -752,13 +754,13 @@ void loop() {
     }
     
     // no time to print, but still needs to check if it is to start a newer calibration procedure
-    else if( isMagCal ){
+    if( isMagCal ){
         mag.calibrate(30);
         isMagCal = false; // set to false
     }
 
     // no time to print, but still needs to check if it is to start a newer calibration procedure
-    else if( isMpuCal ){
+    if( isMpuCal ){
         accelgyro.calibrate();
         isMpuCal = false; // set to false
     }
