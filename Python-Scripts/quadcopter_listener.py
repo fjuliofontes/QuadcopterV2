@@ -61,8 +61,7 @@ while 1:
        u_roll != [] and u_pitch != [] and u_yaw != [] and u_altitude != [] and
        cmd_roll != [] and cmd_pitch != [] and cmd_yaw != [] and cmd_altitude != []):
 
-        if(lat != [] and lon != []): print(lat,lon)
-        else :
+        if(lat == [] or lon == []):
             # force lat and lon
             lat,lon = [],[]
             lat.append(41.026)

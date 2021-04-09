@@ -1,15 +1,110 @@
-import datetime
-import csv
-
-import dash
+import dash, datetime, csv, plotly, threading, socket, re
 import dash_core_components as dcc
 import dash_html_components as html
-import plotly
 import plotly.graph_objects as go
 from dash.dependencies import Input, Output
 
 data_file = 'quadcopter_raw.csv'
 mapbox_access_token = 'pk.eyJ1IjoiZmp1bGlvZm9udGVzIiwiYSI6ImNrbHlhem1yZjNodmcycW4xM2Ntb2JrYzAifQ.lFyfVOYUxrRhl1U1i8jg0A'
+
+PID_TYPES = ["alt_p","r_and_p_p","yaw_p",
+            "alt_i","r_and_p_i","yaw_i",
+            "alt_d","r_and_p_d","yaw_d"
+            ]
+
+run = True
+data_to_transmit = []
+last_data_transmitted = ''
+
+def communicate_with_quad(ip,port):
+    global data_to_transmit, last_data_transmitted
+
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    print("trying to connect to ",ip,port)
+    s.bind((ip, port))
+    s.listen(1)
+    # couple of vars
+    conn, addr = s.accept()
+    quad_pitch,quad_roll,quad_yaw,quad_altitude = [],[],[],[]
+    quad_temperature,heading,lat,lon = [],[],[],[]
+    u_roll,u_pitch,u_yaw,u_altitude = [],[],[],[]
+    cmd_roll,cmd_pitch,cmd_yaw,cmd_altitude = [],[],[],[]
+    while run:
+        data = conn.recv(1024)
+        received_data_decoded = data.decode("utf-8")
+
+        res = re.findall("Pitch : (-?\d+.\d+)", received_data_decoded)
+        if (res): quad_pitch.append(res[0])
+        res = re.findall("Roll : (-?\d+.\d+)", received_data_decoded)
+        if (res): quad_roll.append(res[0])
+        res = re.findall("Yaw : (-?\d+.\d+)", received_data_decoded)
+        if (res): quad_yaw.append(res[0])
+        res = re.findall("Alt : (-?\d+.\d+)", received_data_decoded)
+        if (res): quad_altitude.append(res[0])
+        res = re.findall("Temp : (-?\d+.\d+)", received_data_decoded)
+        if (res): quad_temperature.append(res[0])
+
+        res = re.findall("Roll_cmd : (-?\d+.\d+)", received_data_decoded)
+        if (res): cmd_roll.append(res[0])
+        res = re.findall("Pitch_cmd : (-?\d+.\d+)", received_data_decoded)
+        if (res): cmd_pitch.append(res[0])
+        res = re.findall("Yaw_cmd : (-?\d+.\d+)", received_data_decoded)
+        if (res): cmd_yaw.append(res[0])
+        res = re.findall("Thrust_cmd : (-?\d+.\d+)", received_data_decoded)
+        if (res): cmd_altitude.append(res[0])
+
+        res = re.findall("Thrust_u : (-?\d+.\d+)", received_data_decoded)
+        if (res): u_altitude.append(res[0])
+        res = re.findall("Pitch_u : (-?\d+.\d+)", received_data_decoded)
+        if (res): u_pitch.append(res[0])
+        res = re.findall("Yaw_u : (-?\d+.\d+)", received_data_decoded)
+        if (res): u_yaw.append(res[0])
+        res = re.findall("Roll_u : (-?\d+.\d+)", received_data_decoded)
+        if (res): u_roll.append(res[0])
+
+        res = re.findall("Heading : (-?\d+.\d+)", received_data_decoded)
+        if (res): heading.append(res[0])
+        res = re.findall("(\d+)\?(\d+)'(\d+)''(N|S)", received_data_decoded)
+        if (res):
+            res = res[0]
+            if(res[3] == 'N'): lat.append(int(res[0]) + int(res[1])/60 + int(res[2])/3600)
+            else: lat.append( -(int(res[0]) + int(res[1])/60 + int(res[2])/3600) )
+        res = re.findall("(\d+)\?(\d+)'(\d+)''(E|W)", received_data_decoded)
+        if (res):
+            res = res[0]
+            if(res[3] == 'E'): lon.append(int(res[0]) + int(res[1])/60 + int(res[2])/3600)
+            else: lon.append( -(int(res[0]) + int(res[1])/60 + int(res[2])/3600) )
+
+        if (quad_pitch != [] and quad_roll != [] and quad_yaw != [] and quad_altitude != [] and
+        quad_temperature != [] and heading != [] and 
+        u_roll != [] and u_pitch != [] and u_yaw != [] and u_altitude != [] and
+        cmd_roll != [] and cmd_pitch != [] and cmd_yaw != [] and cmd_altitude != []):
+
+            if(lat != [] and lon != []): print(lat,lon)
+            else :
+                # force lat and lon
+                lat,lon = [],[]
+                lat.append(41.026)
+                lon.append(-8.453111)
+
+            # save to csv file
+            data = []
+            data.append(str(int(datetime.datetime.now().timestamp())))
+            with open('quadcopter_raw.csv', 'a+', newline='', encoding='utf-8') as csv_file:
+                quad_writer = csv.writer(csv_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+                data = data + quad_roll + quad_pitch + quad_yaw + quad_altitude + quad_temperature + u_roll + u_pitch + u_yaw + u_altitude + cmd_roll + cmd_pitch + cmd_yaw + cmd_altitude + heading + lat + lon
+                quad_writer.writerow(data)
+            
+            # reset variables
+            quad_pitch,quad_roll,quad_yaw,quad_altitude = [],[],[],[]
+            quad_temperature,heading,lat,lon = [],[],[],[]
+            u_roll,u_pitch,u_yaw,u_altitude = [],[],[],[]
+            cmd_roll,cmd_pitch,cmd_yaw,cmd_altitude = [],[],[],[]
+
+        if data_to_transmit != []:
+            last_data_transmitted = data_to_transmit[-1]
+            data_to_transmit = []
+            conn.sendall(last_data_transmitted)
 
 def get_data(timestamp):
     # more or less 3 seconds
@@ -49,37 +144,175 @@ def get_data_from_interval(start_timestamp,stop_timestamp):
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
-app.layout = html.Div(
+app.layout = html.Div([
+    html.Div([
+        html.H4('Quadcopter (Input Interface)'),
+        html.Table([
+            html.Tr([
+                html.Th("Altitude",colSpan=3),
+                html.Th("Pitch & Roll",colSpan=3),
+                html.Th("Yaw",colSpan=3)
+            ]),
+            html.Tr([
+                html.Td("P"),
+                html.Td(
+                    dcc.Input(
+                        id="input_alt_p",
+                        type="range",
+                        placeholder="input type range",
+                        min=0,
+                        max=100,
+                        step=0.5,
+                        value='0'
+                    )
+                ),
+                html.Td("10",id='output_alt_p'),
+                html.Td("P"),
+                html.Td(
+                    dcc.Input(
+                        id="input_r_and_p_p",
+                        type="range",
+                        placeholder="input type range",
+                        min=0,
+                        max=100,
+                        step=0.5,
+                        value='0'
+                    )
+                ),
+                html.Td("10",id='output_r_and_p_p'),
+                html.Td("P"),
+                html.Td(
+                    dcc.Input(
+                        id="input_yaw_p",
+                        type="range",
+                        placeholder="input type range",
+                        min=0,
+                        max=100,
+                        step=0.5,
+                        value='0'
+                    )
+                ),
+                html.Td("10",id='output_yaw_p')
+            ]),
+            html.Tr([
+                html.Td("I"),
+                html.Td(
+                    dcc.Input(
+                        id="input_alt_i",
+                        type="range",
+                        placeholder="input type range",
+                        min=0,
+                        max=100,
+                        step=0.5,
+                        value='0'
+                    )
+                ),
+                html.Td("10",id="output_alt_i"),
+                html.Td("I"),
+                html.Td(
+                    dcc.Input(
+                        id="input_r_and_p_i",
+                        type="range",
+                        placeholder="input type range",
+                        min=0,
+                        max=100,
+                        step=0.5,
+                        value='0'
+                    )
+                ),
+                html.Td("10",id="output_r_and_p_i"),
+                html.Td("I"),
+                html.Td(
+                    dcc.Input(
+                        id="input_yaw_i",
+                        type="range",
+                        placeholder="input type range",
+                        min=0,
+                        max=100,
+                        step=0.5,
+                        value='0'
+                    )
+                ),
+                html.Td("10",id="output_yaw_i")
+            ]),
+            html.Tr([
+                html.Td("D"),
+                html.Td(
+                    dcc.Input(
+                        id="input_alt_d",
+                        type="range",
+                        placeholder="input type range",
+                        min=0,
+                        max=100,
+                        step=0.5,
+                        value='0'
+                    )
+                ),
+                html.Td("10",id="output_alt_d"),
+                html.Td("D"),
+                html.Td(
+                    dcc.Input(
+                        id="input_r_and_p_d",
+                        type="range",
+                        placeholder="input type range",
+                        min=0,
+                        max=100,
+                        step=0.5,
+                        value='0'
+                    )
+                ),
+                html.Td("10",id="output_r_and_p_d"),
+                html.Td("D"),
+                html.Td(
+                    dcc.Input(
+                        id="input_yaw_d",
+                        type="range",
+                        placeholder="input type range",
+                        min=0,
+                        max=100,
+                        step=0.5,
+                        value='0'
+                    )
+                ),
+                html.Td("10",id="output_yaw_d")
+            ]),
+        ], style = {'width':'100%'})
+    ]),
+
     html.Div([
         html.H4('Quadcopter (Graphical Interface)'),
-        #html.Div(id='live-update-text'),
         dcc.Graph(id='gauge-indicators'),
         dcc.Graph(id='live-update-graph'),
         dcc.Interval(
             id='interval-component',
             interval = 500, # in milliseconds
-            n_intervals=0
+            n_intervals = 0
         )
     ])
+])
+
+# # Update Interval as soon we have n samples
+# @app.callback(Output('interval-component', 'interval'),
+#               Input('interval-component','n_intervals'))
+# def update_interval(n):
+#     return 500
+
+@app.callback(
+    [Output("output_{}".format(_), "children") for _ in PID_TYPES],
+    [Input("input_{}".format(_), "value") for _ in PID_TYPES],
 )
-
-# Update Interval as soon we have n samples
-@app.callback(Output('interval-component', 'interval'),
-              Input('interval-component', 'n_intervals'))
-def update_interval(n):
-    return 500
-
-# @app.callback(Output('live-update-text', 'children'),
-#               Input('interval-component', 'n_intervals'))
-# def update_metrics(n):
-#     row = get_data(datetime.datetime.now())
-#     style = {'padding': '5px', 'fontSize': '16px'}
-#     return [
-#         html.Span('Temperature: ' + row["T"], style=style),
-#         html.Span('Humidity: ' + row["H"], style=style),
-#         html.Span('Pressure: ' + row["P"], style=style)
-#     ]
-
+def cb_render(*vals):
+    global data_to_transmit, last_data_transmitted
+    data_format = 'AA{:.2f},{:.2f},{:.2f}BB{:.2f},{:.2f},{:.2f}CC{:.2f},{:.2f},{:.2f}DD'
+    data = data_format.format(float(vals[0]),float(vals[3]),float(vals[6]),float(vals[1]),float(vals[4]),float(vals[7]),float(vals[2]),float(vals[5]),float(vals[8]))
+    res = ()
+    for val in vals:
+        if val:
+            res += ("{:.2f}".format(float(val)),)
+    if last_data_transmitted != data:
+        data_to_transmit.append(data)
+    return res
+    
 
 # Multiple components can update everytime interval gets fired.
 @app.callback(Output('live-update-graph', 'figure'),
@@ -375,4 +608,10 @@ def update_graph_live(n):
     return fig
 
 if __name__ == '__main__':
+    # print('starting thread')
+    # x = threading.Thread(target=communicate_with_quad, args=('192.168.100.1', 9090,))
+    # x.start()
+
+    print('running app')
     app.run_server(debug=True)
+
