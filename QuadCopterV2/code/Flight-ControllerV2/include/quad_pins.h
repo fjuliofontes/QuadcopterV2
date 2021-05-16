@@ -17,10 +17,14 @@
 
 #define BATTERY_INDICATOR PD_3
 
+// TODO: ADD here all the necessary functionalities
+#define REMOTE_QUADCOPTER_NO_FLAGS       0
+#define REMOTE_QUADCOPTER_HOLD_ALTITUDE  (1 << 0)
+#define REMOTE_QUADCOPTER_AUTOMATIC_LAND (1 << 1)
+#define REMOTE_QUADCOPTER_GPS_HOLD       (1 << 2)
+
 void quad_init();
-
 float quad_readBatteryVoltage();
-
 void quad_redOn();
 void quad_greenOn();
 void quad_blueOn();

@@ -1,5 +1,6 @@
 
 #include "hc-05.h"
+#include "quad_pins.h"
 
 static uint32_t _hc_05_baud = 0;
 static String _hc_05_name = "";
@@ -11,6 +12,7 @@ static volatile uint8_t _hc_05_status = HC_05_MODULE_DISCONNECTED;
 static uint8_t _hc_05_channel = 0;
 static bool _hc_05_channel_isFirstByte = true;
 static volatile uint16_t _hc_05_ch[4] = {625, 0, 625, 625};
+static volatile uint8_t _flags = REMOTE_QUADCOPTER_NO_FLAGS;
 
 uint8_t hc_05_init(){
     // config status and enable pin
@@ -272,7 +274,7 @@ String hc_05_getPass(){
     return response;
 }
 
-uint8_t hc_05_readChannels(uint16_t * ch) {
+uint8_t hc_05_readChannels(uint16_t * ch, uint8_t * flags) {
     static unsigned long start_timestamp = 0;
 
     if(_hc_05_status == HC_05_MODULE_DISCONNECTED) return HC_05_NOT_OK;
@@ -292,6 +294,8 @@ uint8_t hc_05_readChannels(uint16_t * ch) {
     ch[1] = _hc_05_ch[1];
     ch[2] = _hc_05_ch[2];
     ch[3] = _hc_05_ch[3];
+
+    *flags = _flags;
 
     return HC_05_OK;
 }

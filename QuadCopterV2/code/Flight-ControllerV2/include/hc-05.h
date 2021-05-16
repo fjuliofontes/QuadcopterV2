@@ -81,6 +81,6 @@ String hc_05_getName();
 String hc_05_getPass();
 void hc_05_status_isr();
 void hc_05_rx_isr();
-uint8_t hc_05_readChannels(uint16_t * ch);
+uint8_t hc_05_readChannels(uint16_t * ch, uint8_t * flags);
 
 #endif

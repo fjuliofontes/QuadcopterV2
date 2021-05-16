@@ -79,6 +79,7 @@ public:
     uint8_t begin();					//Default baud 9600
     uint8_t begin(uint32_t baud);
     uint8_t reset();
+    void shutdown();
 
     bool setSleepMode(bool state);
     bool getSleepMode();

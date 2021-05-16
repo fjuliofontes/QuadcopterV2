@@ -34,7 +34,7 @@
 //<<< PID EOF
 
 //>>> ALTITUDE
-#define QUADCOPTER_MAX_ALTITUDE_ALLOWED 1000 // cm
+#define QUADCOPTER_MAX_ALTITUDE_ALLOWED 1000 // thrust value
 #define QUADCOPTER_ALTITUDE_SCALE_FACTOR (1250.f/QUADCOPTER_MAX_ALTITUDE_ALLOWED)
 #define PID_ALTITUDE_MAX_INTEGRAL 50
 #define PID_ALTITUDE_KP 0.8
@@ -81,7 +81,7 @@ float phi, theta, psi;
 // flight variables
 float pitch = 0, roll = 0, yaw = 0;
 float quad_pitch, quad_roll, quad_yaw;
-bool yawFirstTime = true;
+bool yawFirstTime = true, targetAltitudeFirstTime = true;
 //////////////////////////////////////
 
 ////////////////HMC5883L///////////////
@@ -133,9 +133,10 @@ int32_t motor1_thrust = 0;
 int32_t motor2_thrust = 0;
 int32_t motor3_thrust = 0;
 int32_t motor4_thrust = 0;
-float thrust_cmd, yaw_cmd, pitch_cmd, roll_cmd, initial_yaw;
+float target_altitude, thrust_cmd, yaw_cmd, pitch_cmd, roll_cmd, initial_yaw;
 float thrust_u, yaw_u, pitch_u, roll_u;
 uint16_t ch[4] = { 625, 0, 625, 625 };
+uint8_t flags = REMOTE_QUADCOPTER_NO_FLAGS;
 ////////////////////////////
 
 ////////////PID////////////
@@ -264,14 +265,15 @@ void setup() {
 
     /* --- Init SIM800L --- */
     Serial.println("Initing SIM800L...");
-    if(sim.begin(SIM800L_BAUDRATE) == SIM800L_OK){
-        Serial.println("SIM800L INIT OK ! BAUDRATE = " + String(SIM800L_BAUDRATE));
-        SIM800L_RX_INT(sim800l_rx_isr);
-    }else {
-        Serial.println("SIM800L INIT FAILED!");
-        while(1); // TODO: BLINK
-    }
-    delay(200);
+    sim.shutdown();
+    // if(sim.begin(SIM800L_BAUDRATE) == SIM800L_OK){
+    //     Serial.println("SIM800L INIT OK ! BAUDRATE = " + String(SIM800L_BAUDRATE));
+    //     SIM800L_RX_INT(sim800l_rx_isr);
+    // }else {
+    //     Serial.println("SIM800L INIT FAILED!");
+    //     while(1); // TODO: BLINK
+    // }
+    // delay(200);
 
     /* --- Init ESP-01 --- */
     Serial.println("Initing ESP_01...");
@@ -300,7 +302,7 @@ void setup() {
 
     /* --- MS5611 --- */
     Serial.println("Initing MS5611...");
-    if(baro.init(MS5611_ADDR_CSB_LOW) == MS5611_OK) {
+    if(baro.init(MS5611_ADDR) == MS5611_OK) {
         Serial.println("HMC5883 INIT OK!");
     } else {
         Serial.println("MS5611 INIT FAILED!");
@@ -324,39 +326,8 @@ void setup() {
     }
     delay(200);
 
-    // enables interrupts
+    // enable interrupts
     IntMasterEnable();
-
-    // apply correction to altimeter
-    float sr04_height, sr04_average_height = 0;
-    float baro_average_altitude = 0;
-    int readings_counter = 0;
-    for (;;) {
-        // start sr04 reading
-        hc_sr04_trigger();
-        // get altitude using the altimeter
-        baro.getTemperature();
-        baro_average_altitude = baro_average_altitude*0.1 + baro.getAltitude()*0.9;
-        // wait sr04 result
-        while(hc_sr04_read(&sr04_height) == HC_SR04_WAITING_MEASUREMENT);
-        // valid reading ? 
-        if ( sr04_height != -1 ) {
-            sr04_average_height = sr04_average_height*0.45 + sr04_height*0.55;
-        }
-        // more than 10 seconds ? 
-        if( (readings_counter++ >= 1000) && 
-            (sr04_average_height >= HC_SR04_EXPECTED_HEIGHT*0.8) &&  
-            (sr04_average_height <= HC_SR04_EXPECTED_HEIGHT*1.2 )
-        ){
-            break;
-        }
-        delay(10);
-    }
-    // get the correction coeff
-    baro_correction_coeff = baro_average_altitude - (sr04_average_height/100);
-    Serial.print("SR04 Average Height: ");   Serial.println(sr04_average_height);
-    Serial.print("Baro Average Altitude: "); Serial.println(baro_average_altitude);
-    Serial.print("Baro correction coeff: "); Serial.println(baro_correction_coeff);
 
     // ok :) good to go!
     quad_blueOn();
@@ -458,13 +429,16 @@ void loop() {
         /////////////////////////////////////////////
 
         ///////////  READ ALTITUDE ( < 250 us ) //////////////////
-        temperature = baro.getTemperature();
-        altitude    = (baro.getAltitude() - baro_correction_coeff) * 100; // in cm
-        if(altitude < 0) altitude = 0;
+        altitude = baro.iterateSensorAndGetAltitude() / 100.f; // in meters
+        temperature = baro.getSensorTemperature() / 100.f; 
+        if (targetAltitudeFirstTime) {
+            targetAltitudeFirstTime = false; // not first time anymore
+            target_altitude = altitude; // assign altitude to target_altitude
+        }
         /////////////////////////////////////////////
 
         //////////// READ REMOTE //////////////////
-        if(hc_05_readChannels(ch) == HC_05_NOT_OK){
+        if(hc_05_readChannels(ch,&flags) == HC_05_NOT_OK){
             // TODO: READ HC-12
             ch[0] = ch[0]*0.999995 + 625*0.000005;  // In case of losting connection
             ch[1] = ch[1]*0.999995 + 0*0.000005;    // This will increasingly start falling the 
@@ -475,14 +449,20 @@ void loop() {
 
         /// CONVERT REMOTE TO DEG's AND ALTITUDE //
         yaw_cmd    = ((ch[0]-625)/QUADCOPTER_YAW_SCALE_FACTOR)   ; // -25 ... 0 ... 25 degrees
-        thrust_cmd = (ch[1]/QUADCOPTER_ALTITUDE_SCALE_FACTOR)    ; //   0 ... 5 ... 10 meters
+        thrust_cmd = (ch[1]/QUADCOPTER_ALTITUDE_SCALE_FACTOR)    ; //   0 ... 5 ... 10 thrust
         pitch_cmd  = ((625-ch[3])/QUADCOPTER_PITCH_SCALE_FACTOR) ; // -25 ... 0 ... 25 degrees
         roll_cmd   = ((ch[2]-625)/QUADCOPTER_ROLL_SCALE_FACTOR)  ; // -25 ... 0 ... 25 degrees
         ///////////////////////////////////////////
 
+        /////// IS HOLD ALTITUDE DISABLED ?? ////////
+        if ( !(flags & REMOTE_QUADCOPTER_HOLD_ALTITUDE) ) {
+            target_altitude = altitude;
+        }
+        ////////////////////////////////////////////
+
         /////////// PID CALCULATIONS ///////////////
         // calculate errors
-        thrust_error = (thrust_cmd - altitude);
+        thrust_error = (target_altitude - altitude);
         pitch_error  = (pitch_cmd  - quad_pitch);
         roll_error   = (roll_cmd   - quad_roll);
         yaw_error    = ((initial_yaw - yaw_cmd) - (quad_yaw-180));
@@ -516,6 +496,15 @@ void loop() {
         roll_last_error   = roll_error;
         yaw_last_error    = yaw_error;
         ///////////////////////////////////////////
+
+        /////// IS HOLD ALTITUDE DISABLED ?? ////////
+        if ( !(flags & REMOTE_QUADCOPTER_HOLD_ALTITUDE) ) {
+            thrust_u = thrust_cmd;
+        } else {
+            // slightly compensate for barometer drift
+            target_altitude = target_altitude * 0.999998 + altitude * 0.000002;
+        }
+        ////////////////////////////////////////////
 
         /////////// CALCULATE MOTOR THRUST ////////
         motor1_thrust = thrust_u + yaw_u - pitch_u - roll_u;

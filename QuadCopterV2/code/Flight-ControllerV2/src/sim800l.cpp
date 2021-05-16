@@ -291,6 +291,10 @@ uint8_t sim800l::reset(){
     return ((millis()-curr_time) < SIM800L_TIMEOUT*4) ? SIM800L_OK : SIM800L_NOT_OK;
 }
 
+void sim800l::shutdown(){
+    digitalWrite(SIM800L_RST_PIN,0);
+}
+
 void sim800l::setPhoneFunctionality(){
     /*AT+CFUN=<fun>[,<rst>]
     Parameters

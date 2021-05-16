@@ -1,151 +1,191 @@
-/*
-MS5611-01BA.cpp - Interfaces a Measurement Specialities MS5611
-*/
-
 #include "MS5611.h"
-#define EXTRA_PRECISION 5 // trick to add more precision to the pressure and temp readings
+
 
 MS5611::MS5611() {
   ;
 }
 
 uint8_t MS5611::init(uint8_t address) {  
-    _addr =  address;
-    reset(); // reset the device to populate its internal PROM registers
-    delay(1000); // some safety time 
-    uint8_t retval = readPROM(); // reads the PROM into object variables for later use
-    // populate movavg_buff before start new readings
-    if(retval == MS5611_OK){
-        for(uint8_t i = 0; i < MS5611_MOVAVG_SIZE; i++) {
-            rawTemperature(MS5611_OSR_4096); delay(10); rawTemperature(MS5611_OSR_4096); // read temperature
-            rawPressure(MS5611_OSR_4096); delay(10); rawPressure(MS5611_OSR_4096); // read pressure
-            _movavg_buff[i] = getPressure(); // upd circular buffer
-        }
+    // set ms5611 addr
+    _ms5611_addr = address;
+    // Reset MS5611 for forcing factory calibration parameteres to be 
+    // written to eeprom
+    I2Cdev::writeBytes(_ms5611_addr, MS6511_RESET, 0 , NULL);
+    delay(100); // wait reboot
+
+    // Read factory calibration values
+    // C1 C2 C3 C4 C5 C6
+    Serial.println("Reading factory calibration values ...");
+    uint8_t result[2];
+    for (int i = 1; i <= 6; i ++ ) {
+        // request C[x]
+        if (I2Cdev::readBytes(_ms5611_addr, MS6511_PROM_START_ADDR + i*2 , 2 , result) != 2) return MS5611_NOT_OK;
+        C[i] = (result[0] << 8) | result[1];
+        // debug C[x]
+        Serial.print("C["); Serial.print(i); Serial.print("] : "); Serial.println(C[i]);
     }
-    return retval;
-}
 
-float MS5611::getPressure() {
-    // see datasheet page 7 for formulas
-    int64_t dT   = getDeltaTemp();
-    int64_t off  = (((int64_t)_CREGS[1]) << 16) + ((_CREGS[3] * dT) >> 7);
-    int64_t sens = (((int64_t)_CREGS[0]) << 15) + ((_CREGS[2] * dT) >> 8);
-    return ((((_ms5611_rawPressure * sens) >> 21) - off) >> (15-EXTRA_PRECISION)) / ((1<<EXTRA_PRECISION) * 100.0);
-}
-
-float MS5611::getTemperature() {
-    // see datasheet page 7 for formulas
-    return ((1<<EXTRA_PRECISION)*2000l + ((getDeltaTemp() * _CREGS[5]) >> (23-EXTRA_PRECISION))) / ((1<<EXTRA_PRECISION) * 100.0);
-}
-
-int64_t MS5611::getDeltaTemp() {
-    return _ms5611_rawTemperature - (((int32_t)_CREGS[4]) << 8);
-}
-
-int32_t MS5611::rawPressure(uint8_t OSR) {
-    if(_ms5611_state == MS5611_STATE_IDLE){
-        _ms5611_state = MS5611_STATE_PRESSURE; // change state to busy
-        // see page 11 of the datasheet
-        // initialize pressure conversion
-        I2Cdev::writeBytes(_addr, MS5611_D1+OSR, 0 , NULL);
-        _ms5611_conversion_started = micros();
-    }else if (_ms5611_state == MS5611_STATE_PRESSURE){
-        // the conversion will take a time <= 9.04 ms to have the output ready
-        // TODO: make the delay dependant on the OSR requested in the command
-        if((micros()-_ms5611_conversion_started) >= 9500){
-            _ms5611_state = MS5611_STATE_IDLE; // change state back again to idle
-            
-            // start read sequence
-            uint8_t result[MS5611_D1D2_SIZE];
-            if(I2Cdev::readBytes(_addr, 0 ,(uint8_t) MS5611_D1D2_SIZE , result) == MS5611_D1D2_SIZE){
-                _ms5611_rawPressure = (uint32_t)(result[0] << 16 | result[1] << 8 | result[2]);
-            }
-        }
-    } 
-    return _ms5611_rawPressure;
-}
-
-int32_t MS5611::rawTemperature(uint8_t OSR) {
-    if(_ms5611_state == MS5611_STATE_IDLE){
-        _ms5611_state = MS5611_STATE_TEMPERATURE; // change state to busy
-        // see page 11 of the datasheet
-        // initialize pressure conversion
-        I2Cdev::writeBytes(_addr, MS5611_D2+OSR, 0 , NULL);
-        _ms5611_conversion_started = micros();
-    }else if (_ms5611_state == MS5611_STATE_TEMPERATURE){
-        // the conversion will take a time <= 9.04 ms to have the output ready
-        // TODO: make the delay dependant on the OSR requested in the command
-        if((micros()-_ms5611_conversion_started) >= 9500){
-            _ms5611_state = MS5611_STATE_IDLE; // change state back again to idle
-            
-            // start read sequence
-            uint8_t result[MS5611_D1D2_SIZE];
-            if(I2Cdev::readBytes(_addr, 0 ,(uint8_t) MS5611_D1D2_SIZE , result) == MS5611_D1D2_SIZE){
-                _ms5611_rawTemperature = (uint32_t)(result[0] << 16 | result[1] << 8 | result[2]);
-            }
-        }
-    } 
-    return _ms5611_rawTemperature;
-}
-
-
-/**
- * Reads factory calibration and store it into object variables.
-*/
-uint8_t MS5611::readPROM() {
-    uint8_t result[MS5611_PROM_REG_SIZE];
-    for (uint8_t i=0; i<MS5611_PROM_REG_COUNT; i++) {
-        if(I2Cdev::readBytes(_addr, MS5611_PROM_BASE_ADDR + (i * MS5611_PROM_REG_SIZE) , (uint8_t) MS5611_PROM_REG_SIZE , result) == MS5611_PROM_REG_SIZE){
-            _CREGS[i] = result[0] << 8 | result[1];
-        }else{
-            return MS5611_NOT_OK;
-        }
+    // Fill buffers
+    /// Fill pressures
+    Serial.println("Populating pressure_movavg_buff ...");
+    for (int i = 0; i < MS5611_PRESSURE_MOVAVG_SIZE; i++ ) {
+        startPressureConversion();
+        delay(10);
+        if ( getRawDataFromADC(&raw_pressure) == MS5611_NOT_OK ) Serial.println("Reading pressure too soon!");
+        pushAvg(pressure_movavg_buff,raw_pressure,&pressure_movavg_i,MS5611_PRESSURE_MOVAVG_SIZE);
     }
+    Serial.println("Populating temperature_movavg_buff ...");
+    /// Fill temperatures
+    for (int i = 0; i < MS5611_TEMPERATURE_MOVAVG_SIZE; i++ ) {
+        startTemperatureConversion();
+        delay(10);
+        if ( getRawDataFromADC(&raw_temperature) == MS5611_NOT_OK ) Serial.println("Reading temperature too soon!");
+        pushAvg(temperature_movavg_buff,raw_temperature,&temperature_movavg_i,MS5611_TEMPERATURE_MOVAVG_SIZE);
+    }
+    Serial.println("Populating altitude_movavg_buff ...");
+    /// Get current altitude
+    calculate();
+    for (int i = 0; i < MS5611_ALTITUDE_MOVAVG_SIZE; i++ ) {
+        pushAvg(altitude_movavg_buff,altitude,&altitude_movavg_i,MS5611_ALTITUDE_MOVAVG_SIZE);
+    }
+    Serial.println("Everything was well populated! Init Done!"); 
+    Serial.print("MS5611 Temperature: "); Serial.print(temperature/100.f); Serial.println(" C");
+    Serial.print("MS5611 Pressure: "); Serial.print(pressure/100.f); Serial.println(" hPa");
+    Serial.print("MS5611 Altitude: "); Serial.print(altitude/100.f); Serial.println(" m");
+
     return MS5611_OK;
 }
 
-
-/**
- * Send a reset command to the device. With the reset command the device
- * populates its internal registers with the values read from the PROM.
-*/
-void MS5611::reset() {
-    I2Cdev::writeBytes(_addr, MS5611_RESET, 0 , NULL);
+void MS5611::startPressureConversion() {
+    /// Start pressure conversion
+    I2Cdev::writeBytes(_ms5611_addr, MS6511_PRESSURE, 0 , NULL);
 }
 
-
-float MS5611::getAltitude() {
-    // readings needed for altitude
-    /// rawTemperature()
-    /// rawPressure()
-    if(_ms5611_state == MS5611_STATE_IDLE){
-        if(_flag) rawTemperature(MS5611_OSR_4096);
-        else rawPressure(MS5611_OSR_4096);
-        _flag = !_flag;
-    }else{
-        if(_ms5611_state == MS5611_STATE_TEMPERATURE) rawTemperature(MS5611_OSR_4096);
-        else{
-            rawPressure(MS5611_OSR_4096);
-            if(_ms5611_state == MS5611_STATE_IDLE){
-                pushAvg(getPressure());
-                _ms5611_altitude = ((powf((_sea_press / getAvg(_movavg_buff,MS5611_MOVAVG_SIZE)), 1/5.257f) - 1.0f) * (getTemperature() + 273.15f)) / 0.0065f;
-            }
-        }
-    }
-    
-    return _ms5611_altitude;
-    //return ((pow((_sea_press / press), 1/5.257) - 1.0) * (temp + 273.15)) / 0.0065;
+void MS5611::startTemperatureConversion() {
+    /// Start temperature conversion
+    I2Cdev::writeBytes(_ms5611_addr, MS6511_TEMPERATURE, 0 , NULL);
 }
 
-void MS5611::pushAvg(float val) {
-    _movavg_buff[_movavg_i] = val;
-    _movavg_i = (_movavg_i + 1) % MS5611_MOVAVG_SIZE;
+uint8_t MS5611::getRawDataFromADC(uint32_t * raw_data) {
+    /// Start ADC transaction
+    uint8_t result[3];
+    if ( I2Cdev::readBytes(_ms5611_addr, MS6511_READ_ADC, 3 , result) != 3 ) return MS5611_NOT_OK;
+    *raw_data = (result[0] << 16) | (result[1] << 8) | result[2];
+    /// Check value
+    if (*raw_data == 0) return MS5611_NOT_OK;
+    else return MS5611_OK;
 }
 
-float MS5611::getAvg(float * buff, int size) {
+void MS5611::pushAvg(uint32_t * buffer, uint32_t value, uint16_t * movavg_i, uint16_t MOVAVG_SIZE) {
+    buffer[*movavg_i] = value;
+    *movavg_i = (*movavg_i + 1) % MOVAVG_SIZE;
+}
+
+uint32_t MS5611::getAvg(uint32_t * buffer, int16_t MOVAVG_SIZE) {
     float sum = 0.0;
-    for(int i=0; i<size; i++) {
-        sum += buff[i];
+    for(int i=0; i<MOVAVG_SIZE; i++) {
+        sum += buffer[i];
     }
-    return sum / size;
+    return (uint32_t) (sum / MOVAVG_SIZE);
+}
+
+void MS5611::calculate() {
+    //// get average temperature & pressure
+    raw_temperature = getAvg(temperature_movavg_buff,MS5611_TEMPERATURE_MOVAVG_SIZE);
+    raw_pressure = getAvg(pressure_movavg_buff,MS5611_PRESSURE_MOVAVG_SIZE);
+    //// corrections
+    dT = raw_temperature - (((int32_t)C[5]) << 8);
+    temperature = 2000 +  ( ( dT * C[6] ) >> 23 ); 
+    OFFSET = (((int64_t)C[2]) << 16) + ((C[4] * dT) >> 7);
+    SENSITIVITY = (((int64_t)C[1]) << 15) + ((C[3] * dT) >> 8);
+    /// extra calibration for lower temps
+    if ( temperature < 2000 ) {
+        temperature2 = ((dT*dT) >> 31);
+        OFFSET2 = 5 * (((temperature-2000)*(temperature-2000)) >> 1) ;
+        SENSITIVITY2 = 5 * (((temperature-2000)*(temperature-2000)) >> 2);
+        if ( temperature < -1500 ) {
+            OFFSET2 = OFFSET2 + 7 * (temperature-1500)*(temperature-1500);
+            SENSITIVITY2 = SENSITIVITY2 + 11 * (((temperature-1500)*(temperature-1500)) >> 1);
+        }
+        // apply correction
+        temperature -= temperature2;
+        OFFSET -= OFFSET2;
+        SENSITIVITY -= SENSITIVITY2;
+    }
+    pressure = (((raw_pressure * SENSITIVITY) >> 21) - OFFSET) >> 15;
+    altitude = (uint32_t) ((float)((powf((SEA_LEVEL_PRESURE/((float)pressure)),0.1902226f) - 1) * (( temperature / 100.f) + 273.15) * 153.8461538462f) * 100.f);
+}
+
+/*
+ * @Name: iterateSensorAndGetAltitude()
+ * @Brief: This function was designed to be called each 4 ms.
+ *         The selected OSR requires at least 9.04ms for completing the reading.
+ *         The maximum allowed periodicity would be aprox. 3 ms
+ * @Input: void
+ * @Output: Current calculated altitude
+ */
+uint32_t MS5611::iterateSensorAndGetAltitude() {
+    uint32_t retval = altitude;
+
+    switch (cnt)
+    {
+        case 0:
+            /// Start temperature conversion
+            startTemperatureConversion();
+            break;
+        case 3:
+            /// Start ADC transaction for temperature
+            // Serial.printf("reading temperature after: %lu \n", last_loop - startCMD);
+            getRawDataFromADC(&raw_temperature);
+            /// Start pressure conversion
+            startPressureConversion();
+            /// Insert to buffer
+            pushAvg(temperature_movavg_buff,raw_temperature,&temperature_movavg_i,MS5611_TEMPERATURE_MOVAVG_SIZE);
+            break;
+        
+        case 6:
+        case 9: 
+        case 12:
+        case 15:
+            /// Start ADC transaction for pessure
+            // Serial.printf("reading pressure after: %lu \n", last_loop - startCMD);
+            getRawDataFromADC(&raw_pressure);
+            if (cnt == 15) {
+                /// Start temperature conversion
+                startTemperatureConversion();
+            } else {
+                /// Start pressure conversion
+                startPressureConversion();
+            }
+            /// Insert to buffer
+            pushAvg(pressure_movavg_buff,raw_pressure,&pressure_movavg_i,MS5611_PRESSURE_MOVAVG_SIZE);
+            /// Calculations
+            calculate();
+            /// Insert to buffer
+            pushAvg(altitude_movavg_buff,altitude,&altitude_movavg_i,MS5611_ALTITUDE_MOVAVG_SIZE);
+            /// Calculate new altitude value
+            retval = getAvg(altitude_movavg_buff,MS5611_ALTITUDE_MOVAVG_SIZE);
+            break;
+
+        default:
+            break;
+    }
+
+    if ( cnt == 15) {
+        cnt = 1;
+    } else {
+        cnt ++;
+    }
+
+    return retval;
+}
+
+/*
+ * @Name: getSensorTemperature()
+ * @Brief: This function was designed to be called after the iterateSensorAndGetAltitude (if desired).
+ * @Input: void
+ * @Output: Current calculated temperature
+ */
+uint32_t MS5611::getSensorTemperature() {
+    return (uint32_t)temperature;
 }
