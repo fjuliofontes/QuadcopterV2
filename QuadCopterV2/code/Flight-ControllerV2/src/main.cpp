@@ -37,36 +37,36 @@
 #define QUADCOPTER_MAX_ALTITUDE_ALLOWED 1000 // thrust value
 #define QUADCOPTER_ALTITUDE_SCALE_FACTOR (1250.f/QUADCOPTER_MAX_ALTITUDE_ALLOWED)
 #define PID_ALTITUDE_MAX_INTEGRAL 50
-#define PID_ALTITUDE_KP 0.8
-#define PID_ALTITUDE_KI 0
-#define PID_ALTITUDE_KD 0
+float PID_ALTITUDE_KP = 0.8f;
+float PID_ALTITUDE_KI = 0;
+float PID_ALTITUDE_KD = 0;
 //<<< ALTITUDE EOF
 
 //>>> ROLL
 #define QUADCOPTER_MAX_ROLL_ALLOWED 25  // degrees
 #define QUADCOPTER_ROLL_SCALE_FACTOR (625.f/QUADCOPTER_MAX_ROLL_ALLOWED)
-#define PID_ROLL_MAX_INTEGRAL 50
-#define PID_ROLL_KP 1.25f//15
-#define PID_ROLL_KI 0.06//0.03f
-#define PID_ROLL_KD 20//0.009f
+#define PID_ROLL_MAX_INTEGRAL 25
+float PID_ROLL_KP = 4.8f;
+float PID_ROLL_KI = 0.03f;
+float PID_ROLL_KD = 0.7;
 //<< ROLL EOF
 
 //>>> PITCH
 #define QUADCOPTER_MAX_PITCH_ALLOWED 25  // degrees
 #define QUADCOPTER_PITCH_SCALE_FACTOR (625.f/QUADCOPTER_MAX_PITCH_ALLOWED)
-#define PID_PITCH_MAX_INTEGRAL 50
-#define PID_PITCH_KP 1.25f//15
-#define PID_PITCH_KI 0.06//0.03f
-#define PID_PITCH_KD 20//0.009f
+#define PID_PITCH_MAX_INTEGRAL PID_ROLL_MAX_INTEGRAL
+float PID_PITCH_KP  = PID_ROLL_KP;
+float PID_PITCH_KI  = PID_ROLL_KI;
+float PID_PITCH_KD  = PID_ROLL_KD;
 //<< PITCH EOF
 
 //>>> YAW
 #define QUADCOPTER_MAX_YAW_ALLOWED 60  // degrees
 #define QUADCOPTER_YAW_SCALE_FACTOR (625.f/QUADCOPTER_MAX_YAW_ALLOWED)
 #define PID_YAW_MAX_INTEGRAL 25
-#define PID_YAW_KP 1
-#define PID_YAW_KI 0
-#define PID_YAW_KD 5
+float PID_YAW_KP = 0; // bug detected 
+float PID_YAW_KI = 0;
+float PID_YAW_KD = 0;
 //<< YAW EOF
 ////////////////////////////////////////////////////////
 
@@ -146,6 +146,7 @@ float pitch_last_error = 0, pitch_error = 0;
 float roll_last_error = 0, roll_error = 0;
 float yaw_integral, roll_integral;
 float thrust_integral, pitch_integral;
+quad_pid_config * pid_config;
 ///////////////////////////
 
 void setup() {
@@ -280,7 +281,11 @@ void setup() {
     if(esp_01_init() == ESP_01_OK){
         Serial.println("ESP_01 INIT OK ! BAUDRATE = " + String(ESP_01_BAUDRATE));
         /// open tcp connection
-        esp_01_tcp_connect((char*)"192.168.100.1",(char*)"9090");
+        if ( esp_01_tcp_connect((char*)"192.168.100.1",(char*)"9090") == ESP_01_OK ) {
+            Serial.println("Listening for connections on port 9090!");
+        } else {
+            Serial.println("Error while setting TCP port!!!");
+        }
         /// set interrupt callback
         ESP_01_RX_INT(esp_01_rx_isr);
     } else {
@@ -529,6 +534,22 @@ void loop() {
     
     // have spare time ? play a little bit with it  - max reported - 877us but play safe
     if ( (int) ( MPU6050_READ_PERI - (micros()-last_loop) ) < 1052) return;
+
+    // check if we have new PID params
+    if (esp_01_get_pid_params(&pid_config) == ESP_01_OK ) {
+        PID_ALTITUDE_KP = pid_config->altitude.p;
+        PID_ALTITUDE_KP = pid_config->altitude.i;
+        PID_ALTITUDE_KD = pid_config->altitude.d;
+        PID_PITCH_KP  = PID_ROLL_KP = pid_config->pitch_and_roll.p;
+        PID_PITCH_KI  = PID_ROLL_KI = pid_config->pitch_and_roll.i;
+        PID_PITCH_KD  = PID_ROLL_KD = pid_config->pitch_and_roll.d;
+        PID_YAW_KP = pid_config->yaw.p;
+        PID_YAW_KI = pid_config->yaw.i;
+        PID_YAW_KD = pid_config->yaw.d;
+        Serial.print(PID_ALTITUDE_KP); Serial.print(PID_ALTITUDE_KP); Serial.println(PID_ALTITUDE_KD);
+        Serial.print(PID_PITCH_KP); Serial.print(PID_PITCH_KI); Serial.println(PID_PITCH_KD);
+        Serial.print(PID_YAW_KP); Serial.print(PID_YAW_KI); Serial.println(PID_YAW_KD);
+    }
 
     if (isNewInc) {
         // toggle isNewInc - is new increment ? 

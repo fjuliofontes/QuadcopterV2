@@ -1,8 +1,11 @@
 import dash, datetime, csv, plotly, threading, socket, re
+import plotly.subplots
+import numpy
 import dash_core_components as dcc
 import dash_html_components as html
 import plotly.graph_objects as go
 from dash.dependencies import Input, Output
+import os, queue
 
 data_file = 'quadcopter_raw.csv'
 mapbox_access_token = 'pk.eyJ1IjoiZmp1bGlvZm9udGVzIiwiYSI6ImNrbHlhem1yZjNodmcycW4xM2Ntb2JrYzAifQ.lFyfVOYUxrRhl1U1i8jg0A'
@@ -13,13 +16,14 @@ PID_TYPES = ["alt_p","r_and_p_p","yaw_p",
             ]
 
 run = True
-data_to_transmit = []
 last_data_transmitted = ''
+q = queue.Queue()
 
 def communicate_with_quad(ip,port):
-    global data_to_transmit, last_data_transmitted
-
+    global last_data_transmitted
+    
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     print("trying to connect to ",ip,port)
     s.bind((ip, port))
     s.listen(1)
@@ -29,9 +33,22 @@ def communicate_with_quad(ip,port):
     quad_temperature,heading,lat,lon = [],[],[],[]
     u_roll,u_pitch,u_yaw,u_altitude = [],[],[],[]
     cmd_roll,cmd_pitch,cmd_yaw,cmd_altitude = [],[],[],[]
+    
     while run:
+        # send vars
+        if not q.empty():
+            while not q.empty():
+                last_data_transmitted = q.get()
+            # send only the last value
+            conn.sendall(last_data_transmitted.encode('utf-8'))
+            print("Sent:",last_data_transmitted.encode('utf-8'))
+
+        # wait new reading
         data = conn.recv(1024)
-        received_data_decoded = data.decode("utf-8")
+        try:
+            received_data_decoded = data.decode("utf-8")
+        except:
+            continue
 
         res = re.findall("Pitch : (-?\d+.\d+)", received_data_decoded)
         if (res): quad_pitch.append(res[0])
@@ -90,7 +107,7 @@ def communicate_with_quad(ip,port):
             # save to csv file
             data = []
             data.append(str(int(datetime.datetime.now().timestamp())))
-            with open('quadcopter_raw.csv', 'a+', newline='', encoding='utf-8') as csv_file:
+            with open(data_file, 'a+', newline='', encoding='utf-8') as csv_file:
                 quad_writer = csv.writer(csv_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
                 data = data + quad_roll + quad_pitch + quad_yaw + quad_altitude + quad_temperature + u_roll + u_pitch + u_yaw + u_altitude + cmd_roll + cmd_pitch + cmd_yaw + cmd_altitude + heading + lat + lon
                 quad_writer.writerow(data)
@@ -100,11 +117,6 @@ def communicate_with_quad(ip,port):
             quad_temperature,heading,lat,lon = [],[],[],[]
             u_roll,u_pitch,u_yaw,u_altitude = [],[],[],[]
             cmd_roll,cmd_pitch,cmd_yaw,cmd_altitude = [],[],[],[]
-
-        if data_to_transmit != []:
-            last_data_transmitted = data_to_transmit[-1]
-            data_to_transmit = []
-            conn.sendall(last_data_transmitted)
 
 def get_data(timestamp):
     # more or less 3 seconds
@@ -161,7 +173,7 @@ app.layout = html.Div([
                         type="range",
                         placeholder="input type range",
                         min=0,
-                        max=100,
+                        max=20,
                         step=0.5,
                         value='0'
                     )
@@ -174,7 +186,7 @@ app.layout = html.Div([
                         type="range",
                         placeholder="input type range",
                         min=0,
-                        max=100,
+                        max=20,
                         step=0.5,
                         value='0'
                     )
@@ -187,7 +199,7 @@ app.layout = html.Div([
                         type="range",
                         placeholder="input type range",
                         min=0,
-                        max=100,
+                        max=20,
                         step=0.5,
                         value='0'
                     )
@@ -202,7 +214,7 @@ app.layout = html.Div([
                         type="range",
                         placeholder="input type range",
                         min=0,
-                        max=100,
+                        max=20,
                         step=0.5,
                         value='0'
                     )
@@ -215,7 +227,7 @@ app.layout = html.Div([
                         type="range",
                         placeholder="input type range",
                         min=0,
-                        max=100,
+                        max=20,
                         step=0.5,
                         value='0'
                     )
@@ -228,7 +240,7 @@ app.layout = html.Div([
                         type="range",
                         placeholder="input type range",
                         min=0,
-                        max=100,
+                        max=20,
                         step=0.5,
                         value='0'
                     )
@@ -243,7 +255,7 @@ app.layout = html.Div([
                         type="range",
                         placeholder="input type range",
                         min=0,
-                        max=100,
+                        max=20,
                         step=0.5,
                         value='0'
                     )
@@ -256,7 +268,7 @@ app.layout = html.Div([
                         type="range",
                         placeholder="input type range",
                         min=0,
-                        max=100,
+                        max=20,
                         step=0.5,
                         value='0'
                     )
@@ -269,7 +281,7 @@ app.layout = html.Div([
                         type="range",
                         placeholder="input type range",
                         min=0,
-                        max=100,
+                        max=20,
                         step=0.5,
                         value='0'
                     )
@@ -302,15 +314,15 @@ app.layout = html.Div([
     [Input("input_{}".format(_), "value") for _ in PID_TYPES],
 )
 def cb_render(*vals):
-    global data_to_transmit, last_data_transmitted
-    data_format = 'AA{:.2f},{:.2f},{:.2f}BB{:.2f},{:.2f},{:.2f}CC{:.2f},{:.2f},{:.2f}DD'
+    global last_data_transmitted
+    data_format = 'AA{:05.2f},{:05.2f},{:05.2f}BB{:05.2f},{:05.2f},{:05.2f}CC{:05.2f},{:05.2f},{:05.2f}DD\r'
     data = data_format.format(float(vals[0]),float(vals[3]),float(vals[6]),float(vals[1]),float(vals[4]),float(vals[7]),float(vals[2]),float(vals[5]),float(vals[8]))
     res = ()
     for val in vals:
         if val:
             res += ("{:.2f}".format(float(val)),)
     if last_data_transmitted != data:
-        data_to_transmit.append(data)
+        q.put(data)
     return res
     
 
@@ -608,10 +620,11 @@ def update_graph_live(n):
     return fig
 
 if __name__ == '__main__':
-    # print('starting thread')
-    # x = threading.Thread(target=communicate_with_quad, args=('192.168.100.1', 9090,))
-    # x.start()
+    print('starting thread')
+    x = threading.Thread(target=communicate_with_quad, args=('0.0.0.0', 9090,))
+    x.setDaemon(True)
+    x.start()
 
     print('running app')
-    app.run_server(debug=True)
+    app.run_server(host='0.0.0.0', port=4444)
 

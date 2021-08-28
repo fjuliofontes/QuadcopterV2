@@ -36,7 +36,8 @@
 #define ESP_01_WRITEBYTE(x) ROM_UARTCharPut(ESP_01_UART_BASE, x)
 #define ESP_01_RX_INT(x)   UARTIntDisable(ESP_01_UART_BASE, UART_INT_RX); \
                             UARTIntRegister(ESP_01_UART_BASE, x); \
-                                ROM_UARTIntEnable(ESP_01_UART_BASE,UART_INT_RX)
+                                UARTFIFODisable(ESP_01_UART_BASE); \
+                                    ROM_UARTIntEnable(ESP_01_UART_BASE,UART_INT_RX)
 
 // ROM_UARTFIFOLevelSet(ESP_01_UART_BASE, UART_FIFO_TX1_8, UART_FIFO_RX1_8);
 
@@ -52,6 +53,19 @@
 #define ESP_01_CLEAN_RX_INT UARTIntClear(ESP_01_UART_BASE, UART_INT_RX)
 #define ESP_01_CLEAN_TX_INT UARTIntClear(ESP_01_UART_BASE, UART_INT_TX)
 
+
+typedef struct {
+    float p;
+    float i;
+    float d;
+} pid_params;
+
+typedef struct {
+    pid_params altitude;
+    pid_params pitch_and_roll;
+    pid_params yaw;
+} quad_pid_config;
+
 uint8_t esp_01_init();
 uint8_t esp_01_available();
 void esp_01_writeByte(uint8_t ch);
@@ -62,5 +76,6 @@ uint8_t esp_01_tcp_connect(char *ip, char *port);
 uint8_t esp_01_tcp_send(char * msg);
 void esp_01_tcp_disconnect();
 void esp_01_rx_isr();
+uint8_t esp_01_get_pid_params (quad_pid_config ** pid_config); 
 
 #endif
