@@ -16,12 +16,10 @@ PID_TYPES = ["alt_p","r_and_p_p","yaw_p",
             ]
 
 run = True
-last_data_transmitted = ''
+last_pid_configs = ''
 q = queue.Queue()
 
 def communicate_with_quad(ip,port):
-    global last_data_transmitted
-    
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     print("trying to connect to ",ip,port)
@@ -38,10 +36,10 @@ def communicate_with_quad(ip,port):
         # send vars
         if not q.empty():
             while not q.empty():
-                last_data_transmitted = q.get()
-            # send only the last value
-            conn.sendall(last_data_transmitted.encode('utf-8'))
-            print("Sent:",last_data_transmitted.encode('utf-8'))
+                # get the latest
+                pid_configs = q.get()
+            # send
+            conn.sendall(pid_configs.encode('utf-8'))
 
         # wait new reading
         data = conn.recv(1024)
@@ -175,7 +173,7 @@ app.layout = html.Div([
                         min=0,
                         max=20,
                         step=0.5,
-                        value='0'
+                        value='5'
                     )
                 ),
                 html.Td("10",id='output_alt_p'),
@@ -188,7 +186,7 @@ app.layout = html.Div([
                         min=0,
                         max=20,
                         step=0.5,
-                        value='0'
+                        value='5'
                     )
                 ),
                 html.Td("10",id='output_r_and_p_p'),
@@ -201,7 +199,7 @@ app.layout = html.Div([
                         min=0,
                         max=20,
                         step=0.5,
-                        value='0'
+                        value='5'
                     )
                 ),
                 html.Td("10",id='output_yaw_p')
@@ -214,8 +212,8 @@ app.layout = html.Div([
                         type="range",
                         placeholder="input type range",
                         min=0,
-                        max=20,
-                        step=0.5,
+                        max=5,
+                        step=0.05,
                         value='0'
                     )
                 ),
@@ -227,8 +225,8 @@ app.layout = html.Div([
                         type="range",
                         placeholder="input type range",
                         min=0,
-                        max=20,
-                        step=0.5,
+                        max=5,
+                        step=0.05,
                         value='0'
                     )
                 ),
@@ -240,8 +238,8 @@ app.layout = html.Div([
                         type="range",
                         placeholder="input type range",
                         min=0,
-                        max=20,
-                        step=0.5,
+                        max=5,
+                        step=0.05,
                         value='0'
                     )
                 ),
@@ -255,8 +253,8 @@ app.layout = html.Div([
                         type="range",
                         placeholder="input type range",
                         min=0,
-                        max=20,
-                        step=0.5,
+                        max=5,
+                        step=0.05,
                         value='0'
                     )
                 ),
@@ -268,8 +266,8 @@ app.layout = html.Div([
                         type="range",
                         placeholder="input type range",
                         min=0,
-                        max=20,
-                        step=0.5,
+                        max=5,
+                        step=0.05,
                         value='0'
                     )
                 ),
@@ -281,14 +279,17 @@ app.layout = html.Div([
                         type="range",
                         placeholder="input type range",
                         min=0,
-                        max=20,
-                        step=0.5,
+                        max=5,
+                        step=0.05,
                         value='0'
                     )
                 ),
                 html.Td("10",id="output_yaw_d")
             ]),
-        ], style = {'width':'100%'})
+        ], style = {'width':'100%'}),
+        html.Div([
+            html.Button('Submit PID params', id='submit-val', n_clicks=0)
+        ],style={'width':'100%', 'margin':25, 'textAlign': 'center'})
     ]),
 
     html.Div([
@@ -314,17 +315,24 @@ app.layout = html.Div([
     [Input("input_{}".format(_), "value") for _ in PID_TYPES],
 )
 def cb_render(*vals):
-    global last_data_transmitted
+    global last_pid_configs
     data_format = 'AA{:05.2f},{:05.2f},{:05.2f}BB{:05.2f},{:05.2f},{:05.2f}CC{:05.2f},{:05.2f},{:05.2f}DD\r'
     data = data_format.format(float(vals[0]),float(vals[3]),float(vals[6]),float(vals[1]),float(vals[4]),float(vals[7]),float(vals[2]),float(vals[5]),float(vals[8]))
     res = ()
     for val in vals:
         if val:
             res += ("{:.2f}".format(float(val)),)
-    if last_data_transmitted != data:
-        q.put(data)
+    last_pid_configs = data_format
     return res
-    
+
+@app.callback(Output('submit-val', 'n_clicks'),
+    Input('submit-val', 'n_clicks'))
+def update_output(n_clicks):
+    if (n_clicks > 1):
+        global last_pid_configs
+        q.put(last_pid_configs)
+    return n_clicks
+
 
 # Multiple components can update everytime interval gets fired.
 @app.callback(Output('live-update-graph', 'figure'),

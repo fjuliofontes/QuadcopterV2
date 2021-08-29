@@ -546,9 +546,6 @@ void loop() {
         PID_YAW_KP = pid_config->yaw.p;
         PID_YAW_KI = pid_config->yaw.i;
         PID_YAW_KD = pid_config->yaw.d;
-        Serial.print(PID_ALTITUDE_KP); Serial.print(PID_ALTITUDE_KP); Serial.println(PID_ALTITUDE_KD);
-        Serial.print(PID_PITCH_KP); Serial.print(PID_PITCH_KI); Serial.println(PID_PITCH_KD);
-        Serial.print(PID_YAW_KP); Serial.print(PID_YAW_KI); Serial.println(PID_YAW_KD);
     }
 
     if (isNewInc) {
