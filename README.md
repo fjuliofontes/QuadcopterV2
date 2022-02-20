@@ -24,11 +24,11 @@
   
   ##### TODO:
   - [x] Order the necessary hardware.
-  - [ ] Test and develop code for ordered hardware.
+  - [x] Test and develop code for ordered hardware.
   - [x] Design a schematic and a board for the hardware.
-  - [ ] Develop a controller algorithm for the quadcopter.
-  - [ ] Update the android remote controller application.
-  - [ ] Testing all together. 
+  - [x] Develop a controller algorithm for the quadcopter.
+  - [x] Update the android remote controller application.
+  - [x] Testing all together. 
   
   ##### Media:
   <img src="QuadCopterV2_BOARD/frame.jpg" width="200" height="200"> <img src="QuadCopterV2/media/top.png" width="200" height="200"> <img src="QuadCopterV2/media/bot.png" width="200" height="200"> <img src="QuadCopterV2/media/quadcopter.png" width="200" height="200">
